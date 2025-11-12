@@ -474,7 +474,7 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
 }
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+  "peer/menu-button relative flex w-full items-center gap-2 overflow-visible rounded-md p-2 pl-4 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[active=true]:[&>svg]:text-sidebar-accent-foreground data-[active=true]:[&>span]:text-sidebar-accent-foreground data-[active=true]:[&_*svg]:text-sidebar-accent-foreground! data-[active=true]:[&_*span]:text-sidebar-accent-foreground! group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -502,6 +502,7 @@ function SidebarMenuButton({
   size = "default",
   tooltip,
   className,
+  children,
   ...props
 }: React.ComponentProps<"button"> & {
   asChild?: boolean
@@ -511,16 +512,123 @@ function SidebarMenuButton({
   const Comp = asChild ? Slot : "button"
   const { isMobile, state } = useSidebar()
 
-  const button = (
-    <Comp
-      data-slot="sidebar-menu-button"
-      data-sidebar="menu-button"
-      data-size={size}
-      data-active={isActive}
-      className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-      {...props}
-    />
-  )
+  // Helper to recursively traverse React children and apply active color
+  // overrides to elements and wrap plain text nodes in spans so the color
+  // is visible for both icons and labels.
+  const mapChildrenWithActiveColor = (children: React.ReactNode): React.ReactNode => {
+    return React.Children.map(children, (ch) => {
+      if (React.isValidElement(ch)) {
+        // Recursively process the element's children
+        const childProps = (ch.props as any) || {}
+        const processedChildren = mapChildrenWithActiveColor(childProps.children)
+
+        // Prefer using Tailwind important classes to ensure the color wins over
+        // stylesheet rules that may also use `!important` (project uses `!` suffix).
+        const childClassName = (childProps.className || "") as string
+        const classesToAdd = isActive ? "text-[#097FFD]! stroke-[#097FFD]! fill-[#097FFD]!" : ""
+
+        return React.cloneElement(
+          ch as any,
+          { ...childProps, className: cn(childClassName, classesToAdd) } as any,
+          processedChildren
+        )
+      }
+
+        if (typeof ch === "string" || typeof ch === "number") {
+          return (
+            <span className={isActive ? "text-[#097FFD]!" : undefined}>
+              {ch}
+            </span>
+          )
+        }
+
+      return ch
+    })
+  }
+
+  // When used with `asChild`, Radix's `Slot` expects exactly one child element.
+  // If `asChild` is true we must ensure we pass a single element to Slot. To
+  // support injecting the left active indicator, clone the provided child and
+  // insert the indicator into its children. When `asChild` is false we render
+  // a normal button/element and include the indicator directly.
+
+  let button: React.ReactElement
+
+  if (asChild) {
+  // Ensure there is exactly one child element to clone.
+  const singleChild = React.Children.only(children) as React.ReactElement<any, any>
+
+    // Merge classNames: our button classes + child's own className + extra
+    let mergedClassName = cn(
+      sidebarMenuButtonVariants({ variant, size }),
+      // Access child's className if present.
+      ((singleChild.props as any)?.className as string) || "",
+      className
+    )
+
+    // Ensure the explicit active text color is appended last so it overrides
+    // any color utilities applied on the child element.
+    if (isActive) {
+      mergedClassName = cn(mergedClassName, "text-[#097FFD]!")
+    }
+
+    // Recursively process children and apply active colors
+    const enhancedChildChildren = mapChildrenWithActiveColor((singleChild.props as any)?.children)
+
+    // Clone the child and inject the indicator plus enhanced children.
+    button = React.cloneElement(
+      singleChild,
+      {
+        ...(props as any),
+        // Preserve child's props but override/merge className and data attrs.
+        'data-slot': 'sidebar-menu-button',
+        'data-sidebar': 'menu-button',
+        'data-size': size,
+        'data-active': isActive,
+        // Merge and override className to force the active color so icons/text
+        // inherit even if they have their own classes. Use Tailwind important
+        // utilities so these rules take precedence.
+        className: cn(mergedClassName, isActive ? 'stroke-[#097FFD]! fill-[#097FFD]!' : undefined),
+      } as any,
+      <>
+        {isActive && (
+          <span
+            aria-hidden
+            className={cn(
+              // Span the full height of the menu item so it appears as a
+              // vertical line/pill on the left side.
+              "absolute inset-y-0 -left-2 w-2 rounded-r-full bg-sidebar-accent z-10",
+              "group-data-[collapsible=icon]:hidden"
+            )}
+          />
+        )}
+        {enhancedChildChildren}
+      </>
+    )
+  } else {
+    button = (
+      <Comp
+        data-slot="sidebar-menu-button"
+        data-sidebar="menu-button"
+        data-size={size}
+        data-active={isActive}
+        className={cn(sidebarMenuButtonVariants({ variant, size }), className, isActive ? "text-[#097FFD]!" : undefined)}
+        {...props}
+      >
+        {isActive && (
+          <span
+            aria-hidden
+            className={cn(
+              "absolute inset-y-0 -left-2 w-2 rounded-r-full bg-sidebar-accent z-10",
+              "group-data-[collapsible=icon]:hidden"
+            )}
+          />
+        )}
+
+        {mapChildrenWithActiveColor(children)}
+      </Comp>
+    )
+  }
 
   if (!tooltip) {
     return button

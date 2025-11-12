@@ -5,15 +5,12 @@ import {
   Camera,
   LayoutDashboard,
   FileText,
-  HelpCircle,
   Building,
-  Search,
-  Settings,
+
   Users,
 } from "lucide-react"
 
 import { NavMain } from "@/shared/layout/nav-main"
-import { NavSecondary } from "@/shared/layout/nav-secondaty"
 import { NavUser } from "@/shared/layout/nav-user"
 import {
   Sidebar,
