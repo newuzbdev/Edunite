@@ -4,30 +4,36 @@ import Lidlar from '@/pages/lidlar'
 import Oqituvchilar from '@/pages/oqituvchilar'
 import Guruhlar from '@/pages/guruhlar'
 import Talabalar from '@/pages/talabalar'
+import { AppLayout } from '@/shared/layout/app-layout'
 
 export const router = createBrowserRouter([
 	{
-		path: '/',
-		element: <div><Dashboard/></div>
-	},
-	{
-		path: '/lidlar',
-		element: <div><Lidlar/></div>
-	},
-	{
-		path: '/oqituvchilar',
-		element: <div><Oqituvchilar/></div>
-	},
-	{
-		path: '/guruhlar',
-		element: <div><Guruhlar/></div>
-	},
-	{
-		path: '/talabalar',
-		element: <div><Talabalar/></div>
-	},
-	{
-		path: '*',
-		element: <Navigate to='/' />
+		element: <AppLayout />,
+		children: [
+			{
+				path: '/',
+				element: <Dashboard />
+			},
+			{
+				path: '/lidlar',
+				element: <Lidlar />
+			},
+			{
+				path: '/oqituvchilar',
+				element: <Oqituvchilar />
+			},
+			{
+				path: '/guruhlar',
+				element: <Guruhlar />
+			},
+			{
+				path: '/talabalar',
+				element: <Talabalar />
+			},
+			{
+				path: '*',
+				element: <Navigate to='/' />
+			}
+		]
 	}
 ])
