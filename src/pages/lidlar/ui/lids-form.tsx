@@ -8,11 +8,11 @@ import {
 	SelectContent,
 	SelectItem,
 	SelectValue,
-	SelectLabel,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { useLidsStore, COURSE_TYPES_UZ, STATUS_LABELS_UZ } from "../utils/lids-store"
 import { useEffect } from "react"
+import { toast } from "sonner"
 
 export default function LidsForm() {
 	const addLid = useLidsStore(state => state.addLid)
@@ -27,13 +27,18 @@ export default function LidsForm() {
 
 	function handleSubmit(e?: React.FormEvent) {
 		e?.preventDefault()
-		if (!name.trim() || !phoneNumber.trim()) return
+		if (!name.trim() || !phoneNumber.trim()) {
+			toast.error("Iltimos, barcha maydonlarni to'ldiring")
+			return
+		}
 
 		if (data) {
 			// editing existing lid
 			updateLid({ id: data.id, name: name.trim(), phoneNumber: phoneNumber.trim(), courseType, status })
+			toast.success("Lid muvaffaqiyatli yangilandi")
 		} else {
 			addLid({ name: name.trim(), phoneNumber: phoneNumber.trim(), courseType, status })
+			toast.success("Lid muvaffaqiyatli qo'shildi")
 		}
 		// reset
 		setName("")
@@ -72,12 +77,11 @@ export default function LidsForm() {
 
 			<div>
 				<label className="mb-1 block text-sm font-medium">Kurs turi</label>
-				<Select onValueChange={(v: string) => setCourseType(v)}>
-					<SelectTrigger>
-						<SelectValue>{courseType}</SelectValue>
+				<Select value={courseType} onValueChange={(v: string) => setCourseType(v)}>
+					<SelectTrigger className="w-full">
+						<SelectValue placeholder="Kurs tanlang" />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectLabel>Kurs tanlang</SelectLabel>
 						{COURSE_TYPES_UZ.map(ct => (
 							<SelectItem key={ct} value={ct}>
 								{ct}
@@ -89,12 +93,11 @@ export default function LidsForm() {
 
 			<div>
 				<label className="mb-1 block text-sm font-medium">Status</label>
-				<Select onValueChange={(v: string) => setStatus(v as any)}>
-					<SelectTrigger>
-						<SelectValue>{STATUS_LABELS_UZ[status]}</SelectValue>
+				<Select value={status} onValueChange={(v: string) => setStatus(v as any)}>
+					<SelectTrigger className="w-full">
+						<SelectValue placeholder="Status tanlang" />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectLabel>Status tanlang</SelectLabel>
 						<SelectItem value="interested">{STATUS_LABELS_UZ.interested}</SelectItem>
 						<SelectItem value="tested">{STATUS_LABELS_UZ.tested}</SelectItem>
 						<SelectItem value="failed">{STATUS_LABELS_UZ.failed}</SelectItem>
@@ -104,8 +107,8 @@ export default function LidsForm() {
 			</div>
 
 			<div className="flex items-center gap-2 pt-2">
-				<Button type="submit">Qo'shish</Button>
-				<Button variant="outline" type="button" onClick={() => onClose()}>
+				<Button type="submit" className="cursor-pointer">{data ? "Yangilash" : "Qo'shish"}</Button>
+				<Button variant="outline" type="button" onClick={() => onClose()} className="cursor-pointer">
 					Bekor qilish
 				</Button>
 			</div>

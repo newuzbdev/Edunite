@@ -19,6 +19,8 @@ interface LidsStore {
 	onClose: () => void
 	addLid: (lid: Omit<Lid, 'id'>) => void
 	updateLid: (lid: Lid) => void
+	updateStatus: (id: string, status: LidStatus) => void
+	deleteLid: (id: string) => void
 }
 
 export const COURSE_TYPES_UZ = [
@@ -51,6 +53,12 @@ export const useLidsStore = create<LidsStore>((set, get) => ({
 	},
 	updateLid: (lid) => {
 		set({ lids: get().lids.map(l => (l.id === lid.id ? lid : l)), open: false, data: null })
+	},
+	updateStatus: (id, status) => {
+		set({ lids: get().lids.map(l => (l.id === id ? { ...l, status } : l)) })
+	},
+	deleteLid: (id) => {
+		set({ lids: get().lids.filter(l => l.id !== id) })
 	}
 }))
 
