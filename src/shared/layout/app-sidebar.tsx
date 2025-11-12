@@ -12,6 +12,7 @@ import {
 
 import { NavMain } from "@/shared/layout/nav-main"
 import { NavUser } from "@/shared/layout/nav-user"
+import { Separator } from "@/components/ui/separator"
 import {
   Sidebar,
   SidebarContent,
