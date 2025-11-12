@@ -3,20 +3,15 @@
 import * as React from "react"
 import {
   Camera,
-  BarChart3,
   LayoutDashboard,
-  Database,
   FileText,
-  Folder,
   HelpCircle,
   Building,
-  List,
   Search,
   Settings,
   Users,
 } from "lucide-react"
 
-import { NavDocuments } from "@/shared/layout/nav-main"
 import { NavMain } from "@/shared/layout/nav-main"
 import { NavSecondary } from "@/shared/layout/nav-secondaty"
 import { NavUser } from "@/shared/layout/nav-user"
@@ -39,27 +34,27 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/",
       icon: LayoutDashboard,
     },
     {
-      title: "Lifecycle",
-      url: "#",
-      icon: List,
+      title: "Lidlar",
+      url: "/lidlar",
+      icon: Users,
     },
     {
-      title: "Analytics",
-      url: "#",
-      icon: BarChart3,
+      title: "O'qituvchilar",
+      url: "/oqituvchilar",
+      icon: Users,
     },
     {
-      title: "Projects",
-      url: "#",
-      icon: Folder,
+      title: "Guruhlar",
+      url: "/guruhlar",
+      icon: Users,
     },
     {
-      title: "Team",
-      url: "#",
+      title: "Talabalar",
+      url: "/talabalar",
       icon: Users,
     },
   ],
@@ -111,40 +106,7 @@ const data = {
       ],
     },
   ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: HelpCircle,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: Search,
-    },
-  ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: Database,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: FileText,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: FileText,
-    },
-  ],
+
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -167,8 +129,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
