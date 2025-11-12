@@ -117,8 +117,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a href="#">
-                <Building className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                            <img src="/edunitelogo.png" alt="Edunite logo" className="inline-block h-56 pb-4 w-auto mt-3 mr-6" />
+
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
