@@ -1,4 +1,5 @@
 import React from "react"
+import { Outlet } from "react-router-dom"
 import {
   SidebarInset,
   SidebarProvider,
@@ -7,11 +8,7 @@ import {
 import { AppSidebar } from "@/shared/layout/app-sidebar"
 import { SiteHeader } from "@/shared/layout/header"
 
-interface AppLayoutProps {
-  children?: React.ReactNode
-}
-
-export function AppLayout({ children }: AppLayoutProps) {
+export function AppLayout() {
   return (
     <SidebarProvider
       style={
@@ -24,9 +21,9 @@ export function AppLayout({ children }: AppLayoutProps) {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            {children}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <div className="@container/main flex flex-1 flex-col gap-2 overflow-auto">
+            <Outlet />
           </div>
         </div>
       </SidebarInset>

@@ -1,6 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import Dashboard from '@/pages/dashboard/dashboard'
-import Lidlar from '@/pages/lidlar'
+import Lidlar from '@/pages/lidlar/lids'
 import Oqituvchilar from '@/pages/oqituvchilar'
 import Guruhlar from '@/pages/guruhlar'
 import Talabalar from '@/pages/talabalar'
@@ -15,19 +15,19 @@ export const router = createBrowserRouter([
 				element: <Dashboard />
 			},
 			{
-				path: '/lidlar',
+				path: '/lids',
 				element: <Lidlar />
 			},
 			{
-				path: '/oqituvchilar',
+				path: '/teachers',
 				element: <Oqituvchilar />
 			},
 			{
-				path: '/guruhlar',
+				path: '/groups',
 				element: <Guruhlar />
 			},
 			{
-				path: '/talabalar',
+				path: '/students	',
 				element: <Talabalar />
 			},
 			{
