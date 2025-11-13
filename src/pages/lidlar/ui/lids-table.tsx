@@ -34,9 +34,20 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MoreVertical } from "lucide-react"
+import {
+	GripVertical,
+	MoreVertical,
+	TrendingDown,
+	TrendingUp,
+	UserCheck,
+	UserCog,
+	UserPlus,
+	UserX,
+	Users,
+} from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useLidsStore, STATUS_LABELS_UZ, type Lid, type LidStatus } from "../utils/lids-store"
 import LidsDrawer from "./lids-drawer"
@@ -54,6 +65,57 @@ type LidsBoardProps = {
 }
 
 type SortableListeners = ReturnType<typeof useSortable>["listeners"]
+
+type LidSummaryCardConfig = {
+  key: string
+  title: string
+  value: number
+  icon?: LucideIcon
+  caption?: string
+  delta?: string
+  description?: string
+  trend?: "up" | "down"
+}
+
+function LidSummaryCard({ card }: { card: LidSummaryCardConfig }) {
+  const Icon = card.icon ?? Users
+  const formattedValue = new Intl.NumberFormat("en-US").format(card.value)
+  const showTrend = Boolean(card.delta)
+  const trendIsDown = card.trend === "down"
+  const trendColor = trendIsDown ? "text-destructive" : "text-emerald-500"
+
+  return (
+    <Card className="shadow-xs">
+      <CardHeader className="flex flex-row items-start justify-between gap-3 pb-2">
+        <div className="space-y-1">
+          <CardDescription>{card.title}</CardDescription>
+          <CardTitle className="text-2xl font-semibold tabular-nums">{formattedValue}</CardTitle>
+        </div>
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <Icon className="h-5 w-5" />
+        </div>
+      </CardHeader>
+      {(card.delta || card.caption) && (
+        <CardContent className="flex items-center gap-2 pt-0 text-sm text-muted-foreground">
+          {showTrend ? (
+            <span className={`flex items-center gap-1 font-medium ${trendColor}`}>
+              {trendIsDown ? (
+                <TrendingDown className="h-4 w-4" />
+              ) : (
+                <TrendingUp className="h-4 w-4" />
+              )}
+              {card.delta}
+            </span>
+          ) : null}
+          {card.caption ? <span>{card.caption}</span> : null}
+        </CardContent>
+      )}
+      {card.description ? (
+        <CardFooter className="pt-0 text-sm text-muted-foreground">{card.description}</CardFooter>
+      ) : null}
+    </Card>
+  )
+}
 
 function LidsBoard({ lids, onEdit, onDelete, onStatusChange }: LidsBoardProps) {
   const [activeLidId, setActiveLidId] = useState<string | null>(null)
@@ -247,9 +309,12 @@ const LidCardContent = forwardRef<HTMLDivElement, LidCardContentProps>(
       )}
     >
       <div className="flex items-start justify-between gap-2">
-        <div className="space-y-1">
-          <p className="font-semibold leading-5">{lid.name}</p>
-          <p className="text-sm text-muted-foreground">{lid.phoneNumber}</p>
+        <div className="flex items-start gap-3">
+          <GripVertical className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
+          <div className="space-y-1">
+            <p className="font-semibold leading-5">{lid.name}</p>
+            <p className="text-sm text-muted-foreground">{lid.phoneNumber}</p>
+          </div>
         </div>
         {!dragOverlay && (
           <DropdownMenu>
@@ -394,22 +459,88 @@ export default function LidsTable() {
     getCoreRowModel: getCoreRowModel(),
   })
 
+  const summaryCounts = useMemo(() => {
+    const counts: Record<"total" | LidStatus, number> = {
+      total: 0,
+      interested: 0,
+      tested: 0,
+      accepted: 0,
+      failed: 0,
+    }
+
+    lids.forEach(lid => {
+      counts.total += 1
+      counts[lid.status] += 1
+    })
+
+    return counts
+  }, [lids])
+
+  const { total, interested, tested, accepted, failed } = summaryCounts
+
+  const summaryCards = useMemo<LidSummaryCardConfig[]>(() => {
+    const activeCount = total - failed
+
+    return [
+      {
+        key: "active",
+        title: "Faol lidlar",
+        value: activeCount,
+        icon: Users,
+        delta: "+30%",
+        caption: "1 oydan beri",
+        trend: "up",
+      },
+      {
+        key: "interested",
+        title: "Qiziqish bildirgan",
+        value: interested,
+        icon: UserPlus,
+        delta: "+60%",
+        caption: "1 oydan beri",
+        trend: "up",
+      },
+      {
+        key: "tested",
+        title: "Sinovda",
+        value: tested,
+        icon: UserCog,
+        description: "Sinov muddatidagi lidlar",
+      },
+      {
+        key: "failed",
+        title: "Tark etgan",
+        value: failed,
+        icon: UserX,
+        description: "Tark etgan lidlar",
+      },
+      {
+        key: "accepted",
+        title: "Sinovdan o'tgan",
+        value: accepted,
+        icon: UserCheck,
+        description: "Sinovdan o'tgan lidlar",
+      },
+    ]
+  }, [accepted, failed, interested, tested, total])
+
   return (
     <div className="flex w-full min-w-0 flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 lg:px-6">
-        <div className="flex flex-wrap items-center gap-3">
-          <h2 className="text-lg font-semibold">Lidlar</h2>
-          <Tabs
-            value={viewMode}
-            onValueChange={value => setViewMode(value as "table" | "board")}
-            className="w-auto"
-          >
-            <TabsList className="grid grid-cols-2">
-              <TabsTrigger value="table">Jadval</TabsTrigger>
-              <TabsTrigger value="board">Kanban</TabsTrigger>
-            </TabsList>
-          </Tabs>
+      <div className="flex flex-col gap-3 px-4 lg:px-6">
+        <h2 className="text-lg font-semibold">Lidlar</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {summaryCards.map(card => (
+            <LidSummaryCard key={card.key} card={card} />
+          ))}
         </div>
+      </div>
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-3 px-4 lg:px-6 md:mt-4">
+        <Tabs value={viewMode} onValueChange={value => setViewMode(value as "table" | "board")} className="w-auto">
+          <TabsList className="grid grid-cols-2">
+            <TabsTrigger value="table" className="cursor-pointer">Jadval</TabsTrigger>
+            <TabsTrigger value="board" className="cursor-pointer">Kanban</TabsTrigger>
+          </TabsList>
+        </Tabs>
         <Button onClick={() => onOpen()} className="cursor-pointer">
           Lids qo&apos;shish
         </Button>
