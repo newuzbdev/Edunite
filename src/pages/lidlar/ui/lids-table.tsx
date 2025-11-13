@@ -1,8 +1,23 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { forwardRef, useCallback, useMemo, useState } from "react"
+import type { CSSProperties } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
+import {
+	DndContext,
+	type DragEndEvent,
+	type DragStartEvent,
+	type DraggableAttributes,
+	DragOverlay,
+	PointerSensor,
+	useDroppable,
+	useSensor,
+	useSensors,
+} from "@dnd-kit/core"
+import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import {
@@ -19,18 +34,252 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { MoreVertical } from "lucide-react"
-import { useLidsStore, STATUS_LABELS_UZ } from "../utils/lids-store"
+import { cn } from "@/lib/utils"
+import { useLidsStore, STATUS_LABELS_UZ, type Lid, type LidStatus } from "../utils/lids-store"
 import LidsDrawer from "./lids-drawer"
 import { toast } from "sonner"
 
-type Lid = {
-  id: string
-  name: string
-  phoneNumber: string
-  courseType: string
-  status: "interested" | "tested" | "failed" | "accepted"
+const STATUS_ORDER: LidStatus[] = ["interested", "tested", "accepted", "failed"]
+
+type StatusChangeOptions = { silent?: boolean }
+
+type LidsBoardProps = {
+  lids: Lid[]
+  onEdit: (lid: Lid) => void
+  onDelete: (lid: Lid) => void
+  onStatusChange: (id: string, status: LidStatus, options?: StatusChangeOptions) => void
 }
+
+type SortableListeners = ReturnType<typeof useSortable>["listeners"]
+
+function LidsBoard({ lids, onEdit, onDelete, onStatusChange }: LidsBoardProps) {
+  const [activeLidId, setActiveLidId] = useState<string | null>(null)
+  const activeLid = activeLidId ? lids.find(lid => lid.id === activeLidId) ?? null : null
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 6 },
+    })
+  )
+
+  const handleDragStart = useCallback(({ active }: DragStartEvent) => {
+    setActiveLidId(active.id as string)
+  }, [])
+
+  const handleDragEnd = useCallback(
+    ({ active, over }: DragEndEvent) => {
+      if (!over) {
+        setActiveLidId(null)
+        return
+      }
+
+      const sourceStatus = active.data.current?.status as LidStatus | undefined
+      const destinationStatus = over.data.current?.status as LidStatus | undefined
+
+      if (!destinationStatus || destinationStatus === sourceStatus) {
+        setActiveLidId(null)
+        return
+      }
+
+      onStatusChange(active.id as string, destinationStatus, { silent: true })
+      setActiveLidId(null)
+    },
+    [onStatusChange]
+  )
+
+  const handleDragCancel = useCallback(() => {
+    setActiveLidId(null)
+  }, [])
+
+  return (
+    <DndContext
+      sensors={sensors}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
+    >
+      <div className="grid gap-4 px-4 lg:px-6 md:grid-cols-2 xl:grid-cols-4">
+        {STATUS_ORDER.map(status => {
+          const items = lids.filter(lid => lid.status === status)
+          return (
+            <StatusColumn
+              key={status}
+              status={status}
+              lids={items}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          )
+        })}
+      </div>
+      <DragOverlay>
+        {activeLid ? (
+          <LidCardContent
+            lid={activeLid}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            dragOverlay
+          />
+        ) : null}
+      </DragOverlay>
+    </DndContext>
+  )
+}
+
+type StatusColumnProps = {
+  status: LidStatus
+  lids: Lid[]
+  onEdit: (lid: Lid) => void
+  onDelete: (lid: Lid) => void
+}
+
+function StatusColumn({ status, lids, onEdit, onDelete }: StatusColumnProps) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: status,
+    data: { status },
+  })
+
+  return (
+    <div ref={setNodeRef} className="h-full min-h-[280px]">
+      <Card
+        className={cn(
+          "h-full gap-3 border-dashed transition-colors",
+          isOver && "border-primary bg-primary/5"
+        )}
+      >
+        <CardHeader className="flex flex-row items-center justify-between px-5 py-0 pt-4">
+          <CardTitle className="text-base font-semibold">
+            {STATUS_LABELS_UZ[status]}
+          </CardTitle>
+          <Badge variant="secondary">{lids.length}</Badge>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3 px-5 pb-5">
+          <SortableContext
+            items={lids.map(lid => lid.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {lids.length ? (
+              lids.map(lid => (
+                <LidCard key={lid.id} lid={lid} onEdit={onEdit} onDelete={onDelete} />
+              ))
+            ) : (
+              <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-muted-foreground/40 px-3 py-8 text-center text-sm text-muted-foreground">
+                Hozircha lids mavjud emas
+              </div>
+            )}
+          </SortableContext>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+type LidCardProps = {
+  lid: Lid
+  onEdit: (lid: Lid) => void
+  onDelete: (lid: Lid) => void
+}
+
+function LidCard({ lid, onEdit, onDelete }: LidCardProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: lid.id,
+    data: { status: lid.status },
+    transition: {
+      duration: 200,
+      easing: "ease",
+    },
+  })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition: isDragging ? "transform 0.2s ease" : transition ?? undefined,
+  }
+
+  return (
+    <LidCardContent
+      ref={setNodeRef}
+      lid={lid}
+      onEdit={onEdit}
+      onDelete={onDelete}
+      attributes={attributes}
+      listeners={listeners}
+      style={style}
+      isDragging={isDragging}
+    />
+  )
+}
+
+type LidCardContentProps = LidCardProps & {
+  isDragging?: boolean
+  dragOverlay?: boolean
+  style?: CSSProperties
+  attributes?: DraggableAttributes
+  listeners?: SortableListeners
+}
+
+const LidCardContent = forwardRef<HTMLDivElement, LidCardContentProps>(
+  (
+    {
+      lid,
+      onEdit,
+      onDelete,
+      isDragging,
+      dragOverlay,
+      style,
+      attributes,
+      listeners,
+    },
+    ref
+  ) => {
+  return (
+    <div
+      ref={ref}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={cn(
+        "flex cursor-grab flex-col gap-2 rounded-lg border bg-background p-4 shadow-sm transition",
+        dragOverlay && "cursor-grabbing border-primary bg-background shadow-lg",
+        isDragging && "cursor-grabbing border-primary bg-primary/10 shadow-lg"
+      )}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="space-y-1">
+          <p className="font-semibold leading-5">{lid.name}</p>
+          <p className="text-sm text-muted-foreground">{lid.phoneNumber}</p>
+        </div>
+        {!dragOverlay && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="ghost" className="h-7 w-7 cursor-pointer">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEdit(lid)} className="cursor-pointer">
+                Tahrirlash
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => onDelete(lid)}
+                variant="destructive"
+                className="cursor-pointer"
+              >
+                Ochirish
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
+      <p className="text-sm text-muted-foreground">{lid.courseType}</p>
+    </div>
+  )
+}
+)
+
+LidCardContent.displayName = "LidCardContent"
 
 export default function LidsTable() {
   const lids = useLidsStore(state => state.lids)
@@ -39,34 +288,42 @@ export default function LidsTable() {
   const updateStatus = useLidsStore(state => state.updateStatus)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [lidToDelete, setLidToDelete] = useState<Lid | null>(null)
+  const [viewMode, setViewMode] = useState<"table" | "board">("table")
 
-  const handleDeleteClick = (lid: Lid) => {
+  const handleEdit = useCallback((lid: Lid) => {
+    onOpen(lid)
+  }, [onOpen])
+
+  const handleDeleteClick = useCallback((lid: Lid) => {
     setLidToDelete(lid)
     setDeleteDialogOpen(true)
-  }
+  }, [])
 
-  const handleConfirmDelete = () => {
-    if (lidToDelete) {
-      deleteLid(lidToDelete.id)
-      toast.success("Lid muvaffaqiyatli o'chirildi")
-      setDeleteDialogOpen(false)
-      setLidToDelete(null)
-    }
-  }
+  const handleConfirmDelete = useCallback(() => {
+    if (!lidToDelete) return
 
-  const columns = useMemo<ColumnDef<Lid, any>[]>(() => {
-    const handleStatusChangeInCell = (lid: Lid, newStatus: Lid['status']) => {
-      updateStatus(lid.id, newStatus)
+    deleteLid(lidToDelete.id)
+    toast.success("Lid muvaffaqiyatli o'chirildi")
+    setDeleteDialogOpen(false)
+    setLidToDelete(null)
+  }, [deleteLid, lidToDelete])
+
+  const handleStatusChange = useCallback((
+    id: string,
+    status: LidStatus,
+    options?: StatusChangeOptions
+  ) => {
+    updateStatus(id, status)
+    if (!options?.silent) {
       toast.success("Status muvaffaqiyatli yangilandi")
     }
+  }, [updateStatus])
 
-    return [
+  const columns = useMemo<ColumnDef<Lid, unknown>[]>(() => [
     {
-      id: 'rowNumber',
-      header: '#',
-      cell: info => {
-        return <span className="text-muted-foreground">{info.row.index + 1}</span>
-      },
+      id: "rowNumber",
+      header: "#",
+      cell: info => <span className="text-muted-foreground">{info.row.index + 1}</span>,
       enableSorting: false,
     },
     { accessorKey: "name", header: "Ism" },
@@ -77,47 +334,33 @@ export default function LidsTable() {
       header: "Status",
       cell: info => {
         const row = info.row.original
-        const currentStatus = info.getValue() as Lid['status']
+        const currentStatus = info.getValue() as LidStatus
+
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="cursor-pointer hover:underline text-left">
+              <button className="cursor-pointer text-left hover:underline">
                 {STATUS_LABELS_UZ[currentStatus]}
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
-              <DropdownMenuItem 
-                onClick={() => handleStatusChangeInCell(row, 'interested')}
-                className="cursor-pointer"
-              >
-                {STATUS_LABELS_UZ.interested}
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => handleStatusChangeInCell(row, 'tested')}
-                className="cursor-pointer"
-              >
-                {STATUS_LABELS_UZ.tested}
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => handleStatusChangeInCell(row, 'failed')}
-                className="cursor-pointer"
-              >
-                {STATUS_LABELS_UZ.failed}
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => handleStatusChangeInCell(row, 'accepted')}
-                className="cursor-pointer"
-              >
-                {STATUS_LABELS_UZ.accepted}
-              </DropdownMenuItem>
+              {STATUS_ORDER.map(status => (
+                <DropdownMenuItem
+                  key={status}
+                  onClick={() => handleStatusChange(row.id, status)}
+                  className="cursor-pointer"
+                >
+                  {STATUS_LABELS_UZ[status]}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
         )
-      }
+      },
     },
     {
-      id: 'actions',
-      header: 'Amallar',
+      id: "actions",
+      header: "Amallar",
       cell: info => {
         const row = info.row.original
         return (
@@ -128,11 +371,11 @@ export default function LidsTable() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onOpen(row)} className="cursor-pointer">
+              <DropdownMenuItem onClick={() => handleEdit(row)} className="cursor-pointer">
                 Tahrirlash
               </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => handleDeleteClick(row)} 
+              <DropdownMenuItem
+                onClick={() => handleDeleteClick(row)}
                 variant="destructive"
                 className="cursor-pointer"
               >
@@ -141,10 +384,9 @@ export default function LidsTable() {
             </DropdownMenuContent>
           </DropdownMenu>
         )
-      }
-    }
-    ]
-  }, [onOpen, updateStatus, handleDeleteClick])
+      },
+    },
+  ], [handleDeleteClick, handleEdit, handleStatusChange])
 
   const table = useReactTable({
     data: lids,
@@ -154,59 +396,83 @@ export default function LidsTable() {
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-4">
-      <div className="flex items-center justify-between px-4 lg:px-6">
-        <h2 className="text-lg font-semibold">Lidlar</h2>
-        <div>
-          <Button onClick={() => onOpen()} className="cursor-pointer">Lids qo'shish</Button>
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 lg:px-6">
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="text-lg font-semibold">Lidlar</h2>
+          <Tabs
+            value={viewMode}
+            onValueChange={value => setViewMode(value as "table" | "board")}
+            className="w-auto"
+          >
+            <TabsList className="grid grid-cols-2">
+              <TabsTrigger value="table">Jadval</TabsTrigger>
+              <TabsTrigger value="board">Kanban</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
+        <Button onClick={() => onOpen()} className="cursor-pointer">
+          Lids qo&apos;shish
+        </Button>
       </div>
 
-      <div className="px-4 lg:px-6">
-        <div className="overflow-hidden rounded-lg border">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map(headerGroup => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map(header => (
-                    <TableHead key={header.id} colSpan={header.colSpan}>
-                      {header.isPlaceholder ? null : (
-                        flexRender(header.column.columnDef.header, header.getContext())
-                      )}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map(row => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map(cell => (
-                      <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+      {viewMode === "table" ? (
+        <div className="px-4 lg:px-6">
+          <div className="overflow-hidden rounded-lg border">
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map(headerGroup => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map(header => (
+                      <TableHead key={header.id} colSpan={header.colSpan}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(header.column.columnDef.header, header.getContext())}
+                      </TableHead>
                     ))}
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell className="h-24 text-center" colSpan={columns.length}>
-                    Hech qanday lids mavjud emas
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                ))}
+              </TableHeader>
+
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map(row => (
+                    <TableRow key={row.id}>
+                      {row.getVisibleCells().map(cell => (
+                        <TableCell key={cell.id}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell className="h-24 text-center" colSpan={columns.length}>
+                      Hech qanday lids mavjud emas
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </div>
-      </div>
+      ) : (
+        <LidsBoard
+          lids={lids}
+          onEdit={handleEdit}
+          onDelete={handleDeleteClick}
+          onStatusChange={handleStatusChange}
+        />
+      )}
 
       <LidsDrawer />
 
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Lidni o'chirish</DialogTitle>
+            <DialogTitle>Lidni o&apos;chirish</DialogTitle>
             <DialogDescription>
-              "{lidToDelete?.name}" ni o'chirishni xohlaysizmi? Bu amalni qaytarib bo'lmaydi.
+              &quot;{lidToDelete?.name}&quot; ni o&apos;chirishni xohlaysizmi? Bu amalni qaytarib
+              bo&apos;lmaydi.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -222,7 +488,7 @@ export default function LidsTable() {
               onClick={handleConfirmDelete}
               className="cursor-pointer"
             >
-              O'chirish
+              O&apos;chirish
             </Button>
           </DialogFooter>
         </DialogContent>
