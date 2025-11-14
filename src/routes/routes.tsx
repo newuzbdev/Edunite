@@ -4,6 +4,7 @@ import Lidlar from '@/pages/lidlar/lids'
 import Oqituvchilar from '@/pages/oqituvchilar'
 import Guruhlar from '@/pages/guruhlar'
 import Talabalar from '@/pages/talabalar'
+import StudentProfile from '@/pages/talabalar/profile'
 import { AppLayout } from '@/shared/layout/app-layout'
 
 export const router = createBrowserRouter([
@@ -27,8 +28,12 @@ export const router = createBrowserRouter([
 				element: <Guruhlar />
 			},
 			{
-				path: '/students	',
+				path: '/talabalar',
 				element: <Talabalar />
+			},
+			{
+				path: '/talabalar/:id',
+				element: <StudentProfile />
 			},
 			{
 				path: '*',
