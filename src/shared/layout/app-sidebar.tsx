@@ -1,5 +1,4 @@
 "use client"
-
 import * as React from "react"
 import { Link } from "react-router-dom"
 import {
@@ -45,12 +44,12 @@ const data = {
     },
     {
       title: "Guruhlar",
-      url: "/guruhlar",
+      url: "/groups",
       icon: Users,
     },
     {
       title: "Talabalar",
-      url: "/talabalar",
+      url: "/students",
       icon: Users,
     },
   ],

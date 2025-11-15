@@ -4,7 +4,6 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-
 import { AppSidebar } from "@/shared/layout/app-sidebar"
 import { SiteHeader } from "@/shared/layout/header"
 
