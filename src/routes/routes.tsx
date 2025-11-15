@@ -1,7 +1,8 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import Dashboard from '@/pages/dashboard/dashboard'
 import Lidlar from '@/pages/lidlar/lids'
-import Oqituvchilar from '@/pages/oqituvchilar'
+import LidProfile from '@/pages/lidlar/profile'
+import Oqituvchilar from '@/pages/teachers.tsx'
 import Guruhlar from '@/pages/guruhlar'
 import Talabalar from '@/pages/talabalar'
 import StudentProfile from '@/pages/talabalar/profile'
@@ -18,6 +19,10 @@ export const router = createBrowserRouter([
 			{
 				path: '/lids',
 				element: <Lidlar />
+			},
+			{
+				path: '/lids/:id',
+				element: <LidProfile />
 			},
 			{
 				path: '/teachers',

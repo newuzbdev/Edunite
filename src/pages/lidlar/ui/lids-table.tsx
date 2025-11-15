@@ -36,24 +36,32 @@ import {
 } from "@/components/ui/dialog"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import {
+	Select,
+	SelectTrigger,
+	SelectContent,
+	SelectItem,
+	SelectValue,
+} from "@/components/ui/select"
 import {
 	GripVertical,
 	MoreVertical,
 	TrendingDown,
 	TrendingUp,
 	UserCheck,
-	UserCog,
 	UserPlus,
 	UserX,
 	Users,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useLidsStore, STATUS_LABELS_UZ, type Lid, type LidStatus } from "../utils/lids-store"
+import { useLidsStore, STATUS_LABELS_UZ, SOURCE_LABELS_UZ, COURSE_TYPES_UZ, MANAGERS, type Lid, type LidStatus } from "../utils/lids-store"
 import LidsDrawer from "./lids-drawer"
 import { toast } from "sonner"
+import { useNavigate } from "react-router-dom"
 
-const STATUS_ORDER: LidStatus[] = ["interested", "tested", "accepted", "failed"]
+const STATUS_ORDER: LidStatus[] = ["new", "called", "interested", "thinking", "closed", "converted"]
 
 type StatusChangeOptions = { silent?: boolean }
 
@@ -62,6 +70,7 @@ type LidsBoardProps = {
   onEdit: (lid: Lid) => void
   onDelete: (lid: Lid) => void
   onStatusChange: (id: string, status: LidStatus, options?: StatusChangeOptions) => void
+  onViewProfile: (lid: Lid) => void
 }
 
 type SortableListeners = ReturnType<typeof useSortable>["listeners"]
@@ -117,7 +126,7 @@ function LidSummaryCard({ card }: { card: LidSummaryCardConfig }) {
   )
 }
 
-function LidsBoard({ lids, onEdit, onDelete, onStatusChange }: LidsBoardProps) {
+function LidsBoard({ lids, onEdit, onDelete, onStatusChange, onViewProfile }: LidsBoardProps) {
   const [activeLidId, setActiveLidId] = useState<string | null>(null)
   const activeLid = activeLidId ? lids.find(lid => lid.id === activeLidId) ?? null : null
 
@@ -163,7 +172,7 @@ function LidsBoard({ lids, onEdit, onDelete, onStatusChange }: LidsBoardProps) {
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <div className="grid gap-4 px-4 lg:px-6 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 px-4 lg:px-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
         {STATUS_ORDER.map(status => {
           const items = lids.filter(lid => lid.status === status)
           return (
@@ -173,6 +182,7 @@ function LidsBoard({ lids, onEdit, onDelete, onStatusChange }: LidsBoardProps) {
               lids={items}
               onEdit={onEdit}
               onDelete={onDelete}
+              onViewProfile={onViewProfile}
             />
           )
         })}
@@ -183,6 +193,7 @@ function LidsBoard({ lids, onEdit, onDelete, onStatusChange }: LidsBoardProps) {
             lid={activeLid}
             onEdit={onEdit}
             onDelete={onDelete}
+            onViewProfile={onViewProfile}
             dragOverlay
           />
         ) : null}
@@ -196,9 +207,10 @@ type StatusColumnProps = {
   lids: Lid[]
   onEdit: (lid: Lid) => void
   onDelete: (lid: Lid) => void
+  onViewProfile: (lid: Lid) => void
 }
 
-function StatusColumn({ status, lids, onEdit, onDelete }: StatusColumnProps) {
+function StatusColumn({ status, lids, onEdit, onDelete, onViewProfile }: StatusColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: status,
     data: { status },
@@ -225,7 +237,7 @@ function StatusColumn({ status, lids, onEdit, onDelete }: StatusColumnProps) {
           >
             {lids.length ? (
               lids.map(lid => (
-                <LidCard key={lid.id} lid={lid} onEdit={onEdit} onDelete={onDelete} />
+                <LidCard key={lid.id} lid={lid} onEdit={onEdit} onDelete={onDelete} onViewProfile={onViewProfile} />
               ))
             ) : (
               <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-muted-foreground/40 px-3 py-8 text-center text-sm text-muted-foreground">
@@ -243,9 +255,10 @@ type LidCardProps = {
   lid: Lid
   onEdit: (lid: Lid) => void
   onDelete: (lid: Lid) => void
+  onViewProfile: (lid: Lid) => void
 }
 
-function LidCard({ lid, onEdit, onDelete }: LidCardProps) {
+function LidCard({ lid, onEdit, onDelete, onViewProfile }: LidCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: lid.id,
     data: { status: lid.status },
@@ -266,6 +279,7 @@ function LidCard({ lid, onEdit, onDelete }: LidCardProps) {
       lid={lid}
       onEdit={onEdit}
       onDelete={onDelete}
+      onViewProfile={onViewProfile}
       attributes={attributes}
       listeners={listeners}
       style={style}
@@ -288,6 +302,7 @@ const LidCardContent = forwardRef<HTMLDivElement, LidCardContentProps>(
       lid,
       onEdit,
       onDelete,
+      onViewProfile,
       isDragging,
       dragOverlay,
       style,
@@ -311,8 +326,13 @@ const LidCardContent = forwardRef<HTMLDivElement, LidCardContentProps>(
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-start gap-3">
           <GripVertical className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
-          <div className="space-y-1">
-            <p className="font-semibold leading-5">{lid.name}</p>
+          <div className="space-y-1 flex-1">
+            <button 
+              onClick={() => onViewProfile(lid)}
+              className="font-semibold leading-5 text-left hover:underline cursor-pointer"
+            >
+              {lid.name}
+            </button>
             <p className="text-sm text-muted-foreground">{lid.phoneNumber}</p>
           </div>
         </div>
@@ -324,6 +344,9 @@ const LidCardContent = forwardRef<HTMLDivElement, LidCardContentProps>(
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onViewProfile(lid)} className="cursor-pointer">
+                Profilni ko'rish
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onEdit(lid)} className="cursor-pointer">
                 Tahrirlash
               </DropdownMenuItem>
@@ -347,13 +370,20 @@ const LidCardContent = forwardRef<HTMLDivElement, LidCardContentProps>(
 LidCardContent.displayName = "LidCardContent"
 
 export default function LidsTable() {
+  const navigate = useNavigate()
   const lids = useLidsStore(state => state.lids)
   const onOpen = useLidsStore(state => state.onOpen)
   const deleteLid = useLidsStore(state => state.deleteLid)
   const updateStatus = useLidsStore(state => state.updateStatus)
+  const convertToStudent = useLidsStore(state => state.convertToStudent)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [lidToDelete, setLidToDelete] = useState<Lid | null>(null)
   const [viewMode, setViewMode] = useState<"table" | "board">("table")
+  const [statusFilter, setStatusFilter] = useState<LidStatus | "all">("all")
+  const [courseFilter, setCourseFilter] = useState<string>("all")
+  const [sourceFilter, setSourceFilter] = useState<string>("all")
+  const [managerFilter, setManagerFilter] = useState<string>("all")
+  const [dateFilter, setDateFilter] = useState<string>("")
 
   const handleEdit = useCallback((lid: Lid) => {
     onOpen(lid)
@@ -378,11 +408,28 @@ export default function LidsTable() {
     status: LidStatus,
     options?: StatusChangeOptions
   ) => {
-    updateStatus(id, status)
+    const lid = lids.find(l => l.id === id)
+    updateStatus(id, status, lid?.managerName)
     if (!options?.silent) {
       toast.success("Status muvaffaqiyatli yangilandi")
     }
-  }, [updateStatus])
+  }, [updateStatus, lids])
+
+  const handleConvertToStudent = useCallback((lid: Lid) => {
+    convertToStudent(lid.id)
+    toast.success("Lead Studentga aylantirildi")
+  }, [convertToStudent])
+
+  const filteredLids = useMemo(() => {
+    return lids.filter(lid => {
+      if (statusFilter !== "all" && lid.status !== statusFilter) return false
+      if (courseFilter !== "all" && lid.courseType !== courseFilter) return false
+      if (sourceFilter !== "all" && lid.source !== sourceFilter) return false
+      if (managerFilter !== "all" && lid.managerId !== managerFilter) return false
+      if (dateFilter && !new Date(lid.interestedDate).toISOString().split('T')[0].includes(dateFilter)) return false
+      return true
+    })
+  }, [lids, statusFilter, courseFilter, sourceFilter, managerFilter, dateFilter])
 
   const columns = useMemo<ColumnDef<Lid, unknown>[]>(() => [
     {
@@ -391,9 +438,39 @@ export default function LidsTable() {
       cell: info => <span className="text-muted-foreground">{info.row.index + 1}</span>,
       enableSorting: false,
     },
-    { accessorKey: "name", header: "Ism" },
-    { accessorKey: "phoneNumber", header: "Telefon" },
-    { accessorKey: "courseType", header: "Kurs turi" },
+    { 
+      accessorKey: "name", 
+      header: "Ism Familiya",
+      cell: info => {
+        const row = info.row.original
+        return (
+          <button 
+            onClick={() => navigate(`/lids/${row.id}`)}
+            className="text-left font-medium hover:underline cursor-pointer"
+          >
+            {row.name}
+          </button>
+        )
+      }
+    },
+    { accessorKey: "phoneNumber", header: "Telefon raqami" },
+    { accessorKey: "courseType", header: "Qiziqqan kursi" },
+    {
+      accessorKey: "interestedDate",
+      header: "Qiziqqan vaqti",
+      cell: info => {
+        const date = new Date(info.getValue() as string)
+        return date.toLocaleDateString("uz-UZ", { year: "numeric", month: "short", day: "numeric" })
+      }
+    },
+    {
+      accessorKey: "source",
+      header: "Manba",
+      cell: info => {
+        const source = info.getValue() as string | undefined
+        return source ? SOURCE_LABELS_UZ[source as keyof typeof SOURCE_LABELS_UZ] : "-"
+      }
+    },
     {
       accessorKey: "status",
       header: "Status",
@@ -424,6 +501,26 @@ export default function LidsTable() {
       },
     },
     {
+      accessorKey: "managerName",
+      header: "Mas'ul menedjer",
+      cell: info => {
+        const manager = info.getValue() as string | undefined
+        return manager || "-"
+      }
+    },
+    {
+      accessorKey: "comments",
+      header: "Izohlar",
+      cell: info => {
+        const comments = info.getValue() as string | undefined
+        return comments ? (
+          <span className="max-w-[200px] truncate block" title={comments}>
+            {comments}
+          </span>
+        ) : "-"
+      }
+    },
+    {
       id: "actions",
       header: "Amallar",
       cell: info => {
@@ -436,9 +533,20 @@ export default function LidsTable() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => navigate(`/lids/${row.id}`)} className="cursor-pointer">
+                Profilni ko'rish
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleEdit(row)} className="cursor-pointer">
                 Tahrirlash
               </DropdownMenuItem>
+              {row.status !== "converted" && (
+                <DropdownMenuItem 
+                  onClick={() => handleConvertToStudent(row)} 
+                  className="cursor-pointer"
+                >
+                  Studentga aylantirish
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 onClick={() => handleDeleteClick(row)}
                 variant="destructive"
@@ -451,10 +559,10 @@ export default function LidsTable() {
         )
       },
     },
-  ], [handleDeleteClick, handleEdit, handleStatusChange])
+  ], [handleDeleteClick, handleEdit, handleStatusChange, handleConvertToStudent, navigate])
 
   const table = useReactTable({
-    data: lids,
+    data: filteredLids,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
@@ -462,10 +570,12 @@ export default function LidsTable() {
   const summaryCounts = useMemo(() => {
     const counts: Record<"total" | LidStatus, number> = {
       total: 0,
+      new: 0,
+      called: 0,
       interested: 0,
-      tested: 0,
-      accepted: 0,
-      failed: 0,
+      thinking: 0,
+      closed: 0,
+      converted: 0,
     }
 
     lids.forEach(lid => {
@@ -476,74 +586,130 @@ export default function LidsTable() {
     return counts
   }, [lids])
 
-  const { total, interested, tested, accepted, failed } = summaryCounts
+  const { total, new: newCount, interested, closed, converted } = summaryCounts
 
   const summaryCards = useMemo<LidSummaryCardConfig[]>(() => {
-    const activeCount = total - failed
-
     return [
       {
-        key: "active",
-        title: "Faol lidlar",
-        value: activeCount,
+        key: "total",
+        title: "Jami lidlar",
+        value: total,
         icon: Users,
-        delta: "+30%",
-        caption: "1 oydan beri",
-        trend: "up",
+      },
+      {
+        key: "new",
+        title: "Yangi",
+        value: newCount,
+        icon: UserPlus,
       },
       {
         key: "interested",
-        title: "Qiziqish bildirgan",
+        title: "Qiziqdi",
         value: interested,
-        icon: UserPlus,
-        delta: "+60%",
-        caption: "1 oydan beri",
-        trend: "up",
-      },
-      {
-        key: "tested",
-        title: "Sinovda",
-        value: tested,
-        icon: UserCog,
-        description: "Sinov muddatidagi lidlar",
-      },
-      {
-        key: "failed",
-        title: "Tark etgan",
-        value: failed,
-        icon: UserX,
-        description: "Tark etgan lidlar",
-      },
-      {
-        key: "accepted",
-        title: "Sinovdan o'tgan",
-        value: accepted,
         icon: UserCheck,
-        description: "Sinovdan o'tgan lidlar",
+      },
+      {
+        key: "converted",
+        title: "Studentga aylandi",
+        value: converted,
+        icon: UserCheck,
+      },
+      {
+        key: "closed",
+        title: "Yopilgan",
+        value: closed,
+        icon: UserX,
       },
     ]
-  }, [accepted, failed, interested, tested, total])
+  }, [total, newCount, interested, converted, closed])
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-4">
       <div className="flex flex-col gap-3 px-4 lg:px-6">
-        <h2 className="text-lg font-semibold">Lidlar</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {summaryCards.map(card => (
             <LidSummaryCard key={card.key} card={card} />
           ))}
         </div>
       </div>
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-3 px-4 lg:px-6 md:mt-4">
-        <Tabs value={viewMode} onValueChange={value => setViewMode(value as "table" | "board")} className="w-auto">
-          <TabsList className="grid grid-cols-2">
-            <TabsTrigger value="table" className="cursor-pointer">Jadval</TabsTrigger>
-            <TabsTrigger value="board" className="cursor-pointer">Kanban</TabsTrigger>
-          </TabsList>
-        </Tabs>
-        <Button onClick={() => onOpen()} className="cursor-pointer">
-          Lids qo&apos;shish
-        </Button>
+      <div className="mt-2 flex flex-col gap-4 px-4 lg:px-6 md:mt-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Tabs value={viewMode} onValueChange={value => setViewMode(value as "table" | "board")} className="w-auto">
+            <TabsList className="grid grid-cols-2">
+              <TabsTrigger value="table" className="cursor-pointer">Jadval</TabsTrigger>
+              <TabsTrigger value="board" className="cursor-pointer">Kanban</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <Button onClick={() => onOpen()} className="cursor-pointer">
+            Lead qo&apos;shish
+          </Button>
+        </div>
+        
+        {/* Filters */}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as LidStatus | "all")}>
+            <SelectTrigger>
+              <SelectValue placeholder="Status bo'yicha" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Barcha statuslar</SelectItem>
+              {STATUS_ORDER.map(status => (
+                <SelectItem key={status} value={status}>
+                  {STATUS_LABELS_UZ[status]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={courseFilter} onValueChange={setCourseFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Kurs bo'yicha" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Barcha kurslar</SelectItem>
+              {COURSE_TYPES_UZ.map(course => (
+                <SelectItem key={course} value={course}>
+                  {course}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={sourceFilter} onValueChange={setSourceFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Manba bo'yicha" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Barcha manbalar</SelectItem>
+              {Object.entries(SOURCE_LABELS_UZ).map(([key, label]) => (
+                <SelectItem key={key} value={key}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={managerFilter} onValueChange={setManagerFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Menedjer bo'yicha" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Barcha menedjerlar</SelectItem>
+              {MANAGERS.map(manager => (
+                <SelectItem key={manager.id} value={manager.id}>
+                  {manager.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Input
+            type="date"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+            placeholder="Sana bo'yicha"
+          />
+        </div>
       </div>
 
       {viewMode === "table" ? (
@@ -592,6 +758,7 @@ export default function LidsTable() {
           onEdit={handleEdit}
           onDelete={handleDeleteClick}
           onStatusChange={handleStatusChange}
+          onViewProfile={(lid) => navigate(`/lids/${lid.id}`)}
         />
       )}
 

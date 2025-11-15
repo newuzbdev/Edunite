@@ -39,8 +39,8 @@ const data = {
       icon: Users,
     },
     {
-      title: "O'qituvchilar",
-      url: "/oqituvchilar",
+      title: "Teachers",
+      url: "/teachers",
       icon: Users,
     },
     {
