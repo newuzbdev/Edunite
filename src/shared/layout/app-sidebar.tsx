@@ -2,10 +2,12 @@
 import * as React from "react"
 import { Link } from "react-router-dom"
 import {
-  Camera,
   LayoutDashboard,
-  FileText,
+  User,
+  DollarSign,
+  GraduationCap,
   Users,
+  UserCircle,
 } from "lucide-react"
 
 import { NavMain } from "@/shared/layout/nav-main"
@@ -28,19 +30,24 @@ const data = {
   },
   navMain: [
     {
-      title: "Dashboard",
+      title: "Bosh sahifa",
       url: "/",
       icon: LayoutDashboard,
     },
     {
       title: "Lidlar",
       url: "/lids",
-      icon: Users,
+      icon: User,
     },
     {
-      title: "Teachers",
-      url: "/teachers",
-      icon: Users,
+      title: "To'lovlar",
+      url: "/payments",
+      icon: DollarSign,
+    },
+    {
+      title: "Talabalar",
+      url: "/talabalar",
+      icon: GraduationCap,
     },
     {
       title: "Guruhlar",
@@ -48,83 +55,34 @@ const data = {
       icon: Users,
     },
     {
-      title: "Talabalar",
-      url: "/talabalar",
-      icon: Users,
+      title: "O'qituvchilar",
+      url: "/teachers",
+      icon: UserCircle,
     },
   ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: Camera,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: FileText,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: FileText,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-  ],
-
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader>
+    <Sidebar collapsible="offcanvas" className="bg-white border-r" {...props}>
+      <SidebarHeader className="border-b p-4">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
+              className="h-auto p-0 hover:bg-transparent"
             >
               <Link to="/">
-                <img src="/edunitelogo.png" alt="Edunite logo" className="inline-block h-56 pb-4 w-auto mt-3 mr-6" />
+                <img src="/edunitelogo.png" alt="Edunite logo" className="h-14 w-auto" />
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="p-4">
         <NavMain items={data.navMain} />
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="border-t p-4">
         <NavUser user={data.user} />
       </SidebarFooter>
     </Sidebar>

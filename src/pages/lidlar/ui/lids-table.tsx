@@ -172,7 +172,7 @@ function LidsBoard({ lids, onEdit, onDelete, onStatusChange, onViewProfile }: Li
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <div className="grid gap-4 px-4 lg:px-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
         {STATUS_ORDER.map(status => {
           const items = lids.filter(lid => lid.status === status)
           return (
@@ -625,14 +625,14 @@ export default function LidsTable() {
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-4">
-      <div className="flex flex-col gap-3 px-4 lg:px-6">
+      <div className="flex flex-col gap-3">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {summaryCards.map(card => (
             <LidSummaryCard key={card.key} card={card} />
           ))}
         </div>
       </div>
-      <div className="mt-2 flex flex-col gap-4 px-4 lg:px-6 md:mt-4">
+      <div className="mt-2 flex flex-col gap-4 md:mt-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Tabs value={viewMode} onValueChange={value => setViewMode(value as "table" | "board")} className="w-auto">
             <TabsList className="grid grid-cols-2">
@@ -713,8 +713,8 @@ export default function LidsTable() {
       </div>
 
       {viewMode === "table" ? (
-        <div className="px-4 lg:px-6">
-          <div className="overflow-hidden rounded-lg border">
+        <div>
+          <div className="overflow-hidden rounded-lg border bg-white">
             <Table>
               <TableHeader>
                 {table.getHeaderGroups().map(headerGroup => (

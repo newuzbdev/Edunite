@@ -8,6 +8,7 @@ import {
   Trash2,
   type LucideIcon,
 } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 import {
   DropdownMenu,
@@ -39,18 +40,45 @@ export function NavMain({
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
-      <SidebarMenu>
-        {items.map((item) => (
-          <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton asChild isActive={location.pathname === item.url}>
-              <Link to={item.url}>
-                <item.icon />
-                <span>{item.title}</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        ))}
+      <SidebarMenu className="space-y-1">
+        {items.map((item) => {
+          const isActive = location.pathname === item.url
+          return (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton 
+                asChild 
+                isActive={isActive}
+                className={cn(
+                  "w-full justify-start gap-3 rounded-md px-3 py-2.5 text-base font-medium transition-colors relative",
+                  "[&>span[aria-hidden]]:hidden", // Hide the left side line indicator
+                  "[&[data-active='true']]:!text-white", // Override component's blue text
+                  isActive 
+                    ? "bg-primary !text-white hover:bg-primary hover:!text-white [&>a]:!text-white [&>a>svg]:!text-white [&>a>span]:!text-white [&_*]:!text-white [&_*svg]:!text-white [&_*span]:!text-white [&_svg]:!text-white [&_svg]:!stroke-white [&[data-active='true']]:!text-white" 
+                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                )}
+                style={isActive ? { color: 'white !important' } as any : undefined}
+              >
+                <Link 
+                  to={item.url} 
+                  className={cn("flex items-center gap-3", isActive && "!text-white")}
+                  style={isActive ? { color: 'white !important' } as any : undefined}
+                >
+                  <item.icon 
+                    className={cn("h-5 w-5 flex-shrink-0", isActive && "!text-white !stroke-white")} 
+                    style={isActive ? { color: 'white', stroke: 'white', fill: 'none' } : undefined}
+                    strokeWidth={2}
+                  />
+                  <span 
+                    className={cn("text-base", isActive && "!text-white")}
+                    style={isActive ? { color: 'white !important' } as any : undefined}
+                  >
+                    {item.title}
+                  </span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )
+        })}
       </SidebarMenu>
     </SidebarGroup>
   )

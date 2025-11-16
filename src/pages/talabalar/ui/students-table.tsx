@@ -317,7 +317,7 @@ export default function StudentsTable() {
 
 	return (
 		<div className="flex w-full min-w-0 flex-col gap-4">
-			<div className="flex flex-col gap-3 px-4 lg:px-6">
+			<div className="flex flex-col gap-3">
 				<h2 className="text-lg font-semibold">Talabalar</h2>
 				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 					<Card className="shadow-xs">
@@ -469,8 +469,8 @@ export default function StudentsTable() {
 			</div>
 
 			{/* Table */}
-			<div className="px-4 lg:px-6 mt-6">
-				<div className="overflow-hidden rounded-lg border">
+			<div className="mt-6">
+				<div className="overflow-hidden rounded-lg border bg-white">
 					<Table>
 						<TableHeader>
 							{table.getHeaderGroups().map((headerGroup) => (
