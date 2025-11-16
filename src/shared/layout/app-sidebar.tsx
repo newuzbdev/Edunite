@@ -49,7 +49,7 @@ const data = {
     },
     {
       title: "Talabalar",
-      url: "/students",
+      url: "/talabalar",
       icon: Users,
     },
   ],

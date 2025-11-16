@@ -128,145 +128,147 @@ export default function StudentsForm() {
 	}, [data])
 
 	return (
-		<form onSubmit={handleSubmit} className="flex w-full flex-col gap-4 p-4">
-			<div>
-				<Label className="mb-1 block text-sm font-medium">To'liq ism *</Label>
-				<Input
-					value={fullName}
-					onChange={(e) => setFullName(e.target.value)}
-					placeholder="Ism Familiya"
-				/>
+		<form onSubmit={handleSubmit} className="flex w-full flex-col gap-4 py-2">
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div>
+					<Label className="mb-1 block text-sm font-medium">To'liq ism *</Label>
+					<Input
+						value={fullName}
+						onChange={(e) => setFullName(e.target.value)}
+						placeholder="Ism Familiya"
+					/>
+				</div>
+
+				<div>
+					<Label className="mb-1 block text-sm font-medium">Telefon raqam *</Label>
+					<Input
+						value={phone}
+						onChange={(e) => setPhone(e.target.value)}
+						placeholder="+998 90 123 45 67"
+					/>
+				</div>
+
+				<div>
+					<Label className="mb-1 block text-sm font-medium">Kurs turi</Label>
+					<Select value={courseName} onValueChange={(v: string) => setCourseName(v)}>
+						<SelectTrigger className="w-full">
+							<SelectValue placeholder="Kurs tanlang" />
+						</SelectTrigger>
+						<SelectContent>
+							{COURSE_TYPES_UZ.map((ct) => (
+								<SelectItem key={ct} value={ct}>
+									{ct}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				</div>
+
+				<div>
+					<Label className="mb-1 block text-sm font-medium">Guruh *</Label>
+					<Input
+						value={group}
+						onChange={(e) => setGroup(e.target.value)}
+						placeholder="Guruh nomi"
+					/>
+				</div>
+
+				<div>
+					<Label className="mb-1 block text-sm font-medium">Dars jadvali</Label>
+					<Input
+						value={schedule}
+						onChange={(e) => setSchedule(e.target.value)}
+						placeholder="Dushanba, Chorshanba, Juma - 18:00"
+					/>
+				</div>
+
+				<div>
+					<Label className="mb-1 block text-sm font-medium">O'qituvchi</Label>
+					<Input
+						value={teacher}
+						onChange={(e) => setTeacher(e.target.value)}
+						placeholder="O'qituvchi ismi"
+					/>
+				</div>
+
+				<div>
+					<Label className="mb-1 block text-sm font-medium">To'lov statusi</Label>
+					<Select
+						value={paymentStatus}
+						onValueChange={(v: string) => setPaymentStatus(v as PaymentStatus)}
+					>
+						<SelectTrigger className="w-full">
+							<SelectValue placeholder="Status tanlang" />
+						</SelectTrigger>
+						<SelectContent>
+							{Object.entries(PAYMENT_STATUS_LABELS_UZ).map(([key, label]) => (
+								<SelectItem key={key} value={key}>
+									{label}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				</div>
+
+				<div>
+					<Label className="mb-1 block text-sm font-medium">Keyingi to'lov sanasi</Label>
+					<Input
+						type="date"
+						value={nextPaymentDate}
+						onChange={(e) => setNextPaymentDate(e.target.value)}
+					/>
+				</div>
+
+				<div>
+					<Label className="mb-1 block text-sm font-medium">Status</Label>
+					<Select value={status} onValueChange={(v: string) => setStatus(v as StudentStatus)}>
+						<SelectTrigger className="w-full">
+							<SelectValue placeholder="Status tanlang" />
+						</SelectTrigger>
+						<SelectContent>
+							{Object.entries(STUDENT_STATUS_LABELS_UZ).map(([key, label]) => (
+								<SelectItem key={key} value={key}>
+									{label}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				</div>
+
+				<div>
+					<Label className="mb-1 block text-sm font-medium">Manzil</Label>
+					<Input
+						value={address}
+						onChange={(e) => setAddress(e.target.value)}
+						placeholder="Manzil"
+					/>
+				</div>
+
+				<div>
+					<Label className="mb-1 block text-sm font-medium">Qo'shilgan sana</Label>
+					<Input
+						type="date"
+						value={joinedDate}
+						onChange={(e) => setJoinedDate(e.target.value)}
+					/>
+				</div>
+
+				<div>
+					<Label className="mb-1 block text-sm font-medium">Student ID</Label>
+					<Input
+						value={studentId}
+						onChange={(e) => setStudentId(e.target.value)}
+						placeholder="STU-001"
+					/>
+				</div>
 			</div>
 
-			<div>
-				<Label className="mb-1 block text-sm font-medium">Telefon raqam *</Label>
-				<Input
-					value={phone}
-					onChange={(e) => setPhone(e.target.value)}
-					placeholder="+998 90 123 45 67"
-				/>
-			</div>
-
-			<div>
-				<Label className="mb-1 block text-sm font-medium">Kurs turi</Label>
-				<Select value={courseName} onValueChange={(v: string) => setCourseName(v)}>
-					<SelectTrigger className="w-full">
-						<SelectValue placeholder="Kurs tanlang" />
-					</SelectTrigger>
-					<SelectContent>
-						{COURSE_TYPES_UZ.map((ct) => (
-							<SelectItem key={ct} value={ct}>
-								{ct}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-			</div>
-
-			<div>
-				<Label className="mb-1 block text-sm font-medium">Guruh *</Label>
-				<Input
-					value={group}
-					onChange={(e) => setGroup(e.target.value)}
-					placeholder="Guruh nomi"
-				/>
-			</div>
-
-			<div>
-				<Label className="mb-1 block text-sm font-medium">Dars jadvali</Label>
-				<Input
-					value={schedule}
-					onChange={(e) => setSchedule(e.target.value)}
-					placeholder="Dushanba, Chorshanba, Juma - 18:00"
-				/>
-			</div>
-
-			<div>
-				<Label className="mb-1 block text-sm font-medium">O'qituvchi</Label>
-				<Input
-					value={teacher}
-					onChange={(e) => setTeacher(e.target.value)}
-					placeholder="O'qituvchi ismi"
-				/>
-			</div>
-
-			<div>
-				<Label className="mb-1 block text-sm font-medium">To'lov statusi</Label>
-				<Select
-					value={paymentStatus}
-					onValueChange={(v: string) => setPaymentStatus(v as PaymentStatus)}
-				>
-					<SelectTrigger className="w-full">
-						<SelectValue placeholder="Status tanlang" />
-					</SelectTrigger>
-					<SelectContent>
-						{Object.entries(PAYMENT_STATUS_LABELS_UZ).map(([key, label]) => (
-							<SelectItem key={key} value={key}>
-								{label}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-			</div>
-
-			<div>
-				<Label className="mb-1 block text-sm font-medium">Keyingi to'lov sanasi</Label>
-				<Input
-					type="date"
-					value={nextPaymentDate}
-					onChange={(e) => setNextPaymentDate(e.target.value)}
-				/>
-			</div>
-
-			<div>
-				<Label className="mb-1 block text-sm font-medium">Status</Label>
-				<Select value={status} onValueChange={(v: string) => setStatus(v as StudentStatus)}>
-					<SelectTrigger className="w-full">
-						<SelectValue placeholder="Status tanlang" />
-					</SelectTrigger>
-					<SelectContent>
-						{Object.entries(STUDENT_STATUS_LABELS_UZ).map(([key, label]) => (
-							<SelectItem key={key} value={key}>
-								{label}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-			</div>
-
-			<div>
-				<Label className="mb-1 block text-sm font-medium">Manzil</Label>
-				<Input
-					value={address}
-					onChange={(e) => setAddress(e.target.value)}
-					placeholder="Manzil"
-				/>
-			</div>
-
-			<div>
+			<div className="md:col-span-2">
 				<Label className="mb-1 block text-sm font-medium">Qo'shimcha izoh</Label>
 				<Input
 					value={notes}
 					onChange={(e) => setNotes(e.target.value)}
 					placeholder="Izoh"
-				/>
-			</div>
-
-			<div>
-				<Label className="mb-1 block text-sm font-medium">Qo'shilgan sana</Label>
-				<Input
-					type="date"
-					value={joinedDate}
-					onChange={(e) => setJoinedDate(e.target.value)}
-				/>
-			</div>
-
-			<div>
-				<Label className="mb-1 block text-sm font-medium">Student ID</Label>
-				<Input
-					value={studentId}
-					onChange={(e) => setStudentId(e.target.value)}
-					placeholder="STU-001"
 				/>
 			</div>
 
