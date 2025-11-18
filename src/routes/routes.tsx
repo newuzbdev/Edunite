@@ -6,6 +6,9 @@ import Oqituvchilar from '@/pages/teachers.tsx'
 import Guruhlar from '@/pages/group'
 import Talabalar from '@/pages/talabalar'
 import StudentProfile from '@/pages/talabalar/profile'
+import Payments from '@/pages/payments'
+import Debtors from '@/pages/payments/debtors'
+import PaymentsStatistics from '@/pages/payments/statistics'
 import { AppLayout } from '@/shared/layout/app-layout'
 
 export const router = createBrowserRouter([
@@ -39,6 +42,18 @@ export const router = createBrowserRouter([
 			{
 				path: '/talabalar/:id',
 				element: <StudentProfile />
+			},
+			{
+				path: '/payments',
+				element: <Payments />
+			},
+			{
+				path: '/payments/debtors',
+				element: <Debtors />
+			},
+			{
+				path: '/payments/statistics',
+				element: <PaymentsStatistics />
 			},
 			{
 				path: '*',

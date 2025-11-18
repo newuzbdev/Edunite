@@ -43,6 +43,20 @@ const data = {
       title: "To'lovlar",
       url: "/payments",
       icon: DollarSign,
+      items: [
+        {
+          title: "To'lovlar",
+          url: "/payments",
+        },
+        {
+          title: "Qarzdorlar",
+          url: "/payments/debtors",
+        },
+        {
+          title: "Statistika",
+          url: "/payments/statistics",
+        },
+      ],
     },
     {
       title: "Talabalar",
