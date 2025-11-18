@@ -9,43 +9,23 @@ import { RetentionChurn } from "./ui/retention-churn"
 
 export default function Dashboard() {
   return (
-    <div className="flex flex-col gap-6 py-4 md:py-6">
-      {/* Main Statistics KPI Cards */}
-      <MainStatistics />
+    <div className="flex w-full min-w-0 flex-col gap-6 -m-2 lg:-m-3">
+      <div className="min-h-[calc(100vh-8rem)] rounded-lg bg-white p-4 lg:p-6 shadow-sm">
+        <div className="flex flex-col gap-6">
+          <div className="mb-2">
+            <h1 className="text-3xl font-bold">Dashboard</h1>
+            <p className="text-muted-foreground mt-1">Boshqaruv paneli va umumiy statistikalar</p>
+          </div>
 
-      {/* Revenue Chart */}
-      <div className="px-4 lg:px-6">
-        <RevenueChart />
-      </div>
-
-      {/* Lead Statistics */}
-      <div className="w-full">
-        <LeadStatistics />
-      </div>
-
-      {/* Student Statistics */}
-      <div className="w-full">
-        <StudentStatistics />
-      </div>
-
-      {/* Latest Payments */}
-      <div className="w-full">
-        <LatestPayments />
-      </div>
-
-      {/* Debts / Upcoming Payment Deadlines */}
-      <div className="w-full">
-        <DebtsSection />
-      </div>
-
-      {/* Course Statistics */}
-      <div className="w-full">
-        <CourseStatistics />
-      </div>
-
-      {/* Retention & Churn (Phase 2) */}
-      <div className="w-full">
-        <RetentionChurn />
+          <MainStatistics />
+          <RevenueChart />
+          <LeadStatistics />
+          <StudentStatistics />
+          <LatestPayments />
+          <DebtsSection />
+          <CourseStatistics />
+          <RetentionChurn />
+        </div>
       </div>
     </div>
   )
