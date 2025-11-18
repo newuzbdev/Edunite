@@ -73,7 +73,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="h-auto p-0 hover:bg-transparent"
             >
               <Link to="/">
-                <img src="/edunitelogo.png" alt="Edunite logo" className="h-14 w-auto" />
+              <p>LOGO</p>
+                {/* <img src="/edunitelogo.png" alt="Edunite logo" className="h- object-cover w-auto" /> */}
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

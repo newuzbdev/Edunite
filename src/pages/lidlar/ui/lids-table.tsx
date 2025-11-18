@@ -624,143 +624,150 @@ export default function LidsTable() {
   }, [total, newCount, interested, converted, closed])
 
   return (
-    <div className="flex w-full min-w-0 flex-col gap-4">
-      <div className="flex flex-col gap-3">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {summaryCards.map(card => (
-            <LidSummaryCard key={card.key} card={card} />
-          ))}
-        </div>
-      </div>
-      <div className="mt-2 flex flex-col gap-4 md:mt-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <Tabs value={viewMode} onValueChange={value => setViewMode(value as "table" | "board")} className="w-auto">
-            <TabsList className="grid grid-cols-2">
-              <TabsTrigger value="table" className="cursor-pointer">Jadval</TabsTrigger>
-              <TabsTrigger value="board" className="cursor-pointer">Kanban</TabsTrigger>
-            </TabsList>
-          </Tabs>
-          <Button onClick={() => onOpen()} className="cursor-pointer">
-            Lead qo&apos;shish
-          </Button>
-        </div>
-        
-        {/* Filters */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as LidStatus | "all")}>
-            <SelectTrigger>
-              <SelectValue placeholder="Status bo'yicha" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Barcha statuslar</SelectItem>
-              {STATUS_ORDER.map(status => (
-                <SelectItem key={status} value={status}>
-                  {STATUS_LABELS_UZ[status]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={courseFilter} onValueChange={setCourseFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Kurs bo'yicha" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Barcha kurslar</SelectItem>
-              {COURSE_TYPES_UZ.map(course => (
-                <SelectItem key={course} value={course}>
-                  {course}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={sourceFilter} onValueChange={setSourceFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Manba bo'yicha" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Barcha manbalar</SelectItem>
-              {Object.entries(SOURCE_LABELS_UZ).map(([key, label]) => (
-                <SelectItem key={key} value={key}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={managerFilter} onValueChange={setManagerFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Menedjer bo'yicha" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Barcha menedjerlar</SelectItem>
-              {MANAGERS.map(manager => (
-                <SelectItem key={manager.id} value={manager.id}>
-                  {manager.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Input
-            type="date"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            placeholder="Sana bo'yicha"
-          />
-        </div>
-      </div>
-
-      {viewMode === "table" ? (
-        <div>
-          <div className="overflow-hidden rounded-lg border bg-white">
-            <Table>
-              <TableHeader>
-                {table.getHeaderGroups().map(headerGroup => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map(header => (
-                      <TableHead key={header.id} colSpan={header.colSpan}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(header.column.columnDef.header, header.getContext())}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableHeader>
-
-              <TableBody>
-                {table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map(row => (
-                    <TableRow key={row.id}>
-                      {row.getVisibleCells().map(cell => (
-                        <TableCell key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell className="h-24 text-center" colSpan={columns.length}>
-                      Hech qanday lids mavjud emas
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+    <div className="flex w-full min-w-0 flex-col gap-4 -m-2 lg:-m-3">
+      <div className="min-h-[calc(100vh-8rem)] rounded-lg bg-white p-4 lg:p-6 shadow-sm">
+        <div className="flex flex-col gap-4">
+          <div className="mb-2">
+            <h1 className="text-3xl font-bold">Lidlar</h1>
+            <p className="text-muted-foreground mt-1">Lead management and statistics</p>
           </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {summaryCards.map(card => (
+              <LidSummaryCard key={card.key} card={card} />
+            ))}
+          </div>
+          
+          <div className="mt-2 flex flex-col gap-4 md:mt-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Tabs value={viewMode} onValueChange={value => setViewMode(value as "table" | "board")} className="w-auto">
+                <TabsList className="grid grid-cols-2">
+                  <TabsTrigger value="table" className="cursor-pointer">Jadval</TabsTrigger>
+                  <TabsTrigger value="board" className="cursor-pointer">Kanban</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <Button onClick={() => onOpen()} className="cursor-pointer">
+                Lead qo&apos;shish
+              </Button>
+            </div>
+            
+            {/* Filters */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as LidStatus | "all")}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Status bo'yicha" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Barcha statuslar</SelectItem>
+                  {STATUS_ORDER.map(status => (
+                    <SelectItem key={status} value={status}>
+                      {STATUS_LABELS_UZ[status]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={courseFilter} onValueChange={setCourseFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Kurs bo'yicha" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Barcha kurslar</SelectItem>
+                  {COURSE_TYPES_UZ.map(course => (
+                    <SelectItem key={course} value={course}>
+                      {course}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Manba bo'yicha" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Barcha manbalar</SelectItem>
+                  {Object.entries(SOURCE_LABELS_UZ).map(([key, label]) => (
+                    <SelectItem key={key} value={key}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={managerFilter} onValueChange={setManagerFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Menedjer bo'yicha" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Barcha menedjerlar</SelectItem>
+                  {MANAGERS.map(manager => (
+                    <SelectItem key={manager.id} value={manager.id}>
+                      {manager.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                placeholder="Sana bo'yicha"
+              />
+            </div>
+          </div>
+
+          {viewMode === "table" ? (
+            <div>
+              <div className="overflow-hidden rounded-lg border bg-white">
+                <Table>
+                  <TableHeader>
+                    {table.getHeaderGroups().map(headerGroup => (
+                      <TableRow key={headerGroup.id}>
+                        {headerGroup.headers.map(header => (
+                          <TableHead key={header.id} colSpan={header.colSpan}>
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(header.column.columnDef.header, header.getContext())}
+                          </TableHead>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableHeader>
+
+                  <TableBody>
+                    {table.getRowModel().rows?.length ? (
+                      table.getRowModel().rows.map(row => (
+                        <TableRow key={row.id}>
+                          {row.getVisibleCells().map(cell => (
+                            <TableCell key={cell.id}>
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell className="h-24 text-center" colSpan={columns.length}>
+                          Hech qanday lids mavjud emas
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          ) : (
+            <LidsBoard
+              lids={lids}
+              onEdit={handleEdit}
+              onDelete={handleDeleteClick}
+              onStatusChange={handleStatusChange}
+              onViewProfile={(lid) => navigate(`/lids/${lid.id}`)}
+            />
+          )}
         </div>
-      ) : (
-        <LidsBoard
-          lids={lids}
-          onEdit={handleEdit}
-          onDelete={handleDeleteClick}
-          onStatusChange={handleStatusChange}
-          onViewProfile={(lid) => navigate(`/lids/${lid.id}`)}
-        />
-      )}
+      </div>
 
       <LidsDrawer />
 
