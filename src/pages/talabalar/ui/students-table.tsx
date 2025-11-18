@@ -316,10 +316,14 @@ export default function StudentsTable() {
 	}, [])
 
 	return (
-		<div className="flex w-full min-w-0 flex-col gap-4">
-			<div className="flex flex-col gap-3">
-				<h2 className="text-lg font-semibold">Talabalar</h2>
-				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+		<div className="flex w-full min-w-0 flex-col gap-4 -m-2 lg:-m-3">
+			<div className="min-h-[calc(100vh-8rem)] rounded-lg bg-white p-4 lg:p-6 shadow-sm">
+				<div className="flex flex-col gap-4">
+					<div className="mb-2">
+						<h1 className="text-3xl font-bold">Talabalar</h1>
+						<p className="text-muted-foreground mt-1">Student management and statistics</p>
+					</div>
+					<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 					<Card className="shadow-xs">
 						<CardHeader className="flex flex-row items-start justify-between gap-3 pb-2">
 							<div className="space-y-1">
@@ -373,10 +377,9 @@ export default function StudentsTable() {
 						</CardHeader>
 					</Card>
 				</div>
-			</div>
 
-			{/* Search and Filters */}
-			<div className="flex flex-col gap-6 px-4 lg:px-6 mt-6">
+				{/* Search and Filters */}
+				<div className="flex flex-col gap-6 mt-6">
 				<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-6">
 					<div className="relative flex-1 w-full md:max-w-md">
 						<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -466,10 +469,9 @@ export default function StudentsTable() {
 						/>
 					</div>
 				</div>
-			</div>
 
-			{/* Table */}
-			<div className="mt-6">
+				{/* Table */}
+				<div className="mt-6">
 				<div className="overflow-hidden rounded-lg border bg-white">
 					<Table>
 						<TableHeader>
@@ -529,9 +531,12 @@ export default function StudentsTable() {
 						Keyingi
 					</Button>
 				</div>
+				</div>
 			</div>
+			</div>
+		</div>
 
-			<StudentsDrawer />
+		<StudentsDrawer />
 
 			<Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
 				<DialogContent>

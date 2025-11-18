@@ -64,21 +64,23 @@ export default function LidProfilePage() {
 	}
 
 	return (
-		<div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-			<div className="px-4 lg:px-6">
-				<Button
-					variant="ghost"
-					onClick={() => navigate("/lids")}
-					className="mb-4"
-				>
-					<ArrowLeft className="h-4 w-4 mr-2" />
-					Orqaga qaytish
-				</Button>
-				<h1 className="text-3xl font-bold">Lead Profili</h1>
-				<p className="text-muted-foreground mt-1">{selectedLid.name} - Batafsil ma'lumotlar</p>
-			</div>
+		<div className="flex w-full min-w-0 flex-col gap-4 -m-2 lg:-m-3">
+			<div className="min-h-[calc(100vh-8rem)] rounded-lg bg-white p-4 lg:p-6 shadow-sm">
+				<div className="flex flex-col gap-4">
+					<div className="mb-2">
+						<Button
+							variant="ghost"
+							onClick={() => navigate("/lids")}
+							className="mb-4"
+						>
+							<ArrowLeft className="h-4 w-4 mr-2" />
+							Orqaga qaytish
+						</Button>
+						<h1 className="text-3xl font-bold">Lead Profili</h1>
+						<p className="text-muted-foreground mt-1">{selectedLid.name} - Batafsil ma'lumotlar</p>
+					</div>
 
-			<div className="px-4 lg:px-6 space-y-6">
+					<div className="space-y-6">
 				{/* Basic Information */}
 				<Card>
 					<CardHeader>
@@ -194,7 +196,7 @@ export default function LidProfilePage() {
 									.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
 									.map((log) => (
 										<div key={log.id} className="flex gap-3 pb-4 border-b last:border-0">
-											<div className="flex-shrink-0">
+											<div className="shrink-0">
 												{log.type === "call" && (
 													<div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
 														<Phone className="h-4 w-4 text-blue-600 dark:text-blue-400" />
@@ -253,6 +255,8 @@ export default function LidProfilePage() {
 							Studentga aylantirish
 						</Button>
 					)}
+				</div>
+					</div>
 				</div>
 			</div>
 		</div>

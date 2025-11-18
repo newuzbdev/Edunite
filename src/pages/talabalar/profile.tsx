@@ -189,22 +189,27 @@ export default function StudentProfile() {
 	}
 
 	return (
-		<div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-			{/* Header */}
-			<div className="flex items-center gap-4 px-4 lg:px-6">
-				<Button
-					variant="ghost"
-					size="icon"
-					onClick={() => navigate("/talabalar")}
-					className="cursor-pointer"
-				>
-					<ArrowLeft className="h-4 w-4" />
-				</Button>
-				<h1 className="text-2xl font-semibold">Talaba profili</h1>
-			</div>
+		<div className="flex w-full min-w-0 flex-col gap-4 -m-2 lg:-m-3">
+			<div className="min-h-[calc(100vh-8rem)] rounded-lg bg-white p-4 lg:p-6 shadow-sm">
+				<div className="flex flex-col gap-4">
+					{/* Header */}
+					<div className="flex items-center gap-4 mb-2">
+						<Button
+							variant="ghost"
+							size="icon"
+							onClick={() => navigate("/talabalar")}
+							className="cursor-pointer"
+						>
+							<ArrowLeft className="h-4 w-4" />
+						</Button>
+						<div>
+							<h1 className="text-3xl font-bold">Talaba profili</h1>
+							<p className="text-muted-foreground mt-1">{student.fullName} - Batafsil ma'lumotlar</p>
+						</div>
+					</div>
 
-			{/* Student Header Card */}
-			<Card className="mx-4 lg:mx-6">
+					{/* Student Header Card */}
+					<Card>
 				<CardHeader>
 					<div className="flex items-start justify-between">
 						<div className="flex items-center gap-4">
@@ -243,8 +248,8 @@ export default function StudentProfile() {
 				</CardHeader>
 			</Card>
 
-			{/* Tabs */}
-			<div className="px-4 lg:px-6">
+					{/* Tabs */}
+					<div>
 				<Tabs defaultValue="overview" className="w-full">
 					<TabsList>
 						<TabsTrigger value="overview" className="cursor-pointer">
@@ -584,6 +589,8 @@ export default function StudentProfile() {
 						</div>
 					</TabsContent>
 				</Tabs>
+					</div>
+				</div>
 			</div>
 
 			{/* Payment Dialog */}
