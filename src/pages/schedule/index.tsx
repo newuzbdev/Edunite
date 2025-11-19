@@ -1,9 +1,13 @@
 import ScheduleCalendar from "./ui/schedule-calendar"
+import { PageLayout } from "@/shared/layout/page-layout"
 
 export default function Schedule() {
   return (
-    <div className="flex flex-col gap-4">
+    <PageLayout 
+      title="Jadval" 
+      description="Dars jadvali va rejalashtirish"
+    >
       <ScheduleCalendar />
-    </div>
+    </PageLayout>
   )
 }

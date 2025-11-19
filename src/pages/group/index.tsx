@@ -1,9 +1,13 @@
 import GroupsTable from "./ui/groups-table"
+import { PageLayout } from "@/shared/layout/page-layout"
 
 export default function Guruhlar() {
   return (
-    <div className="flex flex-col gap-4">
+    <PageLayout 
+      title="Guruhlar" 
+      description="Guruhlar ro'yxati va boshqaruvi"
+    >
       <GroupsTable />
-    </div>
+    </PageLayout>
   )
 }

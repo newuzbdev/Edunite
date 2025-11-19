@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowLeft, Phone, Calendar, User, MessageSquare, Clock, Edit } from "lucide-react"
 import { toast } from "sonner"
 import { useEffect } from "react"
+import { PageLayout } from "@/shared/layout/page-layout"
 
 export default function LidProfilePage() {
 	const { id } = useParams<{ id: string }>()
@@ -64,21 +65,19 @@ export default function LidProfilePage() {
 	}
 
 	return (
-		<div className="flex w-full min-w-0 flex-col gap-4 -m-2 lg:-m-3">
-			<div className="min-h-[calc(100vh-8rem)] rounded-lg bg-white p-4 lg:p-6 shadow-sm">
-				<div className="flex flex-col gap-4">
-					<div className="mb-2">
-						<Button
-							variant="ghost"
-							onClick={() => navigate("/lids")}
-							className="mb-4"
-						>
-							<ArrowLeft className="h-4 w-4 mr-2" />
-							Orqaga qaytish
-						</Button>
-						<h1 className="text-3xl font-bold">Lead Profili</h1>
-						<p className="text-muted-foreground mt-1">{selectedLid.name} - Batafsil ma'lumotlar</p>
-					</div>
+		<PageLayout
+			title="Lead Profili"
+			description={`${selectedLid.name} - Batafsil ma'lumotlar`}
+			headerActions={
+				<Button
+					variant="ghost"
+					onClick={() => navigate("/lids")}
+				>
+					<ArrowLeft className="h-4 w-4 mr-2" />
+					Orqaga qaytish
+				</Button>
+			}
+		>
 
 					<div className="space-y-6">
 				{/* Basic Information */}
@@ -256,10 +255,8 @@ export default function LidProfilePage() {
 						</Button>
 					)}
 				</div>
-					</div>
-				</div>
 			</div>
-		</div>
+		</PageLayout>
 	)
 }
 

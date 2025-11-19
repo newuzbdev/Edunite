@@ -71,6 +71,7 @@ type LidsBoardProps = {
   onDelete: (lid: Lid) => void
   onStatusChange: (id: string, status: LidStatus, options?: StatusChangeOptions) => void
   onViewProfile: (lid: Lid) => void
+  onAddNew: () => void
 }
 
 type SortableListeners = ReturnType<typeof useSortable>["listeners"]
@@ -126,7 +127,7 @@ function LidSummaryCard({ card }: { card: LidSummaryCardConfig }) {
   )
 }
 
-function LidsBoard({ lids, onEdit, onDelete, onStatusChange, onViewProfile }: LidsBoardProps) {
+function LidsBoard({ lids, onEdit, onDelete, onStatusChange, onViewProfile, onAddNew }: LidsBoardProps) {
   const [activeLidId, setActiveLidId] = useState<string | null>(null)
   const activeLid = activeLidId ? lids.find(lid => lid.id === activeLidId) ?? null : null
 
@@ -166,13 +167,20 @@ function LidsBoard({ lids, onEdit, onDelete, onStatusChange, onViewProfile }: Li
   }, [])
 
   return (
-    <DndContext
-      sensors={sensors}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-      onDragCancel={handleDragCancel}
-    >
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+    <div className="flex flex-col gap-4">
+      <div className="flex justify-end">
+        <Button onClick={onAddNew} className="cursor-pointer">
+          <UserPlus className="mr-2 h-4 w-4" />
+          Lead qo&apos;shish
+        </Button>
+      </div>
+      <DndContext
+        sensors={sensors}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
+      >
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
         {STATUS_ORDER.map(status => {
           const items = lids.filter(lid => lid.status === status)
           return (
@@ -199,6 +207,7 @@ function LidsBoard({ lids, onEdit, onDelete, onStatusChange, onViewProfile }: Li
         ) : null}
       </DragOverlay>
     </DndContext>
+    </div>
   )
 }
 
@@ -759,6 +768,7 @@ export default function LidsTable() {
           onDelete={handleDeleteClick}
           onStatusChange={handleStatusChange}
           onViewProfile={(lid) => navigate(`/lids/${lid.id}`)}
+          onAddNew={() => onOpen()}
         />
       )}
 

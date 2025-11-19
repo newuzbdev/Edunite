@@ -454,14 +454,8 @@ export default function GroupsTable() {
 	}, [])
 
 	return (
-		<div className="flex w-full min-w-0 flex-col gap-4 -m-2 lg:-m-3">
-			<div className="min-h-[calc(100vh-8rem)] rounded-lg bg-white p-4 lg:p-6 shadow-sm">
-				<div className="flex flex-col gap-4">
-					<div className="mb-2">
-						<h1 className="text-3xl font-bold">Guruhlar</h1>
-						<p className="text-muted-foreground mt-1">Guruhlar boshqaruvi va statistikasi</p>
-					</div>
-					<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+		<div className="flex flex-col gap-4">
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 						<Card className="shadow-xs">
 							<CardHeader className="flex flex-row items-start justify-between gap-3 pb-2">
 								<div className="space-y-1">
@@ -660,8 +654,6 @@ export default function GroupsTable() {
 							</div>
 						</div>
 					</div>
-				</div>
-			</div>
 
 			<GroupsDrawer />
 

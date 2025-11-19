@@ -150,14 +150,7 @@ export default function ScheduleCalendar() {
 	}
 
 	return (
-		<div className="flex w-full min-w-0 flex-col gap-4 -m-2 lg:-m-3">
-			<div className="min-h-[calc(100vh-8rem)] rounded-lg bg-white p-4 lg:p-6 shadow-sm">
-				<div className="flex flex-col gap-4">
-					<div className="mb-2">
-						<h1 className="text-3xl font-bold">Dars Jadvali</h1>
-						<p className="text-muted-foreground mt-1">Haftalik darslar jadvali</p>
-					</div>
-
+		<div className="flex flex-col gap-4">
 					{/* Controls */}
 					<div className="flex flex-col gap-4">
 						<div className="flex items-center justify-between">
@@ -319,8 +312,6 @@ export default function ScheduleCalendar() {
 							</div>
 						</div>
 					</div>
-				</div>
-			</div>
 
 			<LessonModal
 				open={showLessonModal}

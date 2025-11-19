@@ -1,9 +1,13 @@
 import StudentsTable from "./ui/students-table"
+import { PageLayout } from "@/shared/layout/page-layout"
 
 export default function Talabalar() {
   return (
-    <div className="flex flex-col gap-4">
+    <PageLayout 
+      title="Talabalar" 
+      description="Talabalar ro'yxati va boshqaruvi"
+    >
       <StudentsTable />
-    </div>
+    </PageLayout>
   )
 }

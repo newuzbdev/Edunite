@@ -42,6 +42,7 @@ import {
 } from "lucide-react"
 import { useState, useMemo } from "react"
 import { toast } from "sonner"
+import { PageLayout } from "@/shared/layout/page-layout"
 
 export default function StudentProfile() {
 	const { id } = useParams<{ id: string }>()
@@ -189,24 +190,20 @@ export default function StudentProfile() {
 	}
 
 	return (
-		<div className="flex w-full min-w-0 flex-col gap-4 -m-2 lg:-m-3">
-			<div className="min-h-[calc(100vh-8rem)] rounded-lg bg-white p-4 lg:p-6 shadow-sm">
-				<div className="flex flex-col gap-4">
-					{/* Header */}
-					<div className="flex items-center gap-4 mb-2">
-						<Button
-							variant="ghost"
-							size="icon"
-							onClick={() => navigate("/talabalar")}
-							className="cursor-pointer"
-						>
-							<ArrowLeft className="h-4 w-4" />
-						</Button>
-						<div>
-							<h1 className="text-3xl font-bold">Talaba profili</h1>
-							<p className="text-muted-foreground mt-1">{student.fullName} - Batafsil ma'lumotlar</p>
-						</div>
-					</div>
+		<PageLayout
+			title="Talaba profili"
+			description={`${student.fullName} - Batafsil ma'lumotlar`}
+			headerActions={
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={() => navigate("/talabalar")}
+					className="cursor-pointer"
+				>
+					<ArrowLeft className="h-4 w-4" />
+				</Button>
+			}
+		>
 
 					{/* Student Header Card */}
 					<Card>
@@ -590,8 +587,6 @@ export default function StudentProfile() {
 					</TabsContent>
 				</Tabs>
 					</div>
-				</div>
-			</div>
 
 			{/* Payment Dialog */}
 			<Dialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
@@ -733,7 +728,7 @@ export default function StudentProfile() {
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
-		</div>
+		</PageLayout>
 	)
 }
 

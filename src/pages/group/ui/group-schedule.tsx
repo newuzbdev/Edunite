@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import { useGroupsStore } from "../utils/groups-store"
 import { toast } from "sonner"
+import { PageLayout } from "@/shared/layout/page-layout"
 
 // Types
 type AttendanceStatus = "present" | "absent" | "late" | "none"
@@ -122,17 +123,20 @@ export default function GroupSchedule() {
 
 	if (!selectedGroup) {
 		return (
-			<div className="flex w-full min-w-0 flex-col gap-4 -m-2 lg:-m-3">
-				<div className="min-h-[calc(100vh-8rem)] rounded-lg bg-white p-4 lg:p-6 shadow-sm">
-					<div className="flex flex-col items-center justify-center h-full">
-						<p className="text-muted-foreground">Guruh topilmadi</p>
-						<Button onClick={() => navigate('/groups')} className="mt-4">
-							<ArrowLeft className="mr-2 h-4 w-4" />
-							Guruhlar ro'yxatiga qaytish
-						</Button>
-					</div>
+			<PageLayout
+				title="Guruh topilmadi"
+				description=""
+				headerActions={
+					<Button onClick={() => navigate('/groups')}>
+						<ArrowLeft className="mr-2 h-4 w-4" />
+						Guruhlar ro'yxatiga qaytish
+					</Button>
+				}
+			>
+				<div className="flex flex-col items-center justify-center h-full min-h-[400px]">
+					<p className="text-muted-foreground">Guruh topilmadi</p>
 				</div>
-			</div>
+			</PageLayout>
 		)
 	}
 
@@ -261,20 +265,19 @@ export default function GroupSchedule() {
 	)
 
 	return (
-		<div className="flex w-full min-w-0 flex-col gap-4 -m-2 lg:-m-3">
-			<div className="min-h-[calc(100vh-8rem)] rounded-lg bg-white p-4 lg:p-6 shadow-sm">
-				<div className="flex flex-col gap-4">
-					{/* Header */}
-					<div className="mb-2">
-						<div className="flex items-center gap-4 mb-4">
-							<Button variant="outline" size="sm" onClick={() => navigate('/groups')} className="bg-green-500 text-white hover:bg-green-600 border-green-500">
-								<ArrowLeft className="h-4 w-4 mr-2" />
-								{selectedGroup.name}
-							</Button>
-						</div>
-						
-						{/* Group Info Cards */}
-						<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+		<PageLayout
+			title={`${selectedGroup.name} - Davomat jadvali`}
+			description="Oylik yo'qlama jadvali va davomat boshqaruvi"
+			headerActions={
+				<Button variant="outline" size="sm" onClick={() => navigate('/groups')} className="bg-green-500 text-white hover:bg-green-600 border-green-500">
+					<ArrowLeft className="h-4 w-4 mr-2" />
+					Guruhlar ro'yxatiga qaytish
+				</Button>
+			}
+		>
+			<div className="flex flex-col gap-4">
+				{/* Group Info Cards */}
+				<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
 							<div>
 								<p className="text-sm text-muted-foreground">O'qituvchi</p>
 								<p className="font-medium">{selectedGroup.teacher.name}</p>
@@ -296,7 +299,6 @@ export default function GroupSchedule() {
 								<p className="font-medium">2025-01-01/2026-09-01</p>
 							</div>
 						</div>
-					</div>
 
 					{/* Title, Search, and Month Navigation */}
 					<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
@@ -433,8 +435,7 @@ export default function GroupSchedule() {
 							Davomatni o'zgartirish uchun katakchaga bosing
 						</div>
 					</div>
-				</div>
 			</div>
-		</div>
+		</PageLayout>
 	)
 }

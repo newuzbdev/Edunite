@@ -5,13 +5,7 @@ import { RevenueChart } from "../../dashboard/ui/revenue-chart"
 
 export default function Statistics() {
   return (
-    <div className="flex w-full min-w-0 flex-col gap-4 -m-2 lg:-m-3">
-      <div className="min-h-[calc(100vh-8rem)] rounded-lg bg-white p-4 lg:p-6 shadow-sm">
-        <div className="flex flex-col gap-4">
-          <div className="mb-2">
-            <h1 className="text-3xl font-bold">To'lov statistikasi</h1>
-            <p className="text-muted-foreground mt-1">Daromad va to'lovlar tahlili</p>
-          </div>
+    <div className="flex flex-col gap-4">
 
           {/* Summary Cards */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -140,8 +134,6 @@ export default function Statistics() {
               </div>
             </Card>
           </div>
-        </div>
-      </div>
     </div>
   )
 }
