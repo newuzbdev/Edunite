@@ -90,7 +90,7 @@ export default function GroupsTable() {
 
 	const handleView = useCallback(
 		(group: Group) => {
-			navigate(`/groups/${group.id}`)
+			navigate(`/groups/${group.id}/schedule`)
 		},
 		[navigate]
 	)

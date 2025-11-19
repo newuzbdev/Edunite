@@ -4,6 +4,7 @@ import Lidlar from '@/pages/lidlar/lids'
 import LidProfile from '@/pages/lidlar/profile'
 import Oqituvchilar from '@/pages/teachers.tsx'
 import Guruhlar from '@/pages/group'
+import GroupSchedule from '@/pages/group/ui/group-schedule'
 import Schedule from '@/pages/schedule'
 import Talabalar from '@/pages/talabalar'
 import StudentProfile from '@/pages/talabalar/profile'
@@ -35,6 +36,10 @@ export const router = createBrowserRouter([
 			{
 				path: '/groups',
 				element: <Guruhlar />
+			},
+			{
+				path: '/groups/:id/schedule',
+				element: <GroupSchedule />
 			},
 			{
 				path: '/schedule',

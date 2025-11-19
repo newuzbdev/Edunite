@@ -31,7 +31,6 @@ export default function StudentsForm() {
 	const [phone, setPhone] = useState("")
 	const [courseName, setCourseName] = useState(COURSE_TYPES_UZ[0])
 	const [group, setGroup] = useState("")
-	const [schedule, setSchedule] = useState("")
 	const [teacher, setTeacher] = useState("")
 	const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("paid")
 	const [nextPaymentDate, setNextPaymentDate] = useState("")
@@ -56,7 +55,7 @@ export default function StudentsForm() {
 					id: data?.courses[0]?.id || Date.now().toString(),
 					name: courseName,
 					group,
-					schedule: schedule || "Belgilanmagan",
+					schedule: "Belgilanmagan",
 					teacher: teacher || "Belgilanmagan",
 				},
 			],
@@ -83,7 +82,6 @@ export default function StudentsForm() {
 		setPhone("")
 		setCourseName(COURSE_TYPES_UZ[0])
 		setGroup("")
-		setSchedule("")
 		setTeacher("")
 		setPaymentStatus("paid")
 		setNextPaymentDate("")
@@ -101,7 +99,6 @@ export default function StudentsForm() {
 			setPhone(data.phone)
 			setCourseName(data.courses[0]?.name || COURSE_TYPES_UZ[0])
 			setGroup(data.group)
-			setSchedule(data.courses[0]?.schedule || "")
 			setTeacher(data.courses[0]?.teacher || "")
 			setPaymentStatus(data.paymentStatus)
 			setNextPaymentDate(data.nextPaymentDate)
@@ -115,7 +112,6 @@ export default function StudentsForm() {
 			setPhone("")
 			setCourseName(COURSE_TYPES_UZ[0])
 			setGroup("")
-			setSchedule("")
 			setTeacher("")
 			setPaymentStatus("paid")
 			setNextPaymentDate("")
@@ -170,15 +166,6 @@ export default function StudentsForm() {
 						value={group}
 						onChange={(e) => setGroup(e.target.value)}
 						placeholder="Guruh nomi"
-					/>
-				</div>
-
-				<div>
-					<Label className="mb-1 block text-sm font-medium">Dars jadvali</Label>
-					<Input
-						value={schedule}
-						onChange={(e) => setSchedule(e.target.value)}
-						placeholder="Dushanba, Chorshanba, Juma - 18:00"
 					/>
 				</div>
 

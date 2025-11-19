@@ -8,7 +8,6 @@ import {
   GraduationCap,
   Users,
   UserCircle,
-  Calendar,
 } from "lucide-react"
 
 import { NavMain } from "@/shared/layout/nav-main"
@@ -44,20 +43,6 @@ const data = {
       title: "To'lovlar",
       url: "/payments",
       icon: DollarSign,
-      items: [
-        {
-          title: "To'lovlar",
-          url: "/payments",
-        },
-        {
-          title: "Qarzdorlar",
-          url: "/payments/debtors",
-        },
-        {
-          title: "Statistika",
-          url: "/payments/statistics",
-        },
-      ],
     },
     {
       title: "Talabalar",
@@ -74,11 +59,6 @@ const data = {
       url: "/teachers",
       icon: UserCircle,
     },
-    {
-      title: "Dars Jadvali",
-      url: "/schedule",
-      icon: Calendar,
-    },
   ],
 }
 
@@ -92,15 +72,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="h-auto p-0 hover:bg-transparent"
             >
-              <Link to="/">
-              <p>LOGO</p>
-                {/* <img src="/edunitelogo.png" alt="Edunite logo" className="h- object-cover w-auto" /> */}
+              <Link to="/" className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-white font-semibold text-base">
+                  e
+                </div>
+                <span className="text-black font-medium text-base lowercase">edunite</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent className="p-4">
+      <SidebarContent className="px-1 py-4">
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter className="border-t p-4">
