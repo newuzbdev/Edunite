@@ -8,6 +8,7 @@ import {
   GraduationCap,
   Users,
   UserCircle,
+  Calendar,
 } from "lucide-react"
 
 import { NavMain } from "@/shared/layout/nav-main"
@@ -72,6 +73,11 @@ const data = {
       title: "O'qituvchilar",
       url: "/teachers",
       icon: UserCircle,
+    },
+    {
+      title: "Dars Jadvali",
+      url: "/schedule",
+      icon: Calendar,
     },
   ],
 }

@@ -115,7 +115,7 @@ export default function DebtorsTable() {
     toast.info(`${debtor.fullName} ga qo'ng'iroq qilindi - ${new Date().toLocaleString()}`)
   }, [])
 
-  const handleAddPayment = useCallback((debtor: Student) => {
+  const handleAddPayment = useCallback((_debtor: Student) => {
     onOpenPayment(null) // Open payment form, but need to pre-select student
     // For now, just open
   }, [onOpenPayment])
