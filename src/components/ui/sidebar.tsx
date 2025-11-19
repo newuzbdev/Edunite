@@ -27,7 +27,7 @@ import {
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "16rem"
+const SIDEBAR_WIDTH = "15rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
@@ -597,7 +597,7 @@ function SidebarMenuButton({
             className={cn(
               // Span the full height of the menu item so it appears as a
               // vertical line/pill on the left side.
-              "absolute inset-y-0 -left-2 w-2 rounded-r-full bg-sidebar-accent z-10",
+              "absolute inset-y-0 -left-3 w-3 rounded-r-full bg-sidebar-accent z-10",
               "group-data-[collapsible=icon]:hidden"
             )}
           />
@@ -619,7 +619,7 @@ function SidebarMenuButton({
           <span
             aria-hidden
             className={cn(
-              "absolute inset-y-0 -left-2 w-2 rounded-r-full bg-sidebar-accent z-10",
+              "absolute inset-y-0 -left-3 w-3 rounded-r-full bg-sidebar-accent z-10",
               "group-data-[collapsible=icon]:hidden"
             )}
           />

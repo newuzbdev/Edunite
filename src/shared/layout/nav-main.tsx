@@ -101,6 +101,7 @@ export function NavMain({
                           <SidebarMenuSubButton
                             asChild
                             isActive={isSubActive}
+                            className="text-base"
                           >
                             <Link
                               to={subItem.url}
