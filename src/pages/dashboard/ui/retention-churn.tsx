@@ -6,7 +6,7 @@ import { Clock, TrendingDown, RefreshCw } from "lucide-react"
 // Placeholder component for Phase 2
 export function RetentionChurn() {
   return (
-    <Card className="px-4 lg:px-6">
+    <Card>
       <CardHeader>
         <CardTitle>Saqlanish va tushish statistikasi</CardTitle>
         <CardDescription>Faza 2 - Tez orada qo'shiladi</CardDescription>

@@ -19,7 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import {
@@ -29,17 +29,41 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
 import {
-  MoreVertical,
-  Plus,
-  Download,
-  Upload,
-  Search,
-  Eye,
-  Edit,
-  Trash2,
+	MoreVertical,
+	Plus,
+	Download,
+	Upload,
+	Search,
+	Eye,
+	Edit,
+	Trash2,
+	Filter,
+	Calendar,
+	CreditCard,
+	BookOpen,
+	CheckCircle2,
+	X,
 } from "lucide-react"
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetFooter,
+	SheetHeader,
+	SheetTitle,
+} from "@/components/ui/sheet"
+import { cn } from "@/lib/utils"
+import type { ChangeEvent } from "react"
+
+const PAYMENT_FILTER_DEFAULTS = {
+	paymentType: "all",
+	course: "all",
+	status: "all",
+	date: "",
+	amountMin: "",
+	amountMax: "",
+}
 import { usePaymentsStore, PAYMENT_STATUS_LABELS_UZ, PAYMENT_TYPE_LABELS_UZ, type PaymentRecord, type PaymentStatus, type PaymentType } from "../utils/payments-store"
 import PaymentsDrawer from "./payments-drawer"
 import { toast } from "sonner"
@@ -52,10 +76,11 @@ export default function PaymentsTable() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [paymentToDelete, setPaymentToDelete] = useState<PaymentRecord | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
-  const [paymentTypeFilter, setPaymentTypeFilter] = useState<string>("all")
-  const [courseFilter, setCourseFilter] = useState<string>("all")
-  const [statusFilter, setStatusFilter] = useState<string>("all")
-  const [dateFilter, setDateFilter] = useState<string>("")
+	const [filterSheetOpen, setFilterSheetOpen] = useState(false)
+	const [filterState, setFilterState] = useState({ ...PAYMENT_FILTER_DEFAULTS })
+	const [activeFilters, setActiveFilters] = useState<
+		Array<{ id: string; type: string; label: string; value: string }>
+	>([])
 
   const handleEdit = useCallback(
     (payment: PaymentRecord) => {
@@ -93,40 +118,133 @@ export default function PaymentsTable() {
     return Array.from(courses)
   }, [payments])
 
-  // Filter payments
-  const filteredPayments = useMemo(() => {
-    return payments.filter((payment) => {
-      // Search filter
-      if (
-        searchQuery &&
-        !payment.studentName.toLowerCase().includes(searchQuery.toLowerCase())
-      ) {
-        return false
-      }
+	const handleApplyFilters = useCallback(() => {
+		const newFilters: Array<{ id: string; type: string; label: string; value: string }> = []
 
-      // Payment type filter
-      if (paymentTypeFilter !== "all" && payment.paymentType !== paymentTypeFilter) {
-        return false
-      }
+		if (filterState.paymentType !== "all") {
+			newFilters.push({
+				id: `paymentType-${filterState.paymentType}`,
+				type: "paymentType",
+				value: filterState.paymentType,
+				label: PAYMENT_TYPE_LABELS_UZ[filterState.paymentType as PaymentType] ?? filterState.paymentType,
+			})
+		}
 
-      // Course filter
-      if (courseFilter !== "all" && payment.course !== courseFilter) {
-        return false
-      }
+		if (filterState.course !== "all") {
+			newFilters.push({
+				id: `course-${filterState.course}`,
+				type: "course",
+				value: filterState.course,
+				label: filterState.course,
+			})
+		}
 
-      // Status filter
-      if (statusFilter !== "all" && payment.status !== statusFilter) {
-        return false
-      }
+		if (filterState.status !== "all") {
+			newFilters.push({
+				id: `status-${filterState.status}`,
+				type: "status",
+				value: filterState.status,
+				label: PAYMENT_STATUS_LABELS_UZ[filterState.status as PaymentStatus] ?? filterState.status,
+			})
+		}
 
-      // Date filter
-      if (dateFilter && payment.date !== dateFilter) {
-        return false
-      }
+		if (filterState.date) {
+			newFilters.push({
+				id: `date-${filterState.date}`,
+				type: "date",
+				value: filterState.date,
+				label: new Date(filterState.date).toLocaleDateString("uz-UZ"),
+			})
+		}
 
-      return true
-    })
-  }, [payments, searchQuery, paymentTypeFilter, courseFilter, statusFilter, dateFilter])
+		if (filterState.amountMin || filterState.amountMax) {
+			newFilters.push({
+				id: `amount-${filterState.amountMin}-${filterState.amountMax}`,
+				type: "amount",
+				value: `${filterState.amountMin}-${filterState.amountMax}`,
+				label: `${filterState.amountMin || "0"} - ${filterState.amountMax || "∞"} so'm`,
+			})
+		}
+
+		setActiveFilters(newFilters)
+		setFilterSheetOpen(false)
+	}, [filterState])
+
+	const handleClearFilters = useCallback(() => {
+		setFilterState({ ...PAYMENT_FILTER_DEFAULTS })
+		setActiveFilters([])
+	}, [])
+
+	const handleRemoveFilter = useCallback(
+		(filterId: string) => {
+			const target = activeFilters.find((filter) => filter.id === filterId)
+			if (!target) return
+
+			setActiveFilters((prev) => prev.filter((filter) => filter.id !== filterId))
+
+			switch (target.type) {
+				case "paymentType":
+					setFilterState((prev) => ({ ...prev, paymentType: "all" }))
+					break
+				case "course":
+					setFilterState((prev) => ({ ...prev, course: "all" }))
+					break
+				case "status":
+					setFilterState((prev) => ({ ...prev, status: "all" }))
+					break
+				case "date":
+					setFilterState((prev) => ({ ...prev, date: "" }))
+					break
+				case "amount":
+					setFilterState((prev) => ({ ...prev, amountMin: "", amountMax: "" }))
+					break
+			}
+		},
+		[activeFilters],
+	)
+
+	const handleResetFilters = useCallback(() => {
+		setSearchQuery("")
+		handleClearFilters()
+	}, [handleClearFilters])
+
+	// Filter payments
+	const filteredPayments = useMemo(() => {
+		return payments.filter((payment) => {
+			if (
+				searchQuery &&
+				!payment.studentName.toLowerCase().includes(searchQuery.toLowerCase())
+			) {
+				return false
+			}
+
+			if (filterState.paymentType !== "all" && payment.paymentType !== filterState.paymentType) {
+				return false
+			}
+
+			if (filterState.course !== "all" && payment.course !== filterState.course) {
+				return false
+			}
+
+			if (filterState.status !== "all" && payment.status !== filterState.status) {
+				return false
+			}
+
+			if (filterState.date && payment.date !== filterState.date) {
+				return false
+			}
+
+			if (filterState.amountMin && payment.amount < Number(filterState.amountMin)) {
+				return false
+			}
+
+			if (filterState.amountMax && payment.amount > Number(filterState.amountMax)) {
+				return false
+			}
+
+			return true
+		})
+	}, [payments, searchQuery, filterState])
 
   const columns = useMemo<ColumnDef<PaymentRecord, unknown>[]>(() => [
     {
@@ -336,100 +454,253 @@ export default function PaymentsTable() {
             </Card>
           </div>
 
-          {/* Search and Filters */}
-          <div className="flex flex-col gap-6 mt-6">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-6">
-              <div className="relative flex-1 w-full md:max-w-md">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Talaba ismi bo'yicha qidirish..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 w-full"
-                />
-              </div>
-              <div className="flex flex-wrap items-center gap-2 md:flex-nowrap md:shrink-0">
-                <Button variant="outline" onClick={handleImport} className="cursor-pointer flex-1 md:flex-initial">
-                  <Upload className="mr-2 h-4 w-4" />
-                  Import
-                </Button>
-                <Button variant="outline" onClick={handleExport} className="cursor-pointer flex-1 md:flex-initial">
-                  <Download className="mr-2 h-4 w-4" />
-                  Export
-                </Button>
-                <Button onClick={() => onOpen()} className="cursor-pointer flex-1 md:flex-initial">
-                  <Plus className="mr-2 h-4 w-4" />
-                  To'lov qo'shish
-                </Button>
-              </div>
-            </div>
+			{/* Search and Filters */}
+			<div className="flex flex-col gap-6 mt-6">
+				<div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+					<div className="relative flex-1 w-full lg:max-w-xl">
+						<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+						<Input
+							placeholder="Talaba ismi bo'yicha qidirish..."
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+							className="pl-9 w-full bg-white shadow-sm"
+						/>
+					</div>
+					<div className="flex flex-wrap items-center gap-2">
+						{(activeFilters.length > 0 || searchQuery) && (
+							<Button variant="outline" size="sm" onClick={handleResetFilters} className="cursor-pointer">
+								Tozalash
+							</Button>
+						)}
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => setFilterSheetOpen(true)}
+							className="cursor-pointer"
+						>
+							<Filter className="mr-2 h-4 w-4" />
+							Barcha Filterlar
+						</Button>
+						<Button variant="outline" size="sm" onClick={handleImport} className="cursor-pointer">
+							<Upload className="mr-2 h-4 w-4" />
+							Import
+						</Button>
+						<Button variant="outline" size="sm" onClick={handleExport} className="cursor-pointer">
+							<Download className="mr-2 h-4 w-4" />
+							Export
+						</Button>
+						<Button size="sm" onClick={() => onOpen()} className="cursor-pointer">
+							<Plus className="mr-2 h-4 w-4" />
+							To'lov qo'shish
+						</Button>
+					</div>
+				</div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">To'lov turi</Label>
-                <Select value={paymentTypeFilter} onValueChange={setPaymentTypeFilter}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Barcha turlar" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Barcha turlar</SelectItem>
-                    {Object.entries(PAYMENT_TYPE_LABELS_UZ).map(([key, label]) => (
-                      <SelectItem key={key} value={key}>
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+				{activeFilters.length > 0 && (
+					<div className="flex flex-wrap items-center gap-2">
+						{activeFilters.map((filter) => (
+							<Badge key={filter.id} variant="secondary" className="gap-1.5 px-3 py-1.5 text-sm bg-white">
+								<span className="font-medium">
+									{filter.type === "paymentType" && "To'lov turi: "}
+									{filter.type === "course" && "Kurs: "}
+									{filter.type === "status" && "Status: "}
+									{filter.type === "date" && "Sana: "}
+									{filter.type === "amount" && "Summasi: "}
+								</span>
+								<span>{filter.label}</span>
+								<button
+									onClick={() => handleRemoveFilter(filter.id)}
+									className="ml-1 rounded-full hover:bg-muted-foreground/20 p-0.5 transition-colors"
+								>
+									<X className="h-3 w-3" />
+								</button>
+							</Badge>
+						))}
+					</div>
+				)}
 
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Kurs bo'yicha filter</Label>
-                <Select value={courseFilter} onValueChange={setCourseFilter}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Barcha kurslar" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Barcha kurslar</SelectItem>
-                    {uniqueCourses.map((course) => (
-                      <SelectItem key={course} value={course}>
-                        {course}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+				<Sheet open={filterSheetOpen} onOpenChange={setFilterSheetOpen}>
+					<SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto p-0">
+						<div className="flex flex-col h-full">
+							<SheetHeader className="px-6 pt-6 pb-4 border-b bg-gradient-to-b from-background to-muted/20">
+								<SheetTitle className="text-2xl font-bold tracking-tight">Kengaytirilgan Filterlar</SheetTitle>
+								<SheetDescription className="text-sm text-muted-foreground mt-2">
+									Aniqroq natija olish uchun quyidagi parametrlarni sozlang.
+								</SheetDescription>
+							</SheetHeader>
 
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Status</Label>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Barcha statuslar" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Barcha statuslar</SelectItem>
-                    {Object.entries(PAYMENT_STATUS_LABELS_UZ).map(([key, label]) => (
-                      <SelectItem key={key} value={key}>
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+							<div className="flex-1 overflow-y-auto px-6 py-6">
+								<div className="flex flex-col gap-6">
+									<Card className="border shadow-sm">
+										<CardHeader className="pb-3">
+											<CardTitle className="text-base font-semibold flex items-center gap-2">
+												<div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary">
+													<CreditCard className="h-4 w-4" />
+												</div>
+												To'lov turi
+											</CardTitle>
+											<CardDescription className="text-xs text-muted-foreground">
+												To'lov manbasi yoki usulini tanlang
+											</CardDescription>
+										</CardHeader>
+										<CardContent>
+											<Select
+												value={filterState.paymentType}
+												onValueChange={(value) => setFilterState((prev) => ({ ...prev, paymentType: value }))}
+											>
+												<SelectTrigger className="bg-background">
+													<SelectValue placeholder="Barcha turlar" />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="all">Barcha turlar</SelectItem>
+													{Object.entries(PAYMENT_TYPE_LABELS_UZ).map(([key, label]) => (
+														<SelectItem key={key} value={key}>
+															{label}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+										</CardContent>
+									</Card>
 
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Sana bo'yicha filter</Label>
-                <Input
-                  type="date"
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  placeholder="To'lov sanasi"
-                  className="w-full"
-                />
-              </div>
-            </div>
+									<Card className="border shadow-sm">
+										<CardHeader className="pb-3">
+											<CardTitle className="text-base font-semibold flex items-center gap-2">
+												<div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary">
+													<BookOpen className="h-4 w-4" />
+												</div>
+												Kurs
+											</CardTitle>
+											<CardDescription className="text-xs text-muted-foreground">
+												Ma'lum bir kursni tanlang
+											</CardDescription>
+										</CardHeader>
+										<CardContent>
+											<Select
+												value={filterState.course}
+												onValueChange={(value) => setFilterState((prev) => ({ ...prev, course: value }))}
+											>
+												<SelectTrigger className="bg-background">
+													<SelectValue placeholder="Barcha kurslar" />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="all">Barcha kurslar</SelectItem>
+													{uniqueCourses.map((course) => (
+														<SelectItem key={course} value={course}>
+															{course}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+										</CardContent>
+									</Card>
 
-            {/* Table */}
-            <div className="mt-6">
+									<Card className="border shadow-sm">
+										<CardHeader className="pb-3">
+											<CardTitle className="text-base font-semibold flex items-center gap-2">
+												<div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary">
+													<CheckCircle2 className="h-4 w-4" />
+												</div>
+												Status
+											</CardTitle>
+											<CardDescription className="text-xs text-muted-foreground">
+												To'lov holatini tanlang
+											</CardDescription>
+										</CardHeader>
+										<CardContent>
+											<Select
+												value={filterState.status}
+												onValueChange={(value) => setFilterState((prev) => ({ ...prev, status: value }))}
+											>
+												<SelectTrigger className="bg-background">
+													<SelectValue placeholder="Barcha statuslar" />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="all">Barcha statuslar</SelectItem>
+													{Object.entries(PAYMENT_STATUS_LABELS_UZ).map(([key, label]) => (
+														<SelectItem key={key} value={key}>
+															{label}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+										</CardContent>
+									</Card>
+
+									<Card className="border shadow-sm">
+										<CardHeader className="pb-3">
+											<CardTitle className="text-base font-semibold flex items-center gap-2">
+												<div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary">
+													<Calendar className="h-4 w-4" />
+												</div>
+												Sana va summa
+											</CardTitle>
+											<CardDescription className="text-xs text-muted-foreground">
+												To'lov sanasi yoki summasi bo'yicha filterlang
+											</CardDescription>
+										</CardHeader>
+										<CardContent className="space-y-4">
+											<div className="space-y-2">
+												<label className="text-sm font-medium">To'lov sanasi</label>
+												<Input
+													type="date"
+													value={filterState.date}
+													onChange={(event: ChangeEvent<HTMLInputElement>) =>
+														setFilterState((prev) => ({ ...prev, date: event.target.value }))
+													}
+													className="bg-background"
+												/>
+											</div>
+											<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+												<Input
+													type="number"
+													min={0}
+													placeholder="Minimal summa"
+													value={filterState.amountMin}
+													onChange={(event: ChangeEvent<HTMLInputElement>) =>
+														setFilterState((prev) => ({ ...prev, amountMin: event.target.value }))
+													}
+													className="bg-background"
+												/>
+												<Input
+													type="number"
+													min={0}
+													placeholder="Maksimal summa"
+													value={filterState.amountMax}
+													onChange={(event: ChangeEvent<HTMLInputElement>) =>
+														setFilterState((prev) => ({ ...prev, amountMax: event.target.value }))
+													}
+													className="bg-background"
+												/>
+											</div>
+										</CardContent>
+									</Card>
+								</div>
+							</div>
+
+							<SheetFooter className="px-6 py-4 border-t bg-muted/30 flex flex-row items-center justify-between gap-3">
+								<Button variant="outline" onClick={handleClearFilters} className="cursor-pointer hover:bg-muted">
+									Tozalash
+								</Button>
+								<div className="flex items-center gap-3">
+									<Button
+										variant="ghost"
+										onClick={() => setFilterSheetOpen(false)}
+										className="cursor-pointer text-muted-foreground hover:text-foreground"
+									>
+										Bekor qilish
+									</Button>
+									<Button onClick={handleApplyFilters} className="cursor-pointer shadow-sm hover:shadow-md transition-shadow">
+										Natijalarni ko'rsatish
+									</Button>
+								</div>
+							</SheetFooter>
+						</div>
+					</SheetContent>
+				</Sheet>
+
+				{/* Table */}
+				<div className="mt-6">
               <div className="overflow-hidden rounded-lg border bg-white">
                 <Table>
                   <TableHeader>

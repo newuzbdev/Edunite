@@ -115,7 +115,7 @@ function getStatusBadge(status: "success" | "failed" | "pending") {
 
 export function LatestPayments() {
   return (
-    <Card className="px-4 lg:px-6">
+    <Card>
       <CardHeader>
         <CardTitle>So'nggi to'lovlar</CardTitle>
         <CardDescription>So'nggi 10 ta to'lov ro'yxati (pul oqimini kuzatish uchun)</CardDescription>

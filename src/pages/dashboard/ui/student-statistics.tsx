@@ -14,7 +14,7 @@ const studentStats = {
 
 export function StudentStatistics() {
   return (
-    <Card className="px-4 lg:px-6">
+    <Card>
       <CardHeader>
         <CardTitle>Talabalar statistikasi</CardTitle>
         <CardDescription>Talabalar bo'yicha umumiy ma'lumotlar</CardDescription>

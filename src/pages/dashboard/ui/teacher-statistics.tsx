@@ -43,7 +43,7 @@ const chartConfig = {
 
 export function TeacherStatistics() {
   return (
-    <div className="grid gap-4 px-4 lg:px-6 md:grid-cols-2">
+    <div className="grid gap-4 md:grid-cols-2">
       <Card>
         <CardHeader>
           <CardTitle>O'qituvchi statistikasi</CardTitle>

@@ -25,6 +25,8 @@ import {
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import {
 	Dialog,
@@ -62,12 +64,16 @@ import {
 	UserX,
 	Users,
 	Filter,
+	Plus,
 	X,
 	Search,
 	Calendar,
 	Globe,
 	User,
 	MapPin,
+	EllipsisVertical,
+	Pencil,
+	Trash2,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -99,10 +105,17 @@ type StatusChangeOptions = { silent?: boolean }
 type LidsBoardProps = {
   lids: Lid[]
   customColumns: Array<{ id: string; name: string }>
+  statusColumnLabels: Partial<Record<LidStatus, string>>
+  hiddenStatuses: LidStatus[]
   onEdit: (lid: Lid) => void
   onDelete: (lid: Lid) => void
   onStatusChange: (id: string, status: LidStatus, options?: StatusChangeOptions) => void
   onViewProfile: (lid: Lid) => void
+  onAddLead: (status: LidStatus) => void
+  onEditColumn: (column: { id: string; name: string }) => void
+  onDeleteColumn: (column: { id: string; name: string }) => void
+  onEditStatusColumn: (status: LidStatus) => void
+  onDeleteStatusColumn: (status: LidStatus) => void
 }
 
 type SortableListeners = ReturnType<typeof useSortable>["listeners"]
@@ -158,7 +171,21 @@ function LidSummaryCard({ card }: { card: LidSummaryCardConfig }) {
   )
 }
 
-function LidsBoard({ lids, customColumns, onEdit, onDelete, onStatusChange, onViewProfile }: LidsBoardProps) {
+function LidsBoard({
+  lids,
+  customColumns,
+  statusColumnLabels,
+  hiddenStatuses,
+  onEdit,
+  onDelete,
+  onStatusChange,
+  onViewProfile,
+  onAddLead,
+  onEditColumn,
+  onDeleteColumn,
+  onEditStatusColumn,
+  onDeleteStatusColumn,
+}: LidsBoardProps) {
   const [activeLidId, setActiveLidId] = useState<string | null>(null)
   const activeLid = activeLidId ? lids.find(lid => lid.id === activeLidId) ?? null : null
 
@@ -211,28 +238,35 @@ function LidsBoard({ lids, customColumns, onEdit, onDelete, onStatusChange, onVi
       >
         <div className="overflow-x-auto overflow-y-visible scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgb(209_213_219)_transparent] hover:[scrollbar-color:rgb(156_163_175)_transparent] w-full" style={{ maxHeight: 'calc(100vh - 20rem)' }}>
           <div className="flex gap-3 sm:gap-4 min-w-max pb-4" style={{ minHeight: '400px' }}>
-            {STATUS_ORDER.map(status => {
+            {STATUS_ORDER.filter(status => !hiddenStatuses.includes(status)).map(status => {
               const items = lids.filter(lid => lid.status === status)
+              const label = statusColumnLabels[status] ?? STATUS_LABELS_UZ[status]
               return (
-                <div key={status} className="flex-shrink-0 w-[260px] min-[375px]:w-[280px] sm:w-[300px] md:w-[320px] h-auto">
+                <div key={status} className="shrink-0 w-[260px] min-[375px]:w-[280px] sm:w-[300px] md:w-[320px] h-auto">
                   <StatusColumn
                     status={status}
+                    label={label}
                     lids={items}
                     onEdit={onEdit}
                     onDelete={onDelete}
                     onViewProfile={onViewProfile}
+                    onAddLead={onAddLead}
+                    onEditColumn={onEditStatusColumn}
+                    onDeleteColumn={onDeleteStatusColumn}
                   />
                 </div>
               )
             })}
             {customColumns.map(column => (
-              <div key={column.id} className="flex-shrink-0 w-[260px] min-[375px]:w-[280px] sm:w-[300px] md:w-[320px] h-auto">
+              <div key={column.id} className="shrink-0 w-[260px] min-[375px]:w-[280px] sm:w-[300px] md:w-[320px] h-auto">
                 <CustomKanbanColumn
                   column={column}
                   lids={[]}
                   onEdit={onEdit}
                   onDelete={onDelete}
                   onViewProfile={onViewProfile}
+                  onEditColumn={onEditColumn}
+                  onDeleteColumn={onDeleteColumn}
                 />
               </div>
             ))}
@@ -256,13 +290,27 @@ function LidsBoard({ lids, customColumns, onEdit, onDelete, onStatusChange, onVi
 
 type StatusColumnProps = {
   status: LidStatus
+  label: string
   lids: Lid[]
   onEdit: (lid: Lid) => void
   onDelete: (lid: Lid) => void
   onViewProfile: (lid: Lid) => void
+  onAddLead: (status: LidStatus) => void
+  onEditColumn: (status: LidStatus) => void
+  onDeleteColumn: (status: LidStatus) => void
 }
 
-function StatusColumn({ status, lids, onEdit, onDelete, onViewProfile }: StatusColumnProps) {
+function StatusColumn({
+  status,
+  label,
+  lids,
+  onEdit,
+  onDelete,
+  onViewProfile,
+  onAddLead,
+  onEditColumn,
+  onDeleteColumn,
+}: StatusColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: status,
     data: { status },
@@ -276,11 +324,39 @@ function StatusColumn({ status, lids, onEdit, onDelete, onViewProfile }: StatusC
           isOver && "border-primary bg-primary/5"
         )}
       >
-        <CardHeader className="flex flex-row items-center justify-between px-3 sm:px-5 py-2 sm:py-3 flex-shrink-0 border-b bg-background">
+        <CardHeader className="flex flex-row items-center justify-between px-3 sm:px-5 py-2 sm:py-3 shrink-0 border-b bg-background">
           <CardTitle className="text-sm sm:text-base font-semibold truncate">
-            {STATUS_LABELS_UZ[status]}
+            {label}
           </CardTitle>
-          <Badge variant="secondary" className="text-xs sm:text-sm flex-shrink-0 ml-2">{lids.length}</Badge>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="ghost" className="h-8 w-8 cursor-pointer">
+                <EllipsisVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel className="flex items-center justify-between gap-2">
+                <span>{label}</span>
+                <span className="text-xs text-muted-foreground">({lids.length})</span>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onAddLead(status)} className="cursor-pointer">
+                <Plus className="h-4 w-4" />
+                Lead qo&apos;shish
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onEditColumn(status)} className="cursor-pointer">
+                <Pencil className="h-4 w-4" />
+                Bo&apos;lakni tahrirlash
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => onDeleteColumn(status)}
+                className="cursor-pointer text-destructive"
+              >
+                <Trash2 className="h-4 w-4" />
+                Bo&apos;lakni o&apos;chirish
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </CardHeader>
         <CardContent className="flex flex-col gap-2 sm:gap-3 px-3 sm:px-5 py-3 sm:py-4 flex-1 overflow-y-auto overflow-x-hidden min-h-[300px] max-h-[600px] sm:max-h-[calc(100vh-25rem)] scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgb(209_213_219)_transparent] hover:[scrollbar-color:rgb(156_163_175)_transparent]">
           <SortableContext
@@ -309,9 +385,19 @@ type CustomKanbanColumnProps = {
   onEdit: (lid: Lid) => void
   onDelete: (lid: Lid) => void
   onViewProfile: (lid: Lid) => void
+  onEditColumn: (column: { id: string; name: string }) => void
+  onDeleteColumn: (column: { id: string; name: string }) => void
 }
 
-function CustomKanbanColumn({ column, lids, onEdit, onDelete, onViewProfile }: CustomKanbanColumnProps) {
+function CustomKanbanColumn({
+  column,
+  lids,
+  onEdit,
+  onDelete,
+  onViewProfile,
+  onEditColumn,
+  onDeleteColumn,
+}: CustomKanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: `custom-${column.id}`,
     data: { customColumnId: column.id },
@@ -325,11 +411,32 @@ function CustomKanbanColumn({ column, lids, onEdit, onDelete, onViewProfile }: C
           isOver && "border-primary bg-primary/5"
         )}
       >
-        <CardHeader className="flex flex-row items-center justify-between px-3 sm:px-5 py-2 sm:py-3 flex-shrink-0 border-b bg-background">
+        <CardHeader className="flex flex-row items-center justify-between px-3 sm:px-5 py-2 sm:py-3 shrink-0 border-b bg-background">
           <CardTitle className="text-sm sm:text-base font-semibold truncate">
             {column.name}
           </CardTitle>
-          <Badge variant="secondary" className="text-xs sm:text-sm flex-shrink-0 ml-2">{lids.length}</Badge>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="ghost" className="h-8 w-8 cursor-pointer">
+                <EllipsisVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel className="flex items-center justify-between gap-2">
+                <span>{column.name}</span>
+                <span className="text-xs text-muted-foreground">({lids.length})</span>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onEditColumn(column)} className="cursor-pointer">
+                <Pencil className="mr-2 h-4 w-4" />
+                Tahrirlash
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onDeleteColumn(column)} className="cursor-pointer text-destructive">
+                <Trash2 className="mr-2 h-4 w-4" />
+                O&apos;chirish
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </CardHeader>
         <CardContent className="flex flex-col gap-2 sm:gap-3 px-3 sm:px-5 py-3 sm:py-4 flex-1 overflow-y-auto overflow-x-hidden min-h-[300px] max-h-[600px] sm:max-h-[calc(100vh-25rem)] scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgb(209_213_219)_transparent] hover:[scrollbar-color:rgb(156_163_175)_transparent]">
           <SortableContext
@@ -449,6 +556,7 @@ const LidCardContent = forwardRef<HTMLDivElement, LidCardContentProps>(
                 Profilni ko'rish
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onEdit(lid)} className="cursor-pointer">
+                <Pencil className="mr-2 h-4 w-4" />
                 Tahrirlash
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -456,6 +564,7 @@ const LidCardContent = forwardRef<HTMLDivElement, LidCardContentProps>(
                 variant="destructive"
                 className="cursor-pointer"
               >
+                <Trash2 className="mr-2 h-4 w-4" />
                 Ochirish
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -473,19 +582,36 @@ LidCardContent.displayName = "LidCardContent"
 export default function LidsTable() {
   const navigate = useNavigate()
   const lids = useLidsStore(state => state.lids)
-  const customKanbanColumns = useLidsStore(state => state.customKanbanColumns)
+	const customKanbanColumns = useLidsStore(state => state.customKanbanColumns)
+  const statusColumnLabels = useLidsStore(state => state.statusColumnLabels)
+  const hiddenStatuses = useLidsStore(state => state.hiddenStatuses)
   const onOpen = useLidsStore(state => state.onOpen)
   const shouldSwitchToKanban = useLidsStore(state => state.shouldSwitchToKanban)
   const resetKanbanSwitch = useLidsStore(state => state.resetKanbanSwitch)
-  const addCustomKanbanColumn = useLidsStore(state => state.addCustomKanbanColumn)
+	const addCustomKanbanColumn = useLidsStore(state => state.addCustomKanbanColumn)
+	const updateCustomKanbanColumn = useLidsStore(state => state.updateCustomKanbanColumn)
+	const deleteCustomKanbanColumn = useLidsStore(state => state.deleteCustomKanbanColumn)
+  const updateStatusColumnLabel = useLidsStore(state => state.updateStatusColumnLabel)
+  const hideStatusColumn = useLidsStore(state => state.hideStatusColumn)
+  const restoreStatusColumn = useLidsStore(state => state.restoreStatusColumn)
   const deleteLid = useLidsStore(state => state.deleteLid)
   const updateStatus = useLidsStore(state => state.updateStatus)
   const convertToStudent = useLidsStore(state => state.convertToStudent)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [lidToDelete, setLidToDelete] = useState<Lid | null>(null)
-  const [viewMode, setViewMode] = useState<"board" | "table">("board")
-  const [kanbanDialogOpen, setKanbanDialogOpen] = useState(false)
-  const [kanbanColumnName, setKanbanColumnName] = useState("")
+	const [viewMode, setViewMode] = useState<"board" | "table">("board")
+	const [kanbanDialogOpen, setKanbanDialogOpen] = useState(false)
+	const [kanbanColumnName, setKanbanColumnName] = useState("")
+	const [editKanbanDialogOpen, setEditKanbanDialogOpen] = useState(false)
+	const [kanbanColumnToEdit, setKanbanColumnToEdit] = useState<{ id: string; name: string } | null>(null)
+	const [kanbanEditName, setKanbanEditName] = useState("")
+	const [deleteKanbanDialogOpen, setDeleteKanbanDialogOpen] = useState(false)
+	const [kanbanColumnToDelete, setKanbanColumnToDelete] = useState<{ id: string; name: string } | null>(null)
+  const [editStatusDialogOpen, setEditStatusDialogOpen] = useState(false)
+  const [statusToEdit, setStatusToEdit] = useState<LidStatus | null>(null)
+  const [statusEditName, setStatusEditName] = useState("")
+  const [deleteStatusDialogOpen, setDeleteStatusDialogOpen] = useState(false)
+  const [statusToDelete, setStatusToDelete] = useState<LidStatus | null>(null)
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [filterSheetOpen, setFilterSheetOpen] = useState(false)
   
@@ -563,16 +689,96 @@ export default function LidsTable() {
     }
   }, [shouldSwitchToKanban, resetKanbanSwitch, lids.length])
 
+  const getStatusLabel = useCallback(
+    (status: LidStatus) => statusColumnLabels[status] ?? STATUS_LABELS_UZ[status],
+    [statusColumnLabels]
+  )
+
   const handleAddKanbanColumn = useCallback(() => {
     if (!kanbanColumnName.trim()) {
-      toast.error("Iltimos, kanban nomini kiriting")
+      toast.error("Iltimos, bo'lak nomini kiriting")
       return
     }
     addCustomKanbanColumn(kanbanColumnName)
-    toast.success("Kanban muvaffaqiyatli qo'shildi")
+    toast.success("Bo'lak muvaffaqiyatli qo'shildi")
     setKanbanColumnName("")
     setKanbanDialogOpen(false)
   }, [kanbanColumnName, addCustomKanbanColumn])
+
+  const handleOpenEditKanban = useCallback((column: { id: string; name: string }) => {
+    setKanbanColumnToEdit(column)
+    setKanbanEditName(column.name)
+    setEditKanbanDialogOpen(true)
+  }, [])
+
+  const handleUpdateKanbanColumn = useCallback(() => {
+    if (!kanbanColumnToEdit) return
+    if (!kanbanEditName.trim()) {
+      toast.error("Iltimos, bo'lak nomini kiriting")
+      return
+    }
+    updateCustomKanbanColumn(kanbanColumnToEdit.id, kanbanEditName)
+    toast.success("Bo'lak nomi yangilandi")
+    setEditKanbanDialogOpen(false)
+    setKanbanColumnToEdit(null)
+    setKanbanEditName("")
+  }, [kanbanColumnToEdit, kanbanEditName, updateCustomKanbanColumn])
+
+  const handleOpenDeleteKanban = useCallback((column: { id: string; name: string }) => {
+    setKanbanColumnToDelete(column)
+    setDeleteKanbanDialogOpen(true)
+  }, [])
+
+  const handleConfirmDeleteKanban = useCallback(() => {
+    if (!kanbanColumnToDelete) return
+    deleteCustomKanbanColumn(kanbanColumnToDelete.id)
+    toast.success("Bo'lak o'chirildi")
+    setDeleteKanbanDialogOpen(false)
+    setKanbanColumnToDelete(null)
+  }, [kanbanColumnToDelete, deleteCustomKanbanColumn])
+
+  const handleOpenEditStatusColumn = useCallback((status: LidStatus) => {
+    setStatusToEdit(status)
+    setStatusEditName(getStatusLabel(status))
+    setEditStatusDialogOpen(true)
+  }, [getStatusLabel])
+
+  const handleUpdateStatusColumn = useCallback(() => {
+    if (!statusToEdit) return
+    if (!statusEditName.trim()) {
+      toast.error("Iltimos, bo'lak nomini kiriting")
+      return
+    }
+    updateStatusColumnLabel(statusToEdit, statusEditName)
+    toast.success("Bo'lak nomi yangilandi")
+    setEditStatusDialogOpen(false)
+    setStatusToEdit(null)
+    setStatusEditName("")
+  }, [statusToEdit, statusEditName, updateStatusColumnLabel])
+
+  const handleOpenDeleteStatusColumn = useCallback((status: LidStatus) => {
+    setStatusToDelete(status)
+    setDeleteStatusDialogOpen(true)
+  }, [])
+
+  const handleConfirmDeleteStatusColumn = useCallback(() => {
+    if (!statusToDelete) return
+    hideStatusColumn(statusToDelete)
+    toast.success("Bo'lak yashirildi")
+    setDeleteStatusDialogOpen(false)
+    setStatusToDelete(null)
+  }, [statusToDelete, hideStatusColumn])
+
+  const handleRestoreStatusColumn = useCallback((status: LidStatus) => {
+    restoreStatusColumn(status)
+    toast.success("Bo'lak qayta tiklandi")
+  }, [restoreStatusColumn])
+
+  const handleAddLead = useCallback((_: LidStatus) => {
+    onOpen()
+  }, [onOpen])
+
+  const visibleStatuses = useMemo(() => STATUS_ORDER.filter(status => !hiddenStatuses.includes(status)), [hiddenStatuses])
 
   const filteredLids = useMemo(() => {
     return lids.filter(lid => {
@@ -945,14 +1151,14 @@ export default function LidsTable() {
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-4 sm:gap-6">
-      <div className="flex flex-col gap-4 flex-shrink-0">
+      <div className="flex flex-col gap-4 shrink-0">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {summaryCards.map(card => (
             <LidSummaryCard key={card.key} card={card} />
           ))}
         </div>
       </div>
-      <div className="flex flex-col gap-4 flex-shrink-0">
+      <div className="flex flex-col gap-4 shrink-0">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <Tabs value={viewMode} onValueChange={value => setViewMode(value as "board" | "table")} className="w-auto">
             <TabsList className="grid grid-cols-2 bg-white shadow-sm">
@@ -962,9 +1168,78 @@ export default function LidsTable() {
           </Tabs>
           <div className="flex items-center gap-2 flex-wrap">
             <Button onClick={() => setKanbanDialogOpen(true)} variant="outline" size="sm" className="cursor-pointer shadow-sm hover:shadow-md transition-shadow text-xs sm:text-sm">
-              <span className="hidden sm:inline">Kanban qo&apos;shish</span>
-              <span className="sm:hidden">Kanban</span>
+              <span className="hidden sm:inline">Bo&apos;lak qo&apos;shish</span>
+              <span className="sm:hidden">Bo&apos;lak</span>
             </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="cursor-pointer shadow-sm hover:shadow-md transition-shadow">
+                  <EllipsisVertical className="h-4 w-4" />
+                  <span className="sr-only">Bo&apos;laklarni boshqarish</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuLabel>Asosiy bo&apos;laklar</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {visibleStatuses.map(status => (
+                  <div key={`status-${status}`}>
+                    <div className="px-2 py-1 text-xs font-medium text-muted-foreground">
+                      {getStatusLabel(status)}
+                    </div>
+                    <DropdownMenuItem onClick={() => handleOpenEditStatusColumn(status)} className="cursor-pointer">
+                      <Pencil className="h-4 w-4" />
+                      Tahrirlash
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleOpenDeleteStatusColumn(status)}
+                      className="cursor-pointer"
+                      variant="destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      O&apos;chirish
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </div>
+                ))}
+                {hiddenStatuses.length > 0 && (
+                  <>
+                    <DropdownMenuLabel>Yashirilgan bo&apos;laklar</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {hiddenStatuses.map(status => (
+                      <DropdownMenuItem key={`hidden-${status}`} onClick={() => handleRestoreStatusColumn(status)} className="cursor-pointer">
+                        <Plus className="h-4 w-4" />
+                        {getStatusLabel(status)}
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                <DropdownMenuLabel>Qo&apos;shimcha bo&apos;laklar</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {customKanbanColumns.length ? (
+                  customKanbanColumns.map((column, index) => (
+                    <div key={column.id}>
+                      <div className="px-2 py-1 text-xs font-medium text-muted-foreground">{column.name}</div>
+                      <DropdownMenuItem onClick={() => handleOpenEditKanban(column)} className="cursor-pointer">
+                        <Pencil className="h-4 w-4" />
+                        Tahrirlash
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleOpenDeleteKanban(column)}
+                        className="cursor-pointer"
+                        variant="destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        O&apos;chirish
+                      </DropdownMenuItem>
+                      {index < customKanbanColumns.length - 1 && <DropdownMenuSeparator />}
+                    </div>
+                  ))
+                ) : (
+                  <div className="px-2 py-1 text-xs text-muted-foreground">Qo&apos;shimcha bo&apos;laklar mavjud emas</div>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button onClick={() => onOpen()} size="sm" className="cursor-pointer shadow-sm hover:shadow-md transition-shadow text-xs sm:text-sm">
               <span className="hidden sm:inline">Lead qo&apos;shish</span>
               <span className="sm:hidden">Lead</span>
@@ -1041,7 +1316,7 @@ export default function LidsTable() {
             <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto p-0">
               <div className="flex flex-col h-full">
                 {/* Header */}
-                <SheetHeader className="px-6 pt-6 pb-4 border-b bg-gradient-to-b from-background to-muted/20">
+                <SheetHeader className="px-6 pt-6 pb-4 border-b bg-linear-to-b from-background to-muted/20">
                   <SheetTitle className="text-2xl font-bold tracking-tight">Kengaytirilgan Filterlar</SheetTitle>
                   <SheetDescription className="text-sm text-muted-foreground mt-2">
                     Aniqroq natija olish uchun quyidagi parametrlarni sozlang.
@@ -1314,10 +1589,17 @@ export default function LidsTable() {
           <LidsBoard
             lids={filteredLids}
             customColumns={customKanbanColumns}
+            statusColumnLabels={statusColumnLabels}
+            hiddenStatuses={hiddenStatuses}
             onEdit={handleEdit}
             onDelete={handleDeleteClick}
             onStatusChange={handleStatusChange}
             onViewProfile={(lid) => navigate(`/lids/${lid.id}`)}
+            onAddLead={handleAddLead}
+            onEditColumn={handleOpenEditKanban}
+            onDeleteColumn={handleOpenDeleteKanban}
+            onEditStatusColumn={handleOpenEditStatusColumn}
+            onDeleteStatusColumn={handleOpenDeleteStatusColumn}
           />
         </div>
       )}
@@ -1327,16 +1609,16 @@ export default function LidsTable() {
       <Dialog open={kanbanDialogOpen} onOpenChange={setKanbanDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Yangi kanban qo&apos;shish</DialogTitle>
+            <DialogTitle>Yangi bo&apos;lak qo&apos;shish</DialogTitle>
             <DialogDescription>
-              Yangi kanban ustun nomini kiriting
+              Kanban doskasiga yangi bo&apos;lak (ustun) nomini kiriting
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <Input
               value={kanbanColumnName}
               onChange={(e) => setKanbanColumnName(e.target.value)}
-              placeholder="Kanban nomi"
+              placeholder="Bo'lak nomi"
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   handleAddKanbanColumn()
@@ -1357,6 +1639,138 @@ export default function LidsTable() {
             </Button>
             <Button onClick={handleAddKanbanColumn} className="cursor-pointer">
               Qo&apos;shish
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={editKanbanDialogOpen} onOpenChange={setEditKanbanDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Bo&apos;lakni tahrirlash</DialogTitle>
+            <DialogDescription>
+              Tanlangan bo&apos;lak nomini yangilang
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              value={kanbanEditName}
+              onChange={(e) => setKanbanEditName(e.target.value)}
+              placeholder="Bo'lak nomi"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleUpdateKanbanColumn()
+                }
+              }}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditKanbanDialogOpen(false)
+                setKanbanColumnToEdit(null)
+                setKanbanEditName("")
+              }}
+              className="cursor-pointer"
+            >
+              Bekor qilish
+            </Button>
+            <Button onClick={handleUpdateKanbanColumn} className="cursor-pointer">
+              Saqlash
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={editStatusDialogOpen} onOpenChange={setEditStatusDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Asosiy bo&apos;lakni tahrirlash</DialogTitle>
+            <DialogDescription>
+              Tanlangan bo&apos;lak nomini yangilang
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              value={statusEditName}
+              onChange={e => setStatusEditName(e.target.value)}
+              placeholder="Bo'lak nomi"
+              onKeyDown={e => {
+                if (e.key === "Enter") {
+                  handleUpdateStatusColumn()
+                }
+              }}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditStatusDialogOpen(false)
+                setStatusToEdit(null)
+                setStatusEditName("")
+              }}
+              className="cursor-pointer"
+            >
+              Bekor qilish
+            </Button>
+            <Button onClick={handleUpdateStatusColumn} className="cursor-pointer">
+              Saqlash
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={deleteStatusDialogOpen} onOpenChange={setDeleteStatusDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Asosiy bo&apos;lakni yashirish</DialogTitle>
+            <DialogDescription>
+              &quot;{statusToDelete ? getStatusLabel(statusToDelete) : ""}&quot; bo&apos;lagini yashirmoqchimisiz? Bu ustunni Kanban ko&apos;rinishiga qayta tiklamaguncha ko&apos;rmaysiz.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteStatusDialogOpen(false)}
+              className="cursor-pointer"
+            >
+              Bekor qilish
+            </Button>
+            <Button
+              onClick={handleConfirmDeleteStatusColumn}
+              className="cursor-pointer"
+              variant="destructive"
+            >
+              Yashirish
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={deleteKanbanDialogOpen} onOpenChange={setDeleteKanbanDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Bo&apos;lakni o&apos;chirish</DialogTitle>
+            <DialogDescription>
+              &quot;{kanbanColumnToDelete?.name}&quot; bo&apos;lagini o&apos;chirmoqchimisiz? Bu amalni qaytarib bo&apos;lmaydi.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteKanbanDialogOpen(false)}
+              className="cursor-pointer"
+            >
+              Bekor qilish
+            </Button>
+            <Button
+              onClick={handleConfirmDeleteKanban}
+              className="cursor-pointer"
+              variant="destructive"
+            >
+              O&apos;chirish
             </Button>
           </DialogFooter>
         </DialogContent>

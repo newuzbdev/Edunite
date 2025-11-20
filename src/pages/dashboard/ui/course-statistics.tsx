@@ -40,7 +40,7 @@ const chartConfig = {
 
 export function CourseStatistics() {
   return (
-    <div className="grid gap-4 px-4 lg:px-6 md:grid-cols-2">
+    <div className="grid gap-4 md:grid-cols-2">
       <Card>
         <CardHeader>
           <CardTitle>Kurs statistikasi</CardTitle>

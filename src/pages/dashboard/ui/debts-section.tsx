@@ -12,7 +12,7 @@ const debtsData = {
 
 export function DebtsSection() {
   return (
-    <div className="grid gap-4 px-4 lg:px-6 md:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-3">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

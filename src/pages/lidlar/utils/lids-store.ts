@@ -43,6 +43,8 @@ interface LidsStore {
 	data: Lid | null
 	shouldSwitchToKanban: boolean
 	customKanbanColumns: CustomKanbanColumn[]
+	statusColumnLabels: Partial<Record<LidStatus, string>>
+	hiddenStatuses: LidStatus[]
 	onOpen: (data?: Lid | null) => void
 	onClose: () => void
 	openProfile: (lid: Lid) => void
@@ -55,7 +57,11 @@ interface LidsStore {
 	convertToStudent: (lidId: string) => void
 	resetKanbanSwitch: () => void
 	addCustomKanbanColumn: (name: string) => void
+	updateCustomKanbanColumn: (id: string, name: string) => void
 	deleteCustomKanbanColumn: (id: string) => void
+	updateStatusColumnLabel: (status: LidStatus, name: string) => void
+	hideStatusColumn: (status: LidStatus) => void
+	restoreStatusColumn: (status: LidStatus) => void
 }
 
 export const COURSE_TYPES_UZ = [
@@ -143,6 +149,8 @@ export const useLidsStore = create<LidsStore>((set, get) => ({
 	data: null,
 	shouldSwitchToKanban: false,
 	customKanbanColumns: [],
+	statusColumnLabels: {},
+	hiddenStatuses: [],
 	onOpen: (data?: Lid | null) => set({ open: true, data: data || null, shouldSwitchToKanban: false }),
 	onClose: () => {
 		const state = get()
@@ -241,8 +249,38 @@ export const useLidsStore = create<LidsStore>((set, get) => ({
 		}
 		set({ customKanbanColumns: [...get().customKanbanColumns, newColumn] })
 	},
+	updateCustomKanbanColumn: (id, name) => {
+		set({
+			customKanbanColumns: get().customKanbanColumns.map(col =>
+				col.id === id ? { ...col, name: name.trim() } : col
+			),
+		})
+	},
 	deleteCustomKanbanColumn: (id) => {
 		set({ customKanbanColumns: get().customKanbanColumns.filter(col => col.id !== id) })
-	}
+	},
+	updateStatusColumnLabel: (status, name) => {
+		const currentLabels = get().statusColumnLabels
+		const trimmed = name.trim()
+		if (!trimmed || trimmed === STATUS_LABELS_UZ[status]) {
+			const { [status]: _removed, ...rest } = currentLabels
+			set({ statusColumnLabels: rest })
+			return
+		}
+		set({
+			statusColumnLabels: {
+				...currentLabels,
+				[status]: trimmed,
+			},
+		})
+	},
+	hideStatusColumn: status => {
+		const hidden = get().hiddenStatuses
+		if (hidden.includes(status)) return
+		set({ hiddenStatuses: [...hidden, status] })
+	},
+	restoreStatusColumn: status => {
+		set({ hiddenStatuses: get().hiddenStatuses.filter(item => item !== status) })
+	},
 }))
 

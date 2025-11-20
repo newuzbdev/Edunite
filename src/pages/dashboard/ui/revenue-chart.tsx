@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Line, LineChart, CartesianGrid, XAxis, YAxis, Bar, BarChart } from "recharts"
+import { CartesianGrid, XAxis, YAxis, Bar, BarChart } from "recharts"
 import { useIsMobile } from "@/hooks/use-mobile"
 import {
   CardAction,
@@ -54,7 +54,6 @@ const chartConfig = {
 export function RevenueChart() {
   const isMobile = useIsMobile()
   const [timeRange, setTimeRange] = React.useState<"7d" | "30d">("7d")
-  const [chartType, _setChartType] = React.useState<"line" | "bar">("line")
 
   React.useEffect(() => {
     if (isMobile) {
@@ -102,59 +101,7 @@ export function RevenueChart() {
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"
         >
-          {chartType === "line" ? (
-            <LineChart data={data}>
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="date"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                minTickGap={32}
-                tickFormatter={(value) => {
-                  const date = new Date(value)
-                  return date.toLocaleDateString("uz-UZ", {
-                    month: "short",
-                    day: "numeric",
-                  })
-                }}
-              />
-              <YAxis
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                tickFormatter={(value) => {
-                  if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`
-                  if (value >= 1000) return `${(value / 1000).toFixed(0)}K`
-                  return value.toString()
-                }}
-              />
-              <ChartTooltip
-                cursor={false}
-                content={
-                  <ChartTooltipContent
-                    labelFormatter={(value) => {
-                      return new Date(value).toLocaleDateString("uz-UZ", {
-                        month: "long",
-                        day: "numeric",
-                        year: "numeric",
-                      })
-                    }}
-                    formatter={(value) => [`${Number(value).toLocaleString()} so'm`, "Daromad"]}
-                    indicator="dot"
-                  />
-                }
-              />
-              <Line
-                dataKey="revenue"
-                type="monotone"
-                stroke="var(--color-revenue)"
-                strokeWidth={2}
-                dot={false}
-              />
-            </LineChart>
-          ) : (
-            <BarChart data={data}>
+          <BarChart data={data}>
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="date"
@@ -202,7 +149,6 @@ export function RevenueChart() {
                 radius={[4, 4, 0, 0]}
               />
             </BarChart>
-          )}
         </ChartContainer>
       </CardContent>
     </div>

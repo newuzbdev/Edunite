@@ -10,8 +10,7 @@ import { PageLayout } from "@/shared/layout/page-layout"
 export default function Dashboard() {
   return (
     <PageLayout 
-      title="Bosh sahifa" 
-      description="Boshqaruv paneli va umumiy statistikalar"
+      title="Bosh sahifa"
     >
       <MainStatistics />
       <RevenueChart />
