@@ -14,6 +14,7 @@ import {
   Check,
   FileText,
   ClipboardCheck,
+  MessageSquare,
 } from "lucide-react"
 
 import { NavMain } from "@/shared/layout/nav-main"
@@ -126,6 +127,21 @@ const data = {
         {
           title: "Talaba ballari",
           url: "/exams/scores",
+        },
+      ],
+    },
+    {
+      title: "Marketing",
+      url: "/marketing",
+      icon: MessageSquare,
+      subItems: [
+        {
+          title: "SMS yuborish",
+          url: "/marketing/sms/send",
+        },
+        {
+          title: "SMS tarixi",
+          url: "/marketing/sms/history",
         },
       ],
     },

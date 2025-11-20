@@ -20,6 +20,8 @@ import Exams from '@/pages/exams'
 import CreateExam from '@/pages/exams/create'
 import ExamResults from '@/pages/exams/results'
 import StudentScores from '@/pages/exams/scores'
+import SendSMS from '@/pages/marketing/sms/send'
+import SMSHistory from '@/pages/marketing/sms/history'
 import { AppLayout } from '@/shared/layout/app-layout'
 
 export const router = createBrowserRouter([
@@ -121,6 +123,18 @@ export const router = createBrowserRouter([
 			{
 				path: '/exams/scores',
 				element: <StudentScores />
+			},
+			{
+				path: '/marketing/sms/send',
+				element: <SendSMS />
+			},
+			{
+				path: '/marketing/sms/history',
+				element: <SMSHistory />
+			},
+			{
+				path: '/marketing',
+				element: <Navigate to="/marketing/sms/send" replace />
 			},
 			{
 				path: '*',
