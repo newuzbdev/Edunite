@@ -1173,10 +1173,7 @@ export default function LidsTable() {
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="cursor-pointer shadow-sm hover:shadow-md transition-shadow">
-                  <EllipsisVertical className="h-4 w-4" />
-                  <span className="sr-only">Bo&apos;laklarni boshqarish</span>
-                </Button>
+               
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64">
                 <DropdownMenuLabel>Asosiy bo&apos;laklar</DropdownMenuLabel>
