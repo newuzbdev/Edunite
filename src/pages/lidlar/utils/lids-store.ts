@@ -28,6 +28,12 @@ export interface Lid {
 	actionLog: ActionLog[]
 }
 
+export interface CustomKanbanColumn {
+	id: string
+	name: string
+	createdAt: string
+}
+
 interface LidsStore {
 	open: boolean
 	profileOpen: boolean
@@ -35,6 +41,8 @@ interface LidsStore {
 	lids: Lid[]
 	// open the drawer; optional data to edit an existing lid
 	data: Lid | null
+	shouldSwitchToKanban: boolean
+	customKanbanColumns: CustomKanbanColumn[]
 	onOpen: (data?: Lid | null) => void
 	onClose: () => void
 	openProfile: (lid: Lid) => void
@@ -45,6 +53,9 @@ interface LidsStore {
 	deleteLid: (id: string) => void
 	addActionLog: (lidId: string, log: Omit<ActionLog, 'id' | 'timestamp'>) => void
 	convertToStudent: (lidId: string) => void
+	resetKanbanSwitch: () => void
+	addCustomKanbanColumn: (name: string) => void
+	deleteCustomKanbanColumn: (id: string) => void
 }
 
 export const COURSE_TYPES_UZ = [
@@ -60,7 +71,7 @@ export const STATUS_LABELS_UZ: Record<LidStatus, string> = {
 	called: 'Qo\'ng\'iroq qilingan',
 	interested: 'Qiziqdi',
 	thinking: 'O\'ylab ko\'ryapti',
-	closed: 'Yopildi (yo\'q bo\'ldi)',
+	closed: 'Yopildi',
 	converted: 'Studentga aylandi',
 }
 
@@ -130,8 +141,16 @@ export const useLidsStore = create<LidsStore>((set, get) => ({
 		}
 	],
 	data: null,
-	onOpen: (data?: Lid | null) => set({ open: true, data: data || null }),
-	onClose: () => set({ open: false, data: null }),
+	shouldSwitchToKanban: false,
+	customKanbanColumns: [],
+	onOpen: (data?: Lid | null) => set({ open: true, data: data || null, shouldSwitchToKanban: false }),
+	onClose: () => {
+		const state = get()
+		// Only reset shouldSwitchToKanban if we're editing (data is not null) or if it's already false
+		// If we're adding (data is null) and shouldSwitchToKanban is true, preserve it
+		const shouldPreserve = state.data === null && state.shouldSwitchToKanban
+		set({ open: false, data: null, shouldSwitchToKanban: shouldPreserve })
+	},
 	openProfile: (lid: Lid) => set({ profileOpen: true, selectedLid: lid }),
 	closeProfile: () => set({ profileOpen: false, selectedLid: null }),
 	addLid: (lid) => {
@@ -150,7 +169,8 @@ export const useLidsStore = create<LidsStore>((set, get) => ({
 				}
 			]
 		}
-		set({ lids: [...get().lids, newLid], open: false, data: null })
+		const shouldSwitch = get().shouldSwitchToKanban
+		set({ lids: [...get().lids, newLid], open: false, data: null, shouldSwitchToKanban: shouldSwitch })
 	},
 	updateLid: (lid) => {
 		set({ lids: get().lids.map(l => (l.id === lid.id ? lid : l)), open: false, data: null })
@@ -211,6 +231,18 @@ export const useLidsStore = create<LidsStore>((set, get) => ({
 					: l
 			)
 		})
+	},
+	resetKanbanSwitch: () => set({ shouldSwitchToKanban: false }),
+	addCustomKanbanColumn: (name) => {
+		const newColumn: CustomKanbanColumn = {
+			id: Date.now().toString(),
+			name: name.trim(),
+			createdAt: new Date().toISOString()
+		}
+		set({ customKanbanColumns: [...get().customKanbanColumns, newColumn] })
+	},
+	deleteCustomKanbanColumn: (id) => {
+		set({ customKanbanColumns: get().customKanbanColumns.filter(col => col.id !== id) })
 	}
 }))
 

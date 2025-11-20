@@ -1,6 +1,6 @@
 "use client"
 
-import { forwardRef, useCallback, useMemo, useState } from "react"
+import { forwardRef, useCallback, useMemo, useState, useEffect } from "react"
 import type { CSSProperties } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
@@ -67,6 +67,7 @@ type StatusChangeOptions = { silent?: boolean }
 
 type LidsBoardProps = {
   lids: Lid[]
+  customColumns: Array<{ id: string; name: string }>
   onEdit: (lid: Lid) => void
   onDelete: (lid: Lid) => void
   onStatusChange: (id: string, status: LidStatus, options?: StatusChangeOptions) => void
@@ -127,7 +128,7 @@ function LidSummaryCard({ card }: { card: LidSummaryCardConfig }) {
   )
 }
 
-function LidsBoard({ lids, onEdit, onDelete, onStatusChange, onViewProfile, onAddNew }: LidsBoardProps) {
+function LidsBoard({ lids, customColumns, onEdit, onDelete, onStatusChange, onViewProfile }: LidsBoardProps) {
   const [activeLidId, setActiveLidId] = useState<string | null>(null)
   const activeLid = activeLidId ? lids.find(lid => lid.id === activeLidId) ?? null : null
 
@@ -167,46 +168,54 @@ function LidsBoard({ lids, onEdit, onDelete, onStatusChange, onViewProfile, onAd
   }, [])
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex justify-end">
-        <Button onClick={onAddNew} className="cursor-pointer">
-          <UserPlus className="mr-2 h-4 w-4" />
-          Lead qo&apos;shish
-        </Button>
-      </div>
+    <div className="flex flex-col h-full">
       <DndContext
         sensors={sensors}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
       >
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
-        {STATUS_ORDER.map(status => {
-          const items = lids.filter(lid => lid.status === status)
-          return (
-            <StatusColumn
-              key={status}
-              status={status}
-              lids={items}
+        <div className="overflow-x-auto overflow-y-hidden -mx-2 sm:-mx-4 px-2 sm:px-4 scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgb(209_213_219)_transparent] hover:[scrollbar-color:rgb(156_163_175)_transparent] flex-1 min-h-0">
+          <div className="flex gap-4 min-w-max h-full pb-4">
+            {STATUS_ORDER.map(status => {
+              const items = lids.filter(lid => lid.status === status)
+              return (
+                <div key={status} className="flex-shrink-0 w-[280px] sm:w-[300px] h-full">
+                  <StatusColumn
+                    status={status}
+                    lids={items}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    onViewProfile={onViewProfile}
+                  />
+                </div>
+              )
+            })}
+            {customColumns.map(column => (
+              <div key={column.id} className="flex-shrink-0 w-[280px] sm:w-[300px] h-full">
+                <CustomKanbanColumn
+                  column={column}
+                  lids={[]}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onViewProfile={onViewProfile}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+        <DragOverlay>
+          {activeLid ? (
+            <LidCardContent
+              lid={activeLid}
               onEdit={onEdit}
               onDelete={onDelete}
               onViewProfile={onViewProfile}
+              dragOverlay
             />
-          )
-        })}
-      </div>
-      <DragOverlay>
-        {activeLid ? (
-          <LidCardContent
-            lid={activeLid}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            onViewProfile={onViewProfile}
-            dragOverlay
-          />
-        ) : null}
-      </DragOverlay>
-    </DndContext>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
     </div>
   )
 }
@@ -226,20 +235,69 @@ function StatusColumn({ status, lids, onEdit, onDelete, onViewProfile }: StatusC
   })
 
   return (
-    <div ref={setNodeRef} className="h-full min-h-[280px]">
+    <div ref={setNodeRef} className="h-full w-full flex flex-col">
       <Card
         className={cn(
-          "h-full gap-3 border-dashed transition-colors",
+          "h-full w-full flex flex-col border-dashed transition-colors",
           isOver && "border-primary bg-primary/5"
         )}
       >
-        <CardHeader className="flex flex-row items-center justify-between px-5 py-0 pt-4">
+        <CardHeader className="flex flex-row items-center justify-between px-5 py-3 flex-shrink-0 border-b bg-background">
           <CardTitle className="text-base font-semibold">
             {STATUS_LABELS_UZ[status]}
           </CardTitle>
           <Badge variant="secondary">{lids.length}</Badge>
         </CardHeader>
-        <CardContent className="flex flex-col gap-3 px-5 pb-5">
+        <CardContent className="flex flex-col gap-3 px-5 py-4 flex-1 overflow-y-auto overflow-x-hidden min-h-0 scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgb(209_213_219)_transparent] hover:[scrollbar-color:rgb(156_163_175)_transparent]">
+          <SortableContext
+            items={lids.map(lid => lid.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {lids.length ? (
+              lids.map(lid => (
+                <LidCard key={lid.id} lid={lid} onEdit={onEdit} onDelete={onDelete} onViewProfile={onViewProfile} />
+              ))
+            ) : (
+              <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-muted-foreground/40 px-3 py-8 text-center text-sm text-muted-foreground">
+                Hozircha lids mavjud emas
+              </div>
+            )}
+          </SortableContext>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+type CustomKanbanColumnProps = {
+  column: { id: string; name: string }
+  lids: Lid[]
+  onEdit: (lid: Lid) => void
+  onDelete: (lid: Lid) => void
+  onViewProfile: (lid: Lid) => void
+}
+
+function CustomKanbanColumn({ column, lids, onEdit, onDelete, onViewProfile }: CustomKanbanColumnProps) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `custom-${column.id}`,
+    data: { customColumnId: column.id },
+  })
+
+  return (
+    <div ref={setNodeRef} className="h-full w-full flex flex-col">
+      <Card
+        className={cn(
+          "h-full w-full flex flex-col border-dashed transition-colors",
+          isOver && "border-primary bg-primary/5"
+        )}
+      >
+        <CardHeader className="flex flex-row items-center justify-between px-5 py-3 flex-shrink-0 border-b bg-background">
+          <CardTitle className="text-base font-semibold">
+            {column.name}
+          </CardTitle>
+          <Badge variant="secondary">{lids.length}</Badge>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3 px-5 py-4 flex-1 overflow-y-auto overflow-x-hidden min-h-0 scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgb(209_213_219)_transparent] hover:[scrollbar-color:rgb(156_163_175)_transparent]">
           <SortableContext
             items={lids.map(lid => lid.id)}
             strategy={verticalListSortingStrategy}
@@ -381,13 +439,19 @@ LidCardContent.displayName = "LidCardContent"
 export default function LidsTable() {
   const navigate = useNavigate()
   const lids = useLidsStore(state => state.lids)
+  const customKanbanColumns = useLidsStore(state => state.customKanbanColumns)
   const onOpen = useLidsStore(state => state.onOpen)
+  const shouldSwitchToKanban = useLidsStore(state => state.shouldSwitchToKanban)
+  const resetKanbanSwitch = useLidsStore(state => state.resetKanbanSwitch)
+  const addCustomKanbanColumn = useLidsStore(state => state.addCustomKanbanColumn)
   const deleteLid = useLidsStore(state => state.deleteLid)
   const updateStatus = useLidsStore(state => state.updateStatus)
   const convertToStudent = useLidsStore(state => state.convertToStudent)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [lidToDelete, setLidToDelete] = useState<Lid | null>(null)
-  const [viewMode, setViewMode] = useState<"table" | "board">("table")
+  const [viewMode, setViewMode] = useState<"board" | "table">("board")
+  const [kanbanDialogOpen, setKanbanDialogOpen] = useState(false)
+  const [kanbanColumnName, setKanbanColumnName] = useState("")
   const [statusFilter, setStatusFilter] = useState<LidStatus | "all">("all")
   const [courseFilter, setCourseFilter] = useState<string>("all")
   const [sourceFilter, setSourceFilter] = useState<string>("all")
@@ -428,6 +492,25 @@ export default function LidsTable() {
     convertToStudent(lid.id)
     toast.success("Lead Studentga aylantirildi")
   }, [convertToStudent])
+
+  // Switch to kanban view when shouldSwitchToKanban is true
+  useEffect(() => {
+    if (shouldSwitchToKanban) {
+      setViewMode("board")
+      resetKanbanSwitch()
+    }
+  }, [shouldSwitchToKanban, resetKanbanSwitch, lids.length])
+
+  const handleAddKanbanColumn = useCallback(() => {
+    if (!kanbanColumnName.trim()) {
+      toast.error("Iltimos, kanban nomini kiriting")
+      return
+    }
+    addCustomKanbanColumn(kanbanColumnName)
+    toast.success("Kanban muvaffaqiyatli qo'shildi")
+    setKanbanColumnName("")
+    setKanbanDialogOpen(false)
+  }, [kanbanColumnName, addCustomKanbanColumn])
 
   const filteredLids = useMemo(() => {
     return lids.filter(lid => {
@@ -633,29 +716,35 @@ export default function LidsTable() {
   }, [total, newCount, interested, converted, closed])
 
   return (
-    <div className="flex w-full min-w-0 flex-col gap-4">
-      <div className="flex flex-col gap-3">
+    <div className="flex w-full min-w-0 flex-col gap-4" style={{ height: 'calc(100vh - 8rem)' }}>
+      <div className="flex flex-col gap-3 flex-shrink-0">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {summaryCards.map(card => (
             <LidSummaryCard key={card.key} card={card} />
           ))}
         </div>
       </div>
-      <div className="mt-2 flex flex-col gap-4 md:mt-4">
+      <div className="mt-2 flex flex-col gap-4 md:mt-4 flex-shrink-0">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <Tabs value={viewMode} onValueChange={value => setViewMode(value as "table" | "board")} className="w-auto">
+          <Tabs value={viewMode} onValueChange={value => setViewMode(value as "board" | "table")} className="w-auto">
             <TabsList className="grid grid-cols-2">
+            <TabsTrigger value="board" className="cursor-pointer">Kanban</TabsTrigger>
               <TabsTrigger value="table" className="cursor-pointer">Jadval</TabsTrigger>
-              <TabsTrigger value="board" className="cursor-pointer">Kanban</TabsTrigger>
             </TabsList>
           </Tabs>
-          <Button onClick={() => onOpen()} className="cursor-pointer">
-            Lead qo&apos;shish
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button onClick={() => setKanbanDialogOpen(true)} variant="outline" className="cursor-pointer">
+              Kanban qo&apos;shish
+            </Button>
+            <Button onClick={() => onOpen()} className="cursor-pointer">
+              Lead qo&apos;shish
+            </Button>
+          </div>
         </div>
         
         {/* Filters */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        {viewMode === "table" && (
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as LidStatus | "all")}>
             <SelectTrigger>
               <SelectValue placeholder="Status bo'yicha" />
@@ -719,6 +808,7 @@ export default function LidsTable() {
             placeholder="Sana bo'yicha"
           />
         </div>
+        )}
       </div>
 
       {viewMode === "table" ? (
@@ -762,17 +852,57 @@ export default function LidsTable() {
           </div>
         </div>
       ) : (
-        <LidsBoard
-          lids={lids}
-          onEdit={handleEdit}
-          onDelete={handleDeleteClick}
-          onStatusChange={handleStatusChange}
-          onViewProfile={(lid) => navigate(`/lids/${lid.id}`)}
-          onAddNew={() => onOpen()}
-        />
+        <div className="flex-1 min-h-0">
+          <LidsBoard
+            lids={lids}
+            customColumns={customKanbanColumns}
+            onEdit={handleEdit}
+            onDelete={handleDeleteClick}
+            onStatusChange={handleStatusChange}
+            onViewProfile={(lid) => navigate(`/lids/${lid.id}`)}
+          />
+        </div>
       )}
 
       <LidsDrawer />
+
+      <Dialog open={kanbanDialogOpen} onOpenChange={setKanbanDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Yangi kanban qo&apos;shish</DialogTitle>
+            <DialogDescription>
+              Yangi kanban ustun nomini kiriting
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              value={kanbanColumnName}
+              onChange={(e) => setKanbanColumnName(e.target.value)}
+              placeholder="Kanban nomi"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleAddKanbanColumn()
+                }
+              }}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setKanbanDialogOpen(false)
+                setKanbanColumnName("")
+              }}
+              className="cursor-pointer"
+            >
+              Bekor qilish
+            </Button>
+            <Button onClick={handleAddKanbanColumn} className="cursor-pointer">
+              Qo&apos;shish
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>

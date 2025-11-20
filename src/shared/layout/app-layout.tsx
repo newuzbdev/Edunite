@@ -20,7 +20,7 @@ export function AppLayout() {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-1 flex-col overflow-hidden bg-gray-100">
+        <div className="flex flex-1 flex-col overflow-hidden bg-white">
           <div className="@container/main flex flex-1 flex-col gap-2 overflow-auto p-4 lg:p-6">
             <Outlet />
           </div>
