@@ -8,14 +8,14 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
+import { Users, GraduationCap } from "lucide-react"
 
 // Mock data - replace with actual data
 const courseData = [
-  { course: "Frontend Development", students: 45 },
-  { course: "Backend Development", students: 38 },
-  { course: "Fullstack Development", students: 32 },
-  { course: "Mobile Development", students: 25 },
-  { course: "UI/UX Design", students: 16 },
+  { course: "Frontend", students: 45 },
+  { course: "Backend", students: 38 },
+  { course: "Fullstack", students: 32 },
+  { course: "Mobile", students: 25 },
 ]
 
 const topCourse = courseData.reduce((prev, current) => 
@@ -24,11 +24,10 @@ const topCourse = courseData.reduce((prev, current) =>
 
 // Color mapping for each course
 const courseColors: Record<string, string> = {
-  "Frontend Development": "#3b82f6", // Blue
-  "Backend Development": "#10b981", // Green
-  "Fullstack Development": "#8b5cf6", // Purple
-  "Mobile Development": "#f59e0b", // Orange
-  "UI/UX Design": "#ec4899", // Pink
+  "Frontend": "#3b82f6", // Blue
+  "Backend": "#10b981", // Green
+  "Fullstack": "#8b5cf6", // Purple
+  "Mobile": "#f59e0b", // Orange
 }
 
 const chartConfig = {
@@ -41,43 +40,51 @@ const chartConfig = {
 export function CourseStatistics() {
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <Card>
-        <CardHeader>
-          <CardTitle>Kurs statistikasi</CardTitle>
-          <CardDescription>Kurslar bo'yicha talabalar taqsimoti</CardDescription>
+      <Card className="border shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold">Kurs statistikasi</CardTitle>
+          <CardDescription className="text-sm">Kurslar bo'yicha talabalar taqsimoti</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Eng ko'p talabasi bo'lgan kurs/guruh</p>
-            <p className="text-2xl font-bold">{topCourse.course}</p>
-            <p className="text-lg text-muted-foreground">{topCourse.students} ta talaba</p>
+        <CardContent>
+          <div className="space-y-4 rounded-lg border bg-gradient-to-br from-primary/5 to-primary/10 p-5">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <GraduationCap className="h-3.5 w-3.5" />
+              <span>Eng ko'p talabasi bo'lgan kurs/guruh</span>
+            </div>
+            <div className="space-y-1">
+              <p className="text-2xl font-bold tracking-tight">{topCourse.course}</p>
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <p className="text-base font-medium text-muted-foreground">{topCourse.students} ta talaba</p>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Kurs bo'yicha talabalar</CardTitle>
-          <CardDescription>Har bir kursdagi talabalar soni</CardDescription>
+      <Card className="border shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold">Kurs bo'yicha talabalar</CardTitle>
+          <CardDescription className="text-sm">Har bir kursdagi talabalar soni</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={chartConfig} className="h-[300px] w-full">
-            <BarChart data={courseData} layout="vertical">
-              <CartesianGrid horizontal={false} />
+            <BarChart data={courseData}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted" />
               <XAxis
-                type="number"
+                dataKey="course"
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
+                className="text-xs"
               />
               <YAxis
-                dataKey="course"
-                type="category"
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
-                width={120}
-                tickFormatter={(value) => value.split(' ')[0]}
+                className="text-xs"
+                domain={[0, 60]}
+                ticks={[0, 15, 30, 45, 60]}
               />
               <ChartTooltip
                 cursor={false}
@@ -86,7 +93,7 @@ export function CourseStatistics() {
               <Bar
                 dataKey="students"
                 fill="#f59e0b"
-                radius={[0, 4, 4, 0]}
+                radius={[6, 6, 0, 0]}
               >
                 {courseData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={courseColors[entry.course] || "#f59e0b"} />
