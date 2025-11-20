@@ -34,6 +34,14 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog"
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle,
+	SheetFooter,
+} from "@/components/ui/sheet"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -53,15 +61,38 @@ import {
 	UserPlus,
 	UserX,
 	Users,
+	Filter,
+	X,
+	Search,
+	Calendar,
+	Globe,
+	User,
+	MapPin,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useLidsStore, STATUS_LABELS_UZ, SOURCE_LABELS_UZ, COURSE_TYPES_UZ, MANAGERS, type Lid, type LidStatus } from "../utils/lids-store"
+import { useLidsStore, STATUS_LABELS_UZ, SOURCE_LABELS_UZ, MANAGERS, type Lid, type LidStatus } from "../utils/lids-store"
 import LidsDrawer from "./lids-drawer"
 import { toast } from "sonner"
 import { useNavigate } from "react-router-dom"
 
 const STATUS_ORDER: LidStatus[] = ["new", "called", "interested", "thinking", "closed", "converted"]
+
+// Mock data for regions and branches
+const REGIONS = [
+	{ id: "1", name: "Toshkent shahri" },
+	{ id: "2", name: "Toshkent viloyati" },
+	{ id: "3", name: "Samarqand" },
+	{ id: "4", name: "Buxoro" },
+	{ id: "5", name: "Andijon" },
+]
+
+const BRANCHES = [
+	{ id: "1", name: "Chilonzor filiali" },
+	{ id: "2", name: "Yunusobod filiali" },
+	{ id: "3", name: "Yashnobod filiali" },
+	{ id: "4", name: "Olmazor filiali" },
+]
 
 type StatusChangeOptions = { silent?: boolean }
 
@@ -72,7 +103,6 @@ type LidsBoardProps = {
   onDelete: (lid: Lid) => void
   onStatusChange: (id: string, status: LidStatus, options?: StatusChangeOptions) => void
   onViewProfile: (lid: Lid) => void
-  onAddNew: () => void
 }
 
 type SortableListeners = ReturnType<typeof useSortable>["listeners"]
@@ -96,13 +126,13 @@ function LidSummaryCard({ card }: { card: LidSummaryCardConfig }) {
   const trendColor = trendIsDown ? "text-destructive" : "text-emerald-500"
 
   return (
-    <Card className="shadow-xs">
+    <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 border-0 bg-white">
       <CardHeader className="flex flex-row items-start justify-between gap-3 pb-2">
         <div className="space-y-1">
-          <CardDescription>{card.title}</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums">{formattedValue}</CardTitle>
+          <CardDescription className="text-xs font-medium text-muted-foreground">{card.title}</CardDescription>
+          <CardTitle className="text-2xl font-bold tabular-nums text-foreground">{formattedValue}</CardTitle>
         </div>
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary shadow-sm">
           <Icon className="h-5 w-5" />
         </div>
       </CardHeader>
@@ -134,7 +164,11 @@ function LidsBoard({ lids, customColumns, onEdit, onDelete, onStatusChange, onVi
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: 6 },
+      activationConstraint: {
+        distance: 8,
+        delay: 100,
+        tolerance: 5,
+      },
     })
   )
 
@@ -168,19 +202,19 @@ function LidsBoard({ lids, customColumns, onEdit, onDelete, onStatusChange, onVi
   }, [])
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col w-full h-full">
       <DndContext
         sensors={sensors}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
       >
-        <div className="overflow-x-auto overflow-y-hidden -mx-2 sm:-mx-4 px-2 sm:px-4 scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgb(209_213_219)_transparent] hover:[scrollbar-color:rgb(156_163_175)_transparent] flex-1 min-h-0">
-          <div className="flex gap-4 min-w-max h-full pb-4">
+        <div className="overflow-x-auto overflow-y-visible scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgb(209_213_219)_transparent] hover:[scrollbar-color:rgb(156_163_175)_transparent] w-full" style={{ maxHeight: 'calc(100vh - 20rem)' }}>
+          <div className="flex gap-3 sm:gap-4 min-w-max pb-4" style={{ minHeight: '400px' }}>
             {STATUS_ORDER.map(status => {
               const items = lids.filter(lid => lid.status === status)
               return (
-                <div key={status} className="flex-shrink-0 w-[280px] sm:w-[300px] h-full">
+                <div key={status} className="flex-shrink-0 w-[260px] min-[375px]:w-[280px] sm:w-[300px] md:w-[320px] h-auto">
                   <StatusColumn
                     status={status}
                     lids={items}
@@ -192,7 +226,7 @@ function LidsBoard({ lids, customColumns, onEdit, onDelete, onStatusChange, onVi
               )
             })}
             {customColumns.map(column => (
-              <div key={column.id} className="flex-shrink-0 w-[280px] sm:w-[300px] h-full">
+              <div key={column.id} className="flex-shrink-0 w-[260px] min-[375px]:w-[280px] sm:w-[300px] md:w-[320px] h-auto">
                 <CustomKanbanColumn
                   column={column}
                   lids={[]}
@@ -242,13 +276,13 @@ function StatusColumn({ status, lids, onEdit, onDelete, onViewProfile }: StatusC
           isOver && "border-primary bg-primary/5"
         )}
       >
-        <CardHeader className="flex flex-row items-center justify-between px-5 py-3 flex-shrink-0 border-b bg-background">
-          <CardTitle className="text-base font-semibold">
+        <CardHeader className="flex flex-row items-center justify-between px-3 sm:px-5 py-2 sm:py-3 flex-shrink-0 border-b bg-background">
+          <CardTitle className="text-sm sm:text-base font-semibold truncate">
             {STATUS_LABELS_UZ[status]}
           </CardTitle>
-          <Badge variant="secondary">{lids.length}</Badge>
+          <Badge variant="secondary" className="text-xs sm:text-sm flex-shrink-0 ml-2">{lids.length}</Badge>
         </CardHeader>
-        <CardContent className="flex flex-col gap-3 px-5 py-4 flex-1 overflow-y-auto overflow-x-hidden min-h-0 scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgb(209_213_219)_transparent] hover:[scrollbar-color:rgb(156_163_175)_transparent]">
+        <CardContent className="flex flex-col gap-2 sm:gap-3 px-3 sm:px-5 py-3 sm:py-4 flex-1 overflow-y-auto overflow-x-hidden min-h-[300px] max-h-[600px] sm:max-h-[calc(100vh-25rem)] scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgb(209_213_219)_transparent] hover:[scrollbar-color:rgb(156_163_175)_transparent]">
           <SortableContext
             items={lids.map(lid => lid.id)}
             strategy={verticalListSortingStrategy}
@@ -258,7 +292,7 @@ function StatusColumn({ status, lids, onEdit, onDelete, onViewProfile }: StatusC
                 <LidCard key={lid.id} lid={lid} onEdit={onEdit} onDelete={onDelete} onViewProfile={onViewProfile} />
               ))
             ) : (
-              <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-muted-foreground/40 px-3 py-8 text-center text-sm text-muted-foreground">
+              <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-muted-foreground/40 px-3 py-8 text-center text-xs sm:text-sm text-muted-foreground">
                 Hozircha lids mavjud emas
               </div>
             )}
@@ -291,13 +325,13 @@ function CustomKanbanColumn({ column, lids, onEdit, onDelete, onViewProfile }: C
           isOver && "border-primary bg-primary/5"
         )}
       >
-        <CardHeader className="flex flex-row items-center justify-between px-5 py-3 flex-shrink-0 border-b bg-background">
-          <CardTitle className="text-base font-semibold">
+        <CardHeader className="flex flex-row items-center justify-between px-3 sm:px-5 py-2 sm:py-3 flex-shrink-0 border-b bg-background">
+          <CardTitle className="text-sm sm:text-base font-semibold truncate">
             {column.name}
           </CardTitle>
-          <Badge variant="secondary">{lids.length}</Badge>
+          <Badge variant="secondary" className="text-xs sm:text-sm flex-shrink-0 ml-2">{lids.length}</Badge>
         </CardHeader>
-        <CardContent className="flex flex-col gap-3 px-5 py-4 flex-1 overflow-y-auto overflow-x-hidden min-h-0 scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgb(209_213_219)_transparent] hover:[scrollbar-color:rgb(156_163_175)_transparent]">
+        <CardContent className="flex flex-col gap-2 sm:gap-3 px-3 sm:px-5 py-3 sm:py-4 flex-1 overflow-y-auto overflow-x-hidden min-h-[300px] max-h-[600px] sm:max-h-[calc(100vh-25rem)] scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgb(209_213_219)_transparent] hover:[scrollbar-color:rgb(156_163_175)_transparent]">
           <SortableContext
             items={lids.map(lid => lid.id)}
             strategy={verticalListSortingStrategy}
@@ -307,7 +341,7 @@ function CustomKanbanColumn({ column, lids, onEdit, onDelete, onViewProfile }: C
                 <LidCard key={lid.id} lid={lid} onEdit={onEdit} onDelete={onDelete} onViewProfile={onViewProfile} />
               ))
             ) : (
-              <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-muted-foreground/40 px-3 py-8 text-center text-sm text-muted-foreground">
+              <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-muted-foreground/40 px-3 py-8 text-center text-xs sm:text-sm text-muted-foreground">
                 Hozircha lids mavjud emas
               </div>
             )}
@@ -385,7 +419,7 @@ const LidCardContent = forwardRef<HTMLDivElement, LidCardContentProps>(
       {...attributes}
       {...listeners}
       className={cn(
-        "flex cursor-grab flex-col gap-2 rounded-lg border bg-background p-4 shadow-sm transition",
+        "flex cursor-grab active:cursor-grabbing flex-col gap-2 rounded-lg border bg-background p-3 sm:p-4 shadow-sm transition w-full",
         dragOverlay && "cursor-grabbing border-primary bg-background shadow-lg",
         isDragging && "cursor-grabbing border-primary bg-primary/10 shadow-lg"
       )}
@@ -393,14 +427,14 @@ const LidCardContent = forwardRef<HTMLDivElement, LidCardContentProps>(
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-start gap-3">
           <GripVertical className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
-          <div className="space-y-1 flex-1">
+          <div className="space-y-1 flex-1 min-w-0">
             <button 
               onClick={() => onViewProfile(lid)}
-              className="font-semibold leading-5 text-left hover:underline cursor-pointer"
+              className="font-semibold text-sm sm:text-base leading-5 text-left hover:underline cursor-pointer truncate w-full"
             >
               {lid.name}
             </button>
-            <p className="text-sm text-muted-foreground">{lid.phoneNumber}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground truncate">{lid.phoneNumber}</p>
           </div>
         </div>
         {!dragOverlay && (
@@ -428,7 +462,7 @@ const LidCardContent = forwardRef<HTMLDivElement, LidCardContentProps>(
           </DropdownMenu>
         )}
       </div>
-      <p className="text-sm text-muted-foreground">{lid.courseType}</p>
+      <p className="text-xs sm:text-sm text-muted-foreground truncate">{lid.courseType}</p>
     </div>
   )
 }
@@ -452,11 +486,39 @@ export default function LidsTable() {
   const [viewMode, setViewMode] = useState<"board" | "table">("board")
   const [kanbanDialogOpen, setKanbanDialogOpen] = useState(false)
   const [kanbanColumnName, setKanbanColumnName] = useState("")
-  const [statusFilter, setStatusFilter] = useState<LidStatus | "all">("all")
-  const [courseFilter, setCourseFilter] = useState<string>("all")
-  const [sourceFilter, setSourceFilter] = useState<string>("all")
-  const [managerFilter, setManagerFilter] = useState<string>("all")
-  const [dateFilter, setDateFilter] = useState<string>("")
+  const [searchQuery, setSearchQuery] = useState<string>("")
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false)
+  
+  // Comprehensive filter state
+  const [filterState, setFilterState] = useState<{
+    dateRange: string
+    source: string
+    manager: string
+    region: string
+    branch: string
+    startedStudying: boolean
+    paid: boolean
+    signedContract: boolean
+    reContacted: boolean
+  }>({
+    dateRange: "",
+    source: "",
+    manager: "",
+    region: "",
+    branch: "",
+    startedStudying: false,
+    paid: false,
+    signedContract: false,
+    reContacted: false,
+  })
+  
+  // Filter state - track active filters for display
+  const [activeFilters, setActiveFilters] = useState<Array<{
+    id: string
+    type: string
+    value: string
+    label: string
+  }>>([])
 
   const handleEdit = useCallback((lid: Lid) => {
     onOpen(lid)
@@ -514,14 +576,180 @@ export default function LidsTable() {
 
   const filteredLids = useMemo(() => {
     return lids.filter(lid => {
-      if (statusFilter !== "all" && lid.status !== statusFilter) return false
-      if (courseFilter !== "all" && lid.courseType !== courseFilter) return false
-      if (sourceFilter !== "all" && lid.source !== sourceFilter) return false
-      if (managerFilter !== "all" && lid.managerId !== managerFilter) return false
-      if (dateFilter && !new Date(lid.interestedDate).toISOString().split('T')[0].includes(dateFilter)) return false
+      // Search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase()
+        const matchesName = lid.name.toLowerCase().includes(query)
+        const matchesPhone = lid.phoneNumber.toLowerCase().includes(query)
+        if (!matchesName && !matchesPhone) return false
+      }
+
+      // Date range filter
+      if (filterState.dateRange) {
+        const lidDate = new Date(lid.interestedDate).toISOString().split('T')[0]
+        if (lidDate !== filterState.dateRange) return false
+      }
+
+      // Source filter
+      if (filterState.source && lid.source !== filterState.source) return false
+
+      // Manager filter
+      if (filterState.manager && lid.managerId !== filterState.manager) return false
+
+      // Note: Region and branch filters would need to be added to Lid interface
+      // Additional parameters would also need to be tracked in the Lid data
+
       return true
     })
-  }, [lids, statusFilter, courseFilter, sourceFilter, managerFilter, dateFilter])
+  }, [lids, searchQuery, filterState])
+
+  const handleApplyFilters = useCallback(() => {
+    const newFilters: Array<{ id: string; type: string; value: string; label: string }> = []
+    
+    if (filterState.dateRange) {
+      newFilters.push({
+        id: `date-${filterState.dateRange}`,
+        type: "date",
+        value: filterState.dateRange,
+        label: new Date(filterState.dateRange).toLocaleDateString("uz-UZ")
+      })
+    }
+    
+    if (filterState.source) {
+      newFilters.push({
+        id: `source-${filterState.source}`,
+        type: "source",
+        value: filterState.source,
+        label: SOURCE_LABELS_UZ[filterState.source as keyof typeof SOURCE_LABELS_UZ] || filterState.source
+      })
+    }
+    
+    if (filterState.manager) {
+      const manager = MANAGERS.find(m => m.id === filterState.manager)
+      newFilters.push({
+        id: `manager-${filterState.manager}`,
+        type: "manager",
+        value: filterState.manager,
+        label: manager?.name || filterState.manager
+      })
+    }
+    
+    if (filterState.region) {
+      const region = REGIONS.find(r => r.id === filterState.region)
+      newFilters.push({
+        id: `region-${filterState.region}`,
+        type: "region",
+        value: filterState.region,
+        label: region?.name || filterState.region
+      })
+    }
+    
+    if (filterState.branch) {
+      const branch = BRANCHES.find(b => b.id === filterState.branch)
+      newFilters.push({
+        id: `branch-${filterState.branch}`,
+        type: "branch",
+        value: filterState.branch,
+        label: branch?.name || filterState.branch
+      })
+    }
+    
+    if (filterState.startedStudying) {
+      newFilters.push({
+        id: "started-studying",
+        type: "additional",
+        value: "started-studying",
+        label: "O'qishni boshlagan"
+      })
+    }
+    
+    if (filterState.paid) {
+      newFilters.push({
+        id: "paid",
+        type: "additional",
+        value: "paid",
+        label: "To'lov qilgan"
+      })
+    }
+    
+    if (filterState.signedContract) {
+      newFilters.push({
+        id: "signed-contract",
+        type: "additional",
+        value: "signed-contract",
+        label: "Shartnoma imzolagan"
+      })
+    }
+    
+    if (filterState.reContacted) {
+      newFilters.push({
+        id: "re-contacted",
+        type: "additional",
+        value: "re-contacted",
+        label: "Qayta aloqa"
+      })
+    }
+    
+    setActiveFilters(newFilters)
+    setFilterSheetOpen(false)
+  }, [filterState])
+
+  const handleClearFilters = useCallback(() => {
+    setFilterState({
+      dateRange: "",
+      source: "",
+      manager: "",
+      region: "",
+      branch: "",
+      startedStudying: false,
+      paid: false,
+      signedContract: false,
+      reContacted: false,
+    })
+    setActiveFilters([])
+  }, [])
+
+  const handleRemoveFilter = useCallback((filterId: string) => {
+    const filter = activeFilters.find(f => f.id === filterId)
+    if (!filter) return
+    
+    setActiveFilters(prev => prev.filter(f => f.id !== filterId))
+    
+    // Update filterState based on removed filter
+    switch (filter.type) {
+      case "date":
+        setFilterState(prev => ({ ...prev, dateRange: "" }))
+        break
+      case "source":
+        setFilterState(prev => ({ ...prev, source: "" }))
+        break
+      case "manager":
+        setFilterState(prev => ({ ...prev, manager: "" }))
+        break
+      case "region":
+        setFilterState(prev => ({ ...prev, region: "" }))
+        break
+      case "branch":
+        setFilterState(prev => ({ ...prev, branch: "" }))
+        break
+      case "additional":
+        if (filter.value === "started-studying") {
+          setFilterState(prev => ({ ...prev, startedStudying: false }))
+        } else if (filter.value === "paid") {
+          setFilterState(prev => ({ ...prev, paid: false }))
+        } else if (filter.value === "signed-contract") {
+          setFilterState(prev => ({ ...prev, signedContract: false }))
+        } else if (filter.value === "re-contacted") {
+          setFilterState(prev => ({ ...prev, reContacted: false }))
+        }
+        break
+    }
+  }, [activeFilters])
+
+  const handleResetFilters = useCallback(() => {
+    handleClearFilters()
+    setSearchQuery("")
+  }, [handleClearFilters])
 
   const columns = useMemo<ColumnDef<Lid, unknown>[]>(() => [
     {
@@ -716,110 +944,340 @@ export default function LidsTable() {
   }, [total, newCount, interested, converted, closed])
 
   return (
-    <div className="flex w-full min-w-0 flex-col gap-4" style={{ height: 'calc(100vh - 8rem)' }}>
-      <div className="flex flex-col gap-3 flex-shrink-0">
+    <div className="flex w-full min-w-0 flex-col gap-4 sm:gap-6">
+      <div className="flex flex-col gap-4 flex-shrink-0">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {summaryCards.map(card => (
             <LidSummaryCard key={card.key} card={card} />
           ))}
         </div>
       </div>
-      <div className="mt-2 flex flex-col gap-4 md:mt-4 flex-shrink-0">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col gap-4 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <Tabs value={viewMode} onValueChange={value => setViewMode(value as "board" | "table")} className="w-auto">
-            <TabsList className="grid grid-cols-2">
-            <TabsTrigger value="board" className="cursor-pointer">Kanban</TabsTrigger>
-              <TabsTrigger value="table" className="cursor-pointer">Jadval</TabsTrigger>
+            <TabsList className="grid grid-cols-2 bg-white shadow-sm">
+            <TabsTrigger value="board" className="cursor-pointer text-xs sm:text-sm">Kanban</TabsTrigger>
+              <TabsTrigger value="table" className="cursor-pointer text-xs sm:text-sm">Jadval</TabsTrigger>
             </TabsList>
           </Tabs>
-          <div className="flex items-center gap-2">
-            <Button onClick={() => setKanbanDialogOpen(true)} variant="outline" className="cursor-pointer">
-              Kanban qo&apos;shish
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button onClick={() => setKanbanDialogOpen(true)} variant="outline" size="sm" className="cursor-pointer shadow-sm hover:shadow-md transition-shadow text-xs sm:text-sm">
+              <span className="hidden sm:inline">Kanban qo&apos;shish</span>
+              <span className="sm:hidden">Kanban</span>
             </Button>
-            <Button onClick={() => onOpen()} className="cursor-pointer">
-              Lead qo&apos;shish
+            <Button onClick={() => onOpen()} size="sm" className="cursor-pointer shadow-sm hover:shadow-md transition-shadow text-xs sm:text-sm">
+              <span className="hidden sm:inline">Lead qo&apos;shish</span>
+              <span className="sm:hidden">Lead</span>
             </Button>
           </div>
         </div>
         
-        {/* Filters */}
+        {/* Search and Filters */}
         {viewMode === "table" && (
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
-          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as LidStatus | "all")}>
-            <SelectTrigger>
-              <SelectValue placeholder="Status bo'yicha" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Barcha statuslar</SelectItem>
-              {STATUS_ORDER.map(status => (
-                <SelectItem key={status} value={status}>
-                  {STATUS_LABELS_UZ[status]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            {/* Search Input */}
+            <div className="relative flex-1 w-full sm:max-w-md">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Ism yoki telefon orqali qidirish..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 w-full bg-white shadow-sm"
+              />
+            </div>
 
-          <Select value={courseFilter} onValueChange={setCourseFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Kurs bo'yicha" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Barcha kurslar</SelectItem>
-              {COURSE_TYPES_UZ.map(course => (
-                <SelectItem key={course} value={course}>
-                  {course}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            {/* Filter Button */}
+            <div className="flex flex-wrap items-center gap-2">
+              {(activeFilters.length > 0 || searchQuery) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleResetFilters}
+                  className="cursor-pointer shadow-sm hover:shadow-md transition-shadow bg-white"
+                >
+                  <X className="h-4 w-4 mr-1.5" />
+                  Tozalash
+                </Button>
+              )}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setFilterSheetOpen(true)}
+                className="cursor-pointer shadow-sm hover:shadow-md transition-shadow bg-white"
+              >
+                <Filter className="h-4 w-4 mr-1.5" />
+                Barcha Filterlar
+              </Button>
+            </div>
+          </div>
 
-          <Select value={sourceFilter} onValueChange={setSourceFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Manba bo'yicha" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Barcha manbalar</SelectItem>
-              {Object.entries(SOURCE_LABELS_UZ).map(([key, label]) => (
-                <SelectItem key={key} value={key}>
-                  {label}
-                </SelectItem>
+          {/* Active Filter Chips */}
+          {activeFilters.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              {activeFilters.map(filter => (
+                <Badge key={filter.id} variant="secondary" className="gap-1.5 px-3 py-1.5 text-sm bg-white">
+                  <span className="font-medium">
+                    {filter.type === "date" && "Sana: "}
+                    {filter.type === "source" && "Manba: "}
+                    {filter.type === "manager" && "Menedjer: "}
+                    {filter.type === "region" && "Hudud: "}
+                    {filter.type === "branch" && "Filial: "}
+                  </span>
+                  <span>{filter.label}</span>
+                  <button
+                    onClick={() => handleRemoveFilter(filter.id)}
+                    className="ml-1 rounded-full hover:bg-muted-foreground/20 p-0.5 transition-colors"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
               ))}
-            </SelectContent>
-          </Select>
+            </div>
+          )}
 
-          <Select value={managerFilter} onValueChange={setManagerFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Menedjer bo'yicha" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Barcha menedjerlar</SelectItem>
-              {MANAGERS.map(manager => (
-                <SelectItem key={manager.id} value={manager.id}>
-                  {manager.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {/* Comprehensive Filter Sheet */}
+          <Sheet open={filterSheetOpen} onOpenChange={setFilterSheetOpen}>
+            <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto p-0">
+              <div className="flex flex-col h-full">
+                {/* Header */}
+                <SheetHeader className="px-6 pt-6 pb-4 border-b bg-gradient-to-b from-background to-muted/20">
+                  <SheetTitle className="text-2xl font-bold tracking-tight">Kengaytirilgan Filterlar</SheetTitle>
+                  <SheetDescription className="text-sm text-muted-foreground mt-2">
+                    Aniqroq natija olish uchun quyidagi parametrlarni sozlang.
+                  </SheetDescription>
+                </SheetHeader>
 
-          <Input
-            type="date"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            placeholder="Sana bo'yicha"
-          />
+                {/* Content */}
+                <div className="flex-1 overflow-y-auto px-6 py-6">
+                  <div className="flex flex-col gap-6">
+                    {/* Date Range */}
+                    <Card className="border shadow-sm">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base font-semibold flex items-center gap-2">
+                          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary">
+                            <Calendar className="h-4 w-4" />
+                          </div>
+                          Sana oralig&apos;i
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <Input
+                          type="date"
+                          value={filterState.dateRange}
+                          onChange={(e) => setFilterState(prev => ({ ...prev, dateRange: e.target.value }))}
+                          placeholder="Sanani tanlang"
+                          className="bg-background"
+                        />
+                      </CardContent>
+                    </Card>
+
+                    {/* Source */}
+                    <Card className="border shadow-sm">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base font-semibold flex items-center gap-2">
+                          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary">
+                            <Globe className="h-4 w-4" />
+                          </div>
+                          Manba
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <Select value={filterState.source} onValueChange={(value) => setFilterState(prev => ({ ...prev, source: value }))}>
+                          <SelectTrigger className="bg-background">
+                            <SelectValue placeholder="Tanlang" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(SOURCE_LABELS_UZ).map(([key, label]) => (
+                              <SelectItem key={key} value={key}>
+                                {label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </CardContent>
+                    </Card>
+
+                    {/* Manager */}
+                    <Card className="border shadow-sm">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base font-semibold flex items-center gap-2">
+                          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary">
+                            <User className="h-4 w-4" />
+                          </div>
+                          Menedjer
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <Select value={filterState.manager} onValueChange={(value) => setFilterState(prev => ({ ...prev, manager: value }))}>
+                          <SelectTrigger className="bg-background">
+                            <SelectValue placeholder="Tanlang" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {MANAGERS.map(manager => (
+                              <SelectItem key={manager.id} value={manager.id}>
+                                {manager.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </CardContent>
+                    </Card>
+
+                    {/* Region and Branch */}
+                    <Card className="border shadow-sm">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base font-semibold flex items-center gap-2">
+                          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary">
+                            <MapPin className="h-4 w-4" />
+                          </div>
+                          Hudud va Filial
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <Select value={filterState.region} onValueChange={(value) => setFilterState(prev => ({ ...prev, region: value }))}>
+                          <SelectTrigger className="bg-background">
+                            <SelectValue placeholder="Hudud" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {REGIONS.map(region => (
+                              <SelectItem key={region.id} value={region.id}>
+                                {region.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select value={filterState.branch} onValueChange={(value) => setFilterState(prev => ({ ...prev, branch: value }))}>
+                          <SelectTrigger className="bg-background">
+                            <SelectValue placeholder="Filial" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {BRANCHES.map(branch => (
+                              <SelectItem key={branch.id} value={branch.id}>
+                                {branch.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </CardContent>
+                    </Card>
+
+                    {/* Additional Parameters */}
+                    <Card className="border shadow-sm">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base font-semibold">Qo&apos;shimcha parametrlar</CardTitle>
+                        <CardDescription className="text-xs text-muted-foreground mt-1">
+                          Qo&apos;shimcha filtrlarni tanlang
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex flex-wrap gap-2.5">
+                          <Button
+                            type="button"
+                            variant={filterState.startedStudying ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setFilterState(prev => ({ ...prev, startedStudying: !prev.startedStudying }))}
+                            className={cn(
+                              "cursor-pointer transition-all",
+                              filterState.startedStudying 
+                                ? "bg-primary text-primary-foreground shadow-sm" 
+                                : "hover:bg-muted"
+                            )}
+                          >
+                            O&apos;qishni boshlagan
+                          </Button>
+                          <Button
+                            type="button"
+                            variant={filterState.paid ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setFilterState(prev => ({ ...prev, paid: !prev.paid }))}
+                            className={cn(
+                              "cursor-pointer transition-all",
+                              filterState.paid 
+                                ? "bg-primary text-primary-foreground shadow-sm" 
+                                : "hover:bg-muted"
+                            )}
+                          >
+                            To&apos;lov qilgan
+                          </Button>
+                          <Button
+                            type="button"
+                            variant={filterState.signedContract ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setFilterState(prev => ({ ...prev, signedContract: !prev.signedContract }))}
+                            className={cn(
+                              "cursor-pointer transition-all",
+                              filterState.signedContract 
+                                ? "bg-primary text-primary-foreground shadow-sm" 
+                                : "hover:bg-muted"
+                            )}
+                          >
+                            Shartnoma imzolagan
+                          </Button>
+                          <Button
+                            type="button"
+                            variant={filterState.reContacted ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setFilterState(prev => ({ ...prev, reContacted: !prev.reContacted }))}
+                            className={cn(
+                              "cursor-pointer transition-all",
+                              filterState.reContacted 
+                                ? "bg-primary text-primary-foreground shadow-sm" 
+                                : "hover:bg-muted"
+                            )}
+                          >
+                            Qayta aloqa
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <SheetFooter className="px-6 py-4 border-t bg-muted/30 flex flex-row items-center justify-between gap-3 mt-auto">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleClearFilters}
+                    className="cursor-pointer hover:bg-muted"
+                  >
+                    Tozalash
+                  </Button>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setFilterSheetOpen(false)}
+                      className="cursor-pointer text-muted-foreground hover:text-foreground"
+                    >
+                      Bekor qilish
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleApplyFilters}
+                      className="cursor-pointer shadow-sm hover:shadow-md transition-shadow"
+                    >
+                      Natijalarni ko&apos;rsatish
+                    </Button>
+                  </div>
+                </SheetFooter>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
         )}
       </div>
 
       {viewMode === "table" ? (
-        <div>
-          <div className="overflow-hidden rounded-lg border bg-white">
+        <div className="w-full overflow-x-auto">
+          <div className="min-w-full rounded-lg border-0 bg-white shadow-sm">
             <Table>
               <TableHeader>
                 {table.getHeaderGroups().map(headerGroup => (
-                  <TableRow key={headerGroup.id}>
+                  <TableRow key={headerGroup.id} className="border-b bg-muted/30">
                     {headerGroup.headers.map(header => (
-                      <TableHead key={header.id} colSpan={header.colSpan}>
+                      <TableHead key={header.id} colSpan={header.colSpan} className="font-semibold text-foreground whitespace-nowrap">
                         {header.isPlaceholder
                           ? null
                           : flexRender(header.column.columnDef.header, header.getContext())}
@@ -832,9 +1290,9 @@ export default function LidsTable() {
               <TableBody>
                 {table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map(row => (
-                    <TableRow key={row.id}>
+                    <TableRow key={row.id} className="border-b hover:bg-muted/30 transition-colors">
                       {row.getVisibleCells().map(cell => (
-                        <TableCell key={cell.id}>
+                        <TableCell key={cell.id} className="py-3 whitespace-nowrap">
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       ))}
@@ -852,9 +1310,9 @@ export default function LidsTable() {
           </div>
         </div>
       ) : (
-        <div className="flex-1 min-h-0">
+        <div className="w-full" style={{ minHeight: '400px', maxHeight: 'calc(100vh - 20rem)' }}>
           <LidsBoard
-            lids={lids}
+            lids={filteredLids}
             customColumns={customKanbanColumns}
             onEdit={handleEdit}
             onDelete={handleDeleteClick}

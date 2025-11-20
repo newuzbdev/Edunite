@@ -37,7 +37,11 @@ type NavItem = {
   icon: LucideIcon
   subItems?: {
     title: string
-    url: string
+    url?: string
+    subItems?: {
+      title: string
+      url: string
+    }[]
   }[]
 }
 
@@ -53,9 +57,18 @@ export function NavMain({
     const state: Record<string, boolean> = {}
     items.forEach(item => {
       if (item.subItems && item.subItems.length > 0) {
-        const hasActiveSubItem = item.subItems.some(subItem => 
-          location.pathname === subItem.url || location.pathname.startsWith(subItem.url)
-        )
+        const hasActiveSubItem = item.subItems.some(subItem => {
+          if (subItem.subItems && subItem.subItems.length > 0) {
+            const hasActiveNested = subItem.subItems.some(nested => 
+              location.pathname === nested.url
+            )
+            if (hasActiveNested) {
+              state[`${item.title}-${subItem.title}`] = true
+            }
+            return hasActiveNested
+          }
+          return subItem.url && (location.pathname === subItem.url || location.pathname.startsWith(subItem.url))
+        })
         state[item.title] = hasActiveSubItem || location.pathname.startsWith(item.url)
       }
     })
@@ -67,16 +80,25 @@ export function NavMain({
     const newState: Record<string, boolean> = {}
     items.forEach(item => {
       if (item.subItems && item.subItems.length > 0) {
-        const hasActiveSubItem = item.subItems.some(subItem => 
-          location.pathname === subItem.url || location.pathname.startsWith(subItem.url)
-        )
+        const hasActiveSubItem = item.subItems.some(subItem => {
+          if (subItem.subItems && subItem.subItems.length > 0) {
+            const hasActiveNested = subItem.subItems.some(nested => 
+              location.pathname === nested.url
+            )
+            if (hasActiveNested) {
+              newState[`${item.title}-${subItem.title}`] = true
+            }
+            return hasActiveNested
+          }
+          return subItem.url && (location.pathname === subItem.url || location.pathname.startsWith(subItem.url))
+        })
         newState[item.title] = hasActiveSubItem || location.pathname.startsWith(item.url)
       }
     })
     setOpenItems(prev => {
       // Only update if there's a change
       const hasChange = Object.keys(newState).some(key => newState[key] !== prev[key])
-      return hasChange ? newState : prev
+      return hasChange ? { ...prev, ...newState } : prev
     })
   }, [items, location.pathname])
 
@@ -84,6 +106,14 @@ export function NavMain({
     setOpenItems(prev => ({
       ...prev,
       [title]: !prev[title]
+    }))
+  }
+
+  const toggleSubItem = (parentTitle: string, subItemTitle: string) => {
+    const key = `${parentTitle}-${subItemTitle}`
+    setOpenItems(prev => ({
+      ...prev,
+      [key]: !prev[key]
     }))
   }
 
@@ -136,7 +166,84 @@ export function NavMain({
                 {isOpen && (
                   <div className="mt-2 ml-2 space-y-1">
                     {item.subItems?.map((subItem) => {
-                      const isSubActive = location.pathname === subItem.url
+                      const hasNestedSubItems = subItem.subItems && subItem.subItems.length > 0
+                      const subItemKey = `${item.title}-${subItem.title}`
+                      const isSubOpen = openItems[subItemKey] || false
+                      const isSubActive = subItem.url ? location.pathname === subItem.url : false
+                      const hasActiveNestedSubItem = hasNestedSubItems && subItem.subItems?.some(nested => 
+                        location.pathname === nested.url
+                      )
+
+                      if (hasNestedSubItems) {
+                        return (
+                          <div key={subItem.title} className="space-y-1">
+                            <div
+                              onClick={() => toggleSubItem(item.title, subItem.title)}
+                              className={cn(
+                                "h-auto min-h-[46px] rounded-[10px] px-3 font-medium transition-all duration-200",
+                                "w-full text-left border-0 cursor-pointer flex items-center justify-between",
+                                "leading-[20px] tracking-normal",
+                                hasActiveNestedSubItem
+                                  ? "bg-primary/10 text-primary hover:bg-primary/20" 
+                                  : "text-gray-700 hover:bg-gray-100 hover:text-gray-900 bg-transparent"
+                              )}
+                            >
+                              <span className={cn(
+                                "font-medium leading-[20px] tracking-normal",
+                                hasActiveNestedSubItem ? "text-primary" : "text-gray-700"
+                              )}>
+                                {subItem.title}
+                              </span>
+                              <div className="flex-shrink-0">
+                                {isSubOpen ? (
+                                  <ChevronDown className="h-4 w-4" />
+                                ) : (
+                                  <ChevronRight className="h-4 w-4" />
+                                )}
+                              </div>
+                            </div>
+                            {isSubOpen && (
+                              <div className="ml-4 space-y-1">
+                                {subItem.subItems?.map((nestedSubItem) => {
+                                  const isNestedActive = location.pathname === nestedSubItem.url
+                                  return (
+                                    <div key={nestedSubItem.title}>
+                                      <SidebarMenuSubButton
+                                        asChild
+                                        isActive={isNestedActive}
+                                        className={cn(
+                                          "h-auto min-h-[46px] rounded-[10px] px-3 font-medium transition-all duration-200",
+                                          "w-full text-left border-0",
+                                          "leading-[20px] tracking-normal",
+                                          isNestedActive 
+                                            ? "bg-primary text-white hover:bg-primary/90 shadow-sm [&>a]:!text-white [&>a>span]:!text-white" 
+                                            : "text-gray-700 hover:bg-gray-100 hover:text-gray-900 bg-transparent"
+                                        )}
+                                      >
+                                        <Link 
+                                          to={nestedSubItem.url}
+                                          className={cn(
+                                            "flex items-center w-full h-full p-0",
+                                            isNestedActive ? "!text-white" : "text-gray-700"
+                                          )}
+                                        >
+                                          <span className={cn(
+                                            "font-medium leading-[20px] tracking-normal",
+                                            isNestedActive ? "!text-white" : "text-gray-700"
+                                          )}>
+                                            {nestedSubItem.title}
+                                          </span>
+                                        </Link>
+                                      </SidebarMenuSubButton>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        )
+                      }
+
                       return (
                         <div key={subItem.title}>
                           <SidebarMenuSubButton
@@ -152,7 +259,7 @@ export function NavMain({
                             )}
                           >
                             <Link 
-                              to={subItem.url}
+                              to={subItem.url || '#'}
                               className={cn(
                                 "flex items-center w-full h-full p-0",
                                 isSubActive ? "!text-white" : "text-gray-700"

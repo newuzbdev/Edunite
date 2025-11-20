@@ -12,6 +12,8 @@ import {
   MapPin,
   ChevronDown,
   Check,
+  FileText,
+  ClipboardCheck,
 } from "lucide-react"
 
 import { NavMain } from "@/shared/layout/nav-main"
@@ -84,6 +86,57 @@ const data = {
       title: "O'qituvchilar",
       url: "/teachers",
       icon: UserCircle,
+    },
+    {
+      title: "Hisobotlar",
+      url: "/reports",
+      icon: FileText,
+      subItems: [
+        {
+          title: "Moliyaviy hisobotlar",
+          subItems: [
+            {
+              title: "Kunlik / oylik daromad",
+              url: "/reports/financial/daily-monthly",
+            },
+            {
+              title: "Kurslar bo'yicha daromad",
+              url: "/reports/financial/by-courses",
+            },
+            {
+              title: "O'qituvchilar hisobi",
+              url: "/reports/financial/teachers",
+            },
+          ],
+        },
+        {
+          title: "Talabalar hisobi",
+          url: "/reports/students",
+        },
+        {
+          title: "Davomat hisobi",
+          url: "/reports/attendance",
+        },
+      ],
+    },
+    {
+      title: "Imtihonlar",
+      url: "/exams",
+      icon: ClipboardCheck,
+      subItems: [
+        {
+          title: "Imtihon yaratish",
+          url: "/exams/create",
+        },
+        {
+          title: "Natijalar",
+          url: "/exams/results",
+        },
+        {
+          title: "Talaba ballari",
+          url: "/exams/scores",
+        },
+      ],
     },
   ],
 }

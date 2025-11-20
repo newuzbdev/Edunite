@@ -10,7 +10,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle2, XCircle, Clock } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { CheckCircle2, XCircle, Clock, Eye } from "lucide-react"
 
 // Mock data - replace with actual data
 const payments = [
@@ -128,6 +129,7 @@ export function LatestPayments() {
                 <TableHead>To'lov summasi</TableHead>
                 <TableHead>Sana</TableHead>
                 <TableHead>Holat</TableHead>
+                <TableHead className="text-right">Amallar</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -143,6 +145,20 @@ export function LatestPayments() {
                     })}
                   </TableCell>
                   <TableCell>{getStatusBadge(payment.status)}</TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 cursor-pointer"
+                      onClick={() => {
+                        // Handle view action - you can add navigation or modal here
+                        console.log("View payment:", payment.id)
+                      }}
+                      title="To'lovni ko'rish"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -40,7 +40,7 @@ export function SiteHeader() {
   const selectedLanguageLabel = languages.find(l => l.code === selectedLanguage)?.label || "UZ"
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-white transition-[width,height] ease-linear">
+    <header className="flex h-16 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear">
       <div className="flex w-full items-center justify-between gap-4 px-4 lg:px-6">
         <div className="flex items-center gap-2">
           <SidebarTrigger className="-ml-1" />

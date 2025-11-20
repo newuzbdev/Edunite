@@ -11,6 +11,16 @@ import StudentProfile from '@/pages/talabalar/profile'
 import Payments from '@/pages/payments'
 import Debtors from '@/pages/payments/debtors'
 import PaymentsStatistics from '@/pages/payments/statistics'
+import Reports from '@/pages/reports'
+import DailyMonthlyRevenue from '@/pages/reports/financial/daily-monthly'
+import RevenueByCourses from '@/pages/reports/financial/by-courses'
+import TeachersAccount from '@/pages/reports/financial/teachers'
+import StudentsReport from '@/pages/reports/students'
+import AttendanceReport from '@/pages/reports/attendance'
+import Exams from '@/pages/exams'
+import CreateExam from '@/pages/exams/create'
+import ExamResults from '@/pages/exams/results'
+import StudentScores from '@/pages/exams/scores'
 import { AppLayout } from '@/shared/layout/app-layout'
 
 export const router = createBrowserRouter([
@@ -64,6 +74,46 @@ export const router = createBrowserRouter([
 			{
 				path: '/payments/statistics',
 				element: <PaymentsStatistics />
+			},
+			{
+				path: '/reports',
+				element: <Reports />
+			},
+			{
+				path: '/reports/financial/daily-monthly',
+				element: <DailyMonthlyRevenue />
+			},
+			{
+				path: '/reports/financial/by-courses',
+				element: <RevenueByCourses />
+			},
+			{
+				path: '/reports/financial/teachers',
+				element: <TeachersAccount />
+			},
+			{
+				path: '/reports/students',
+				element: <StudentsReport />
+			},
+			{
+				path: '/reports/attendance',
+				element: <AttendanceReport />
+			},
+			{
+				path: '/exams',
+				element: <Exams />
+			},
+			{
+				path: '/exams/create',
+				element: <CreateExam />
+			},
+			{
+				path: '/exams/results',
+				element: <ExamResults />
+			},
+			{
+				path: '/exams/scores',
+				element: <StudentScores />
 			},
 			{
 				path: '*',

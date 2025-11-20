@@ -4,7 +4,6 @@ import * as React from "react"
 import { Line, LineChart, CartesianGrid, XAxis, YAxis, Bar, BarChart } from "recharts"
 import { useIsMobile } from "@/hooks/use-mobile"
 import {
-  Card,
   CardAction,
   CardContent,
   CardDescription,
@@ -24,12 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@/components/ui/toggle-group"
 
-// Mock data - replace with actual data
+
 const chartData7Days = [
   { date: "2024-12-25", revenue: 450000 },
   { date: "2024-12-26", revenue: 520000 },
@@ -59,7 +54,7 @@ const chartConfig = {
 export function RevenueChart() {
   const isMobile = useIsMobile()
   const [timeRange, setTimeRange] = React.useState<"7d" | "30d">("7d")
-  const [chartType, setChartType] = React.useState<"line" | "bar">("line")
+  const [chartType, _setChartType] = React.useState<"line" | "bar">("line")
 
   React.useEffect(() => {
     if (isMobile) {
@@ -70,7 +65,7 @@ export function RevenueChart() {
   const data = timeRange === "7d" ? chartData7Days : chartData30Days
 
   return (
-    <Card className="@container/card">
+    <div className="bg-white shadow-sm rounded-xl p-4">
       <CardHeader>
         <CardTitle>Daromad grafigi</CardTitle>
         <CardDescription>
@@ -82,36 +77,7 @@ export function RevenueChart() {
           </span>
         </CardDescription>
         <CardAction className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <ToggleGroup
-            type="single"
-            value={chartType}
-            onValueChange={(v) => v && setChartType(v as "line" | "bar")}
-            variant="outline"
-            className="hidden *:data-[slot=toggle-group-item]:!px-4 @[767px]/card:flex"
-          >
-            <ToggleGroupItem value="line">Chiziqli</ToggleGroupItem>
-            <ToggleGroupItem value="bar">Stolpchikli</ToggleGroupItem>
-          </ToggleGroup>
-          <Select 
-            value={chartType} 
-            onValueChange={(v) => setChartType(v as "line" | "bar")}
-          >
-            <SelectTrigger
-              className="flex w-40 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate @[767px]/card:hidden"
-              size="sm"
-              aria-label="Grafik turini tanlang"
-            >
-              <SelectValue placeholder="Grafik turi" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value="line" className="rounded-lg">
-                Chiziqli
-              </SelectItem>
-              <SelectItem value="bar" className="rounded-lg">
-                Stolpchikli
-              </SelectItem>
-            </SelectContent>
-          </Select>
+
           <Select value={timeRange} onValueChange={(v) => setTimeRange(v as "7d" | "30d")}>
             <SelectTrigger
               className="flex w-40 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
@@ -239,7 +205,7 @@ export function RevenueChart() {
           )}
         </ChartContainer>
       </CardContent>
-    </Card>
+    </div>
   )
 }
 
