@@ -93,28 +93,19 @@ const data = {
       icon: FileText,
       subItems: [
         {
-          title: "Moliyaviy hisobotlar",
-          subItems: [
-            {
-              title: "Kunlik / oylik daromad",
-              url: "/reports/financial/daily-monthly",
-            },
-            {
-              title: "Kurslar bo'yicha daromad",
-              url: "/reports/financial/by-courses",
-            },
-            {
-              title: "O'qituvchilar hisobi",
-              url: "/reports/financial/teachers",
-            },
-          ],
+          title: "Moliyaviy hisobot",
+          url: "/reports/financial",
         },
         {
-          title: "Talabalar hisobi",
+          title: "Talabalar hisoboti",
           url: "/reports/students",
         },
         {
-          title: "Davomat hisobi",
+          title: "O'qituvchilar hisoboti",
+          url: "/reports/teachers",
+        },
+        {
+          title: "Davomat hisoboti",
           url: "/reports/attendance",
         },
       ],

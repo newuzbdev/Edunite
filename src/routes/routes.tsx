@@ -12,10 +12,9 @@ import Payments from '@/pages/payments'
 import Debtors from '@/pages/payments/debtors'
 import PaymentsStatistics from '@/pages/payments/statistics'
 import Reports from '@/pages/reports'
-import DailyMonthlyRevenue from '@/pages/reports/financial/daily-monthly'
-import RevenueByCourses from '@/pages/reports/financial/by-courses'
-import TeachersAccount from '@/pages/reports/financial/teachers'
+import FinancialReports from '@/pages/reports/financial'
 import StudentsReport from '@/pages/reports/students'
+import TeachersReport from '@/pages/reports/teachers'
 import AttendanceReport from '@/pages/reports/attendance'
 import Exams from '@/pages/exams'
 import CreateExam from '@/pages/exams/create'
@@ -80,20 +79,28 @@ export const router = createBrowserRouter([
 				element: <Reports />
 			},
 			{
+				path: '/reports/financial',
+				element: <FinancialReports />
+			},
+			{
 				path: '/reports/financial/daily-monthly',
-				element: <DailyMonthlyRevenue />
+				element: <Navigate to="/reports/financial" replace />
 			},
 			{
 				path: '/reports/financial/by-courses',
-				element: <RevenueByCourses />
+				element: <Navigate to="/reports/financial" replace />
 			},
 			{
 				path: '/reports/financial/teachers',
-				element: <TeachersAccount />
+				element: <Navigate to="/reports/financial" replace />
 			},
 			{
 				path: '/reports/students',
 				element: <StudentsReport />
+			},
+			{
+				path: '/reports/teachers',
+				element: <TeachersReport />
 			},
 			{
 				path: '/reports/attendance',
