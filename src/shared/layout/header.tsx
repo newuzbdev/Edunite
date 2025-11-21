@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Input } from "@/components/ui/input"
@@ -20,6 +21,7 @@ import {
 } from "@/components/ui/avatar"
 import { Search, LogOut, User, ChevronDown, Globe } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/contexts/auth-context"
 
 const userData = {
   name: "Akmal Toshmatov",
@@ -36,8 +38,15 @@ const languages = [
 export function SiteHeader() {
   const [selectedLanguage, setSelectedLanguage] = useState("uz")
   const [searchQuery, setSearchQuery] = useState("")
+  const { logout } = useAuth()
+  const navigate = useNavigate()
 
   const selectedLanguageLabel = languages.find(l => l.code === selectedLanguage)?.label || "UZ"
+
+  const handleLogout = () => {
+    logout()
+    navigate("/login")
+  }
 
   return (
     <header className="flex h-16 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear">
@@ -133,7 +142,7 @@ export function SiteHeader() {
                 <span>Profil</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600 focus:text-red-600">
+              <DropdownMenuItem className="text-red-600 focus:text-red-600" onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Chiqish</span>
               </DropdownMenuItem>

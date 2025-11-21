@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import Dashboard from '@/pages/dashboard/dashboard'
+import LoginPage from '@/pages/login'
 import Lidlar from '@/pages/lidlar/lids'
 import LidProfile from '@/pages/lidlar/profile'
 import Oqituvchilar from '@/pages/teachers.tsx'
@@ -23,11 +24,15 @@ import ExamResults from '@/pages/exams/results'
 import StudentScores from '@/pages/exams/scores'
 import SendSMS from '@/pages/marketing/sms/send'
 import SMSHistory from '@/pages/marketing/sms/history'
-import { AppLayout } from '@/shared/layout/app-layout'
+import { ProtectedLayout } from '@/components/protected-layout'
 
 export const router = createBrowserRouter([
 	{
-		element: <AppLayout />,
+		path: '/login',
+		element: <LoginPage />
+	},
+	{
+		element: <ProtectedLayout />,
 		children: [
 			{
 				path: '/',
@@ -146,5 +151,9 @@ export const router = createBrowserRouter([
 				element: <Navigate to='/' />
 			}
 		]
+	},
+	{
+		path: '*',
+		element: <Navigate to='/login' replace />
 	}
 ])
