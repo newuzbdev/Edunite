@@ -24,6 +24,9 @@ import ExamResults from '@/pages/exams/results'
 import StudentScores from '@/pages/exams/scores'
 import SendSMS from '@/pages/marketing/sms/send'
 import SMSHistory from '@/pages/marketing/sms/history'
+import Kurslar from '@/pages/kurslar'
+import YangiKurs from '@/pages/kurslar/yangi'
+import CourseDetail from '@/pages/kurslar/detail'
 import { ProtectedLayout } from '@/components/protected-layout'
 
 export const router = createBrowserRouter([
@@ -145,6 +148,18 @@ export const router = createBrowserRouter([
 			{
 				path: '/marketing',
 				element: <Navigate to="/marketing/sms/send" replace />
+			},
+			{
+				path: '/kurslar',
+				element: <Kurslar />
+			},
+			{
+				path: '/kurslar/yangi',
+				element: <YangiKurs />
+			},
+			{
+				path: '/kurslar/:id',
+				element: <CourseDetail />
 			},
 			{
 				path: '*',

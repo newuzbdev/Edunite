@@ -15,6 +15,7 @@ import {
   FileText,
   ClipboardCheck,
   MessageSquare,
+  BookOpen,
 } from "lucide-react"
 
 import { NavMain } from "@/shared/layout/nav-main"
@@ -87,6 +88,11 @@ const data = {
       title: "O'qituvchilar",
       url: "/teachers",
       icon: UserCircle,
+    },
+    {
+      title: "Kurslar",
+      url: "/kurslar",
+      icon: BookOpen,
     },
     {
       title: "Hisobotlar",
