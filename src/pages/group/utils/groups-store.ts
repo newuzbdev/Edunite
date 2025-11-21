@@ -24,6 +24,10 @@ export interface Room {
 }
 
 export interface Lesson {
+  groupName: string
+  courseName: string
+  roomName: string
+  studentCount: number
   id: string
   groupId: string
   date: string
@@ -131,6 +135,10 @@ export const useGroupsStore = create<GroupsStore>((set, get) => ({
           teacherId: 't1',
           roomId: 'r1',
           type: 'offline',
+          groupName: 'GE-1',
+          courseName: 'General English',
+          roomName: 'Xona-1',
+          studentCount: 12,
         },
         {
           id: 'l2',
@@ -141,6 +149,10 @@ export const useGroupsStore = create<GroupsStore>((set, get) => ({
           teacherId: 't1',
           roomId: 'r1',
           type: 'offline',
+          groupName: 'GE-1',
+          courseName: 'General English',
+          roomName: 'Xona-1',
+          studentCount: 12,
         },
         {
           id: 'l3',
@@ -151,6 +163,10 @@ export const useGroupsStore = create<GroupsStore>((set, get) => ({
           teacherId: 't1',
           roomId: 'r1',
           type: 'offline',
+          groupName: 'GE-1',
+          courseName: 'General English',
+          roomName: 'Xona-1',
+          studentCount: 12,
         },
         {
           id: 'l4',
@@ -161,6 +177,10 @@ export const useGroupsStore = create<GroupsStore>((set, get) => ({
           teacherId: 't1',
           roomId: 'r1',
           type: 'offline',
+          groupName: 'GE-1',
+          courseName: 'General English',
+          roomName: 'Xona-1',
+          studentCount: 12,
         },
       ],
       zoomLink: 'https://zoom.us/j/example'
@@ -203,6 +223,10 @@ export const useGroupsStore = create<GroupsStore>((set, get) => ({
           teacherId: 't2',
           roomId: 'r2',
           type: 'offline',
+          groupName: 'IELTS-E',
+          courseName: 'IELTS Exam Preparation',
+          roomName: 'Xona-2',
+          studentCount: 8,
         },
         {
           id: 'l6',
@@ -213,6 +237,10 @@ export const useGroupsStore = create<GroupsStore>((set, get) => ({
           teacherId: 't2',
           roomId: 'r2',
           type: 'offline',
+          groupName: 'IELTS-E',
+          courseName: 'IELTS Exam Preparation',
+          roomName: 'Xona-2',
+          studentCount: 8,
         },
         {
           id: 'l7',
@@ -223,6 +251,10 @@ export const useGroupsStore = create<GroupsStore>((set, get) => ({
           teacherId: 't2',
           roomId: 'r2',
           type: 'offline',
+          groupName: 'IELTS-E',
+          courseName: 'IELTS Exam Preparation',
+          roomName: 'Xona-2',
+          studentCount: 8,
         },
         {
           id: 'l8',
@@ -233,6 +265,10 @@ export const useGroupsStore = create<GroupsStore>((set, get) => ({
           teacherId: 't2',
           roomId: 'r2',
           type: 'offline',
+          groupName: 'IELTS-E',
+          courseName: 'IELTS Exam Preparation',
+          roomName: 'Xona-2',
+          studentCount: 8,
         },
       ],
     },
@@ -260,10 +296,17 @@ export const useGroupsStore = create<GroupsStore>((set, get) => ({
     set({ groups: get().groups.filter((g) => g.id !== id) })
   },
   addLesson: (groupId, lesson) => {
+    const group = get().groups.find((g) => g.id === groupId)
+    if (!group) return
+
     const newLesson: Lesson = {
       id: Date.now().toString(),
       ...lesson,
       groupId,
+      groupName: lesson.groupName || group.name,
+      courseName: lesson.courseName || group.course.name,
+      roomName: lesson.roomName || group.room?.name || (lesson.roomId === 'online' ? 'Online' : ''),
+      studentCount: lesson.studentCount ?? group.currentStudents,
     }
     set({
       groups: get().groups.map((g) =>
@@ -275,9 +318,30 @@ export const useGroupsStore = create<GroupsStore>((set, get) => ({
     set({
       groups: get().groups.map((g) => ({
         ...g,
-        lessons: g.lessons.map((l) =>
-          l.id === lessonId ? { ...l, ...lessonUpdate } : l
-        ),
+        lessons: g.lessons.map((l) => {
+          if (l.id === lessonId) {
+            const updatedLesson = { ...l, ...lessonUpdate }
+            // Update derived fields if groupId or roomId changed
+            if (lessonUpdate.groupId && lessonUpdate.groupId !== l.groupId) {
+              const group = get().groups.find((gr) => gr.id === lessonUpdate.groupId)
+              if (group) {
+                updatedLesson.groupName = group.name
+                updatedLesson.courseName = group.course.name
+                updatedLesson.studentCount = group.currentStudents
+              }
+            }
+            if (lessonUpdate.roomId !== undefined) {
+              const group = get().groups.find((gr) => gr.id === updatedLesson.groupId)
+              if (group) {
+                updatedLesson.roomName = lessonUpdate.roomId === 'online' 
+                  ? 'Online' 
+                  : group.room?.name || ''
+              }
+            }
+            return updatedLesson
+          }
+          return l
+        }),
       })),
     })
   },

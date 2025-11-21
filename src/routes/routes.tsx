@@ -3,6 +3,7 @@ import Dashboard from '@/pages/dashboard/dashboard'
 import Lidlar from '@/pages/lidlar/lids'
 import LidProfile from '@/pages/lidlar/profile'
 import Oqituvchilar from '@/pages/teachers.tsx'
+import TeacherProfile from '@/pages/teachers.tsx/profile'
 import Guruhlar from '@/pages/group'
 import GroupSchedule from '@/pages/group/ui/group-schedule'
 import Schedule from '@/pages/schedule'
@@ -43,6 +44,10 @@ export const router = createBrowserRouter([
 			{
 				path: '/teachers',
 				element: <Oqituvchilar />
+			},
+			{
+				path: '/teachers/:id',
+				element: <TeacherProfile />
 			},
 			{
 				path: '/groups',

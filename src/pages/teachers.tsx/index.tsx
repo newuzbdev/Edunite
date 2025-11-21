@@ -1,13 +1,13 @@
-import { TeacherStatistics } from "@/pages/dashboard/ui/teacher-statistics"
+import TeachersTable from "./ui/teachers-table"
 import { PageLayout } from "@/shared/layout/page-layout"
 
 export default function Oqituvchilar() {
   return (
     <PageLayout 
       title="O'qituvchilar" 
-      description="O'qituvchilar statistikasi va ma'lumotlari"
+      description="O'qituvchilar ro'yxati va boshqaruvi"
     >
-      <TeacherStatistics />
+      <TeachersTable />
     </PageLayout>
   )
 }

@@ -76,7 +76,11 @@ export default function LessonModal({ open, onOpenChange, lesson, selectedDate }
 			return
 		}
 
-		const lessonData = {
+		const roomName = roomId === 'online' 
+			? 'Online' 
+			: selectedGroup.room?.name || ''
+
+		const fullLessonData = {
 			groupId,
 			date,
 			startTime,
@@ -85,19 +89,32 @@ export default function LessonModal({ open, onOpenChange, lesson, selectedDate }
 			roomId: roomId || undefined,
 			type,
 			notes: notes || undefined,
+			groupName: selectedGroup.name,
+			courseName: selectedGroup.course.name,
+			roomName,
+			studentCount: selectedGroup.currentStudents,
 		}
 
-		// Check for conflicts
-		if (checkScheduleConflict(lessonData)) {
+		// Check for conflicts (only if creating new lesson, not updating)
+		if (!lesson && checkScheduleConflict(fullLessonData)) {
 			toast.error("Bu vaqtda boshqa dars mavjud!")
 			return
 		}
 
 		if (lesson) {
-			updateLesson(lesson.id, lessonData)
+			updateLesson(lesson.id, {
+				groupId,
+				date,
+				startTime,
+				endTime,
+				teacherId: selectedGroup.teacherId,
+				roomId: roomId || undefined,
+				type,
+				notes: notes || undefined,
+			})
 			toast.success("Dars muvaffaqiyatli yangilandi")
 		} else {
-			addLesson(groupId, lessonData)
+			addLesson(groupId, fullLessonData)
 			toast.success("Dars muvaffaqiyatli qo'shildi")
 		}
 

@@ -19,7 +19,15 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog"
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetFooter,
+	SheetHeader,
+	SheetTitle,
+} from "@/components/ui/sheet"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import {
@@ -29,7 +37,6 @@ import {
 	SelectItem,
 	SelectValue,
 } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
 import {
 	MoreVertical,
 	UserPlus,
@@ -41,6 +48,8 @@ import {
 	Eye,
 	Edit,
 	Trash2,
+	Filter,
+	X,
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useGroupsStore, GROUP_STATUS_LABELS_UZ, type Group, type Course, type Teacher, type Room } from "../utils/groups-store"
@@ -77,9 +86,15 @@ export default function GroupsTable() {
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 	const [groupToDelete, setGroupToDelete] = useState<Group | null>(null)
 	const [searchQuery, setSearchQuery] = useState("")
-	const [courseFilter, setCourseFilter] = useState<string>("all")
-	const [teacherFilter, setTeacherFilter] = useState<string>("all")
-	const [statusFilter, setStatusFilter] = useState<string>("all")
+	const [filterSheetOpen, setFilterSheetOpen] = useState(false)
+	const [filterState, setFilterState] = useState({
+		course: "all",
+		teacher: "all",
+		status: "all",
+	})
+	const [activeFilters, setActiveFilters] = useState<
+		Array<{ id: string; type: string; label: string; value: string }>
+	>([])
 
 	const handleEdit = useCallback(
 		(group: Group) => {
@@ -143,23 +158,93 @@ export default function GroupsTable() {
 			}
 
 			// Course filter
-			if (courseFilter !== "all" && group.course.name !== courseFilter) {
+			if (filterState.course !== "all" && group.course.name !== filterState.course) {
 				return false
 			}
 
 			// Teacher filter
-			if (teacherFilter !== "all" && group.teacher.name !== teacherFilter) {
+			if (filterState.teacher !== "all" && group.teacher.name !== filterState.teacher) {
 				return false
 			}
 
 			// Status filter
-			if (statusFilter !== "all" && group.status !== statusFilter) {
+			if (filterState.status !== "all" && group.status !== filterState.status) {
 				return false
 			}
 
 			return true
 		})
-	}, [groups, searchQuery, courseFilter, teacherFilter, statusFilter])
+	}, [groups, searchQuery, filterState])
+
+	const handleApplyFilters = useCallback(() => {
+		const newFilters: Array<{ id: string; type: string; label: string; value: string }> = []
+
+		if (filterState.course !== "all") {
+			newFilters.push({
+				id: `course-${filterState.course}`,
+				type: "course",
+				value: filterState.course,
+				label: filterState.course,
+			})
+		}
+
+		if (filterState.teacher !== "all") {
+			newFilters.push({
+				id: `teacher-${filterState.teacher}`,
+				type: "teacher",
+				value: filterState.teacher,
+				label: filterState.teacher,
+			})
+		}
+
+		if (filterState.status !== "all") {
+			newFilters.push({
+				id: `status-${filterState.status}`,
+				type: "status",
+				value: filterState.status,
+				label: GROUP_STATUS_LABELS_UZ[filterState.status as Group["status"]],
+			})
+		}
+
+		setActiveFilters(newFilters)
+		setFilterSheetOpen(false)
+	}, [filterState])
+
+	const handleClearFilters = useCallback(() => {
+		setFilterState({
+			course: "all",
+			teacher: "all",
+			status: "all",
+		})
+		setActiveFilters([])
+	}, [])
+
+	const handleRemoveFilter = useCallback(
+		(filterId: string) => {
+			const filter = activeFilters.find((item) => item.id === filterId)
+			if (!filter) return
+
+			setActiveFilters((prev) => prev.filter((item) => item.id !== filterId))
+
+			switch (filter.type) {
+				case "course":
+					setFilterState((prev) => ({ ...prev, course: "all" }))
+					break
+				case "teacher":
+					setFilterState((prev) => ({ ...prev, teacher: "all" }))
+					break
+				case "status":
+					setFilterState((prev) => ({ ...prev, status: "all" }))
+					break
+			}
+		},
+		[activeFilters],
+	)
+
+	const handleResetFilters = useCallback(() => {
+		setSearchQuery("")
+		handleClearFilters()
+	}, [handleClearFilters])
 
 	const columns = useMemo<ColumnDef<Group, unknown>[]>(() => [
 		{
@@ -511,85 +596,199 @@ export default function GroupsTable() {
 					</div>
 
 					{/* Search and Filters */}
-					<div className="flex flex-col gap-6 mt-6">
-						<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-6">
-							<div className="relative flex-1 w-full md:max-w-md">
+					<div className="flex flex-col gap-4 mt-6">
+						<div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+							<div className="relative flex-1 w-full lg:max-w-md">
 								<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 								<Input
 									placeholder="Guruh nomi, kurs, o'qituvchi bo'yicha qidirish..."
 									value={searchQuery}
 									onChange={(e) => setSearchQuery(e.target.value)}
-									className="pl-9 w-full"
+									className="pl-9 h-9 bg-white"
 								/>
 							</div>
-							<div className="flex flex-wrap items-center gap-2 md:flex-nowrap md:shrink-0">
-								<Button variant="outline" onClick={handleImport} className="cursor-pointer flex-1 md:flex-initial">
+							<div className="flex flex-wrap items-center gap-2">
+								{(activeFilters.length > 0 || searchQuery) && (
+									<Button variant="outline" size="sm" onClick={handleResetFilters} className="cursor-pointer">
+										Tozalash
+									</Button>
+								)}
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => setFilterSheetOpen(true)}
+									className="cursor-pointer"
+								>
+									<Filter className="mr-2 h-4 w-4" />
+									Barcha Filterlar
+								</Button>
+								<Button variant="outline" size="sm" onClick={handleImport} className="cursor-pointer">
 									<Upload className="mr-2 h-4 w-4" />
 									Import
 								</Button>
-								<Button variant="outline" onClick={handleExport} className="cursor-pointer flex-1 md:flex-initial">
+								<Button variant="outline" size="sm" onClick={handleExport} className="cursor-pointer">
 									<Download className="mr-2 h-4 w-4" />
 									Export
 								</Button>
-								<Button onClick={() => onOpen()} className="cursor-pointer flex-1 md:flex-initial">
+								<Button size="sm" onClick={() => onOpen()} className="cursor-pointer">
 									<UserPlus className="mr-2 h-4 w-4" />
 									Guruh qo'shish
 								</Button>
 							</div>
 						</div>
 
-						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-							<div className="space-y-2">
-								<Label className="text-sm font-medium">Kurslar bo'yicha filter</Label>
-								<Select value={courseFilter} onValueChange={setCourseFilter}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Barcha kurslar" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="all">Barcha kurslar</SelectItem>
-										{uniqueCourses.map((course) => (
-											<SelectItem key={course} value={course}>
-												{course}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
+						{activeFilters.length > 0 && (
+							<div className="flex flex-wrap items-center gap-2">
+								{activeFilters.map((filter) => (
+									<Badge key={filter.id} variant="secondary" className="gap-1.5 px-3 py-1.5 text-sm bg-white">
+										<span className="font-medium">
+											{filter.type === "course" && "Kurs: "}
+											{filter.type === "teacher" && "O'qituvchi: "}
+											{filter.type === "status" && "Status: "}
+										</span>
+										<span>{filter.label}</span>
+										<button
+											onClick={() => handleRemoveFilter(filter.id)}
+											className="ml-1 rounded-full hover:bg-muted-foreground/20 p-0.5 transition-colors"
+										>
+											<X className="h-3 w-3" />
+										</button>
+									</Badge>
+								))}
 							</div>
+						)}
 
-							<div className="space-y-2">
-								<Label className="text-sm font-medium">O'qituvchi bo'yicha filter</Label>
-								<Select value={teacherFilter} onValueChange={setTeacherFilter}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Barcha o'qituvchilar" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="all">Barcha o'qituvchilar</SelectItem>
-										{uniqueTeachers.map((teacher) => (
-											<SelectItem key={teacher} value={teacher}>
-												{teacher}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
+						<Sheet open={filterSheetOpen} onOpenChange={setFilterSheetOpen}>
+							<SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto p-0">
+								<div className="flex flex-col h-full">
+									<SheetHeader className="px-6 pt-6 pb-4 border-b bg-linear-to-b from-background to-muted/20">
+										<SheetTitle className="text-2xl font-bold tracking-tight">Guruhlar filtrlari</SheetTitle>
+										<SheetDescription className="text-sm text-muted-foreground mt-2">
+											Kerakli guruhlarni topish uchun parametrlarni belgilang.
+										</SheetDescription>
+									</SheetHeader>
 
-							<div className="space-y-2">
-								<Label className="text-sm font-medium">Status bo'yicha filter</Label>
-								<Select value={statusFilter} onValueChange={setStatusFilter}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Barcha statuslar" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="all">Barcha statuslar</SelectItem>
-										{Object.entries(GROUP_STATUS_LABELS_UZ).map(([key, label]) => (
-											<SelectItem key={key} value={key}>
-												{label}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
-						</div>
+									<div className="flex-1 overflow-y-auto px-6 py-6">
+										<div className="flex flex-col gap-6">
+											<Card className="border shadow-sm">
+												<CardHeader className="pb-3">
+													<CardTitle className="text-base font-semibold flex items-center gap-2">
+														<div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary">
+															<Calendar className="h-4 w-4" />
+														</div>
+														Kurslar
+													</CardTitle>
+													<CardDescription className="text-xs text-muted-foreground">
+														Qaysi kurs bo'yicha filter qilish
+													</CardDescription>
+												</CardHeader>
+												<CardContent>
+													<Select
+														value={filterState.course}
+														onValueChange={(value) => setFilterState((prev) => ({ ...prev, course: value }))}
+													>
+														<SelectTrigger className="bg-background">
+															<SelectValue placeholder="Barcha kurslar" />
+														</SelectTrigger>
+														<SelectContent>
+															<SelectItem value="all">Barcha kurslar</SelectItem>
+															{uniqueCourses.map((course) => (
+																<SelectItem key={course} value={course}>
+																	{course}
+																</SelectItem>
+															))}
+														</SelectContent>
+													</Select>
+												</CardContent>
+											</Card>
+
+											<Card className="border shadow-sm">
+												<CardHeader className="pb-3">
+													<CardTitle className="text-base font-semibold flex items-center gap-2">
+														<div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary">
+															<Users className="h-4 w-4" />
+														</div>
+														O'qituvchilar
+													</CardTitle>
+													<CardDescription className="text-xs text-muted-foreground">
+														O'qituvchi bo'yicha filter
+													</CardDescription>
+												</CardHeader>
+												<CardContent>
+													<Select
+														value={filterState.teacher}
+														onValueChange={(value) => setFilterState((prev) => ({ ...prev, teacher: value }))}
+													>
+														<SelectTrigger className="bg-background">
+															<SelectValue placeholder="Barcha o'qituvchilar" />
+														</SelectTrigger>
+														<SelectContent>
+															<SelectItem value="all">Barcha o'qituvchilar</SelectItem>
+															{uniqueTeachers.map((teacher) => (
+																<SelectItem key={teacher} value={teacher}>
+																	{teacher}
+																</SelectItem>
+															))}
+														</SelectContent>
+													</Select>
+												</CardContent>
+											</Card>
+
+											<Card className="border shadow-sm">
+												<CardHeader className="pb-3">
+													<CardTitle className="text-base font-semibold flex items-center gap-2">
+														<div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary">
+															<Edit className="h-4 w-4" />
+														</div>
+														Status
+													</CardTitle>
+													<CardDescription className="text-xs text-muted-foreground">
+														Aktiv, yangi yoki tugagan holatini tanlang
+													</CardDescription>
+												</CardHeader>
+												<CardContent>
+													<Select
+														value={filterState.status}
+														onValueChange={(value) => setFilterState((prev) => ({ ...prev, status: value }))}
+													>
+														<SelectTrigger className="bg-background">
+															<SelectValue placeholder="Barcha statuslar" />
+														</SelectTrigger>
+														<SelectContent>
+															<SelectItem value="all">Barcha statuslar</SelectItem>
+															{Object.entries(GROUP_STATUS_LABELS_UZ).map(([key, label]) => (
+																<SelectItem key={key} value={key}>
+																	{label}
+																</SelectItem>
+															))}
+														</SelectContent>
+													</Select>
+												</CardContent>
+											</Card>
+										</div>
+									</div>
+
+									<SheetFooter className="px-6 py-4 border-t bg-muted/30 flex flex-row items-center justify-between gap-3">
+										<Button variant="outline" onClick={handleClearFilters} className="cursor-pointer hover:bg-muted">
+											Tozalash
+										</Button>
+										<div className="flex items-center gap-3">
+											<Button
+												variant="ghost"
+												onClick={() => setFilterSheetOpen(false)}
+												className="cursor-pointer text-muted-foreground hover:text-foreground"
+											>
+												Bekor qilish
+											</Button>
+											<Button onClick={handleApplyFilters} className="cursor-pointer shadow-sm hover:shadow-md transition-shadow">
+												Natijalarni ko'rsatish
+											</Button>
+										</div>
+									</SheetFooter>
+								</div>
+							</SheetContent>
+						</Sheet>
+					</div>
 
 						{/* Table */}
 						<div className="mt-6">
@@ -653,7 +852,6 @@ export default function GroupsTable() {
 								</Button>
 							</div>
 						</div>
-					</div>
 
 			<GroupsDrawer />
 
