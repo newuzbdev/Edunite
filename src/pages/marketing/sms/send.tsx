@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge"
 import { useSMSStore,  } from "../utils/sms-store"
 import { useStudentsStore } from "../../talabalar/utils/students-store"
 import { toast } from "sonner"
-import { Send, Loader2, CheckCircle2, XCircle, Clock, Search, ChevronDown } from "lucide-react"
+import { Send, Loader2, CheckCircle2, XCircle, Clock, Search, ChevronDown, Plus } from "lucide-react"
 
 export default function SendSMS() {
   const templates = useSMSStore(state => state.templates)
@@ -234,6 +234,16 @@ export default function SendSMS() {
   return (
     <PageLayout title="SMS xabar yuborish">
       <div className="space-y-6">
+        {/* Header with Button */}
+        <div className="flex items-center justify-between mb-4">
+          <div></div>
+          <div className="flex justify-end">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Shablon qo'shish
+            </Button>
+          </div>
+        </div>
         {/* Templates Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {templates.map(template => (
