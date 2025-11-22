@@ -56,14 +56,14 @@ const chartConfig = {
 
 export function LeadStatistics() {
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
       <Card className="border shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-semibold">Lid statistikasi</CardTitle>
           <CardDescription className="text-sm">Lidlar bo'yicha umumiy ma'lumotlar</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Calendar className="h-3.5 w-3.5" />
@@ -146,13 +146,14 @@ export function LeadStatistics() {
         </CardContent>
       </Card>
 
-      <Card className="md:col-span-2 border shadow-sm">
+      <Card className="lg:col-span-2 border shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-semibold">Kurs bo'yicha lidlar</CardTitle>
           <CardDescription className="text-sm">Har bir kurs uchun lidlar soni</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={chartConfig} className="h-[250px] w-full">
+          <div className="overflow-x-auto">
+            <ChartContainer config={chartConfig} className="h-[250px] w-full min-w-[400px]">
             <BarChart data={courseLeadsData} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" horizontal={false} className="stroke-muted" />
               <XAxis
@@ -186,6 +187,7 @@ export function LeadStatistics() {
               </Bar>
             </BarChart>
           </ChartContainer>
+          </div>
         </CardContent>
       </Card>
     </div>

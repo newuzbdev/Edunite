@@ -121,7 +121,7 @@ export function LatestPayments() {
         <CardDescription>So'nggi 10 ta to'lov ro'yxati (pul oqimini kuzatish uchun)</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="rounded-md border">
+        <div className="rounded-md border overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>

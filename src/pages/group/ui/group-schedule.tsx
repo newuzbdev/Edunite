@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
 import {
 	ChevronLeft,
 	ChevronRight,
@@ -278,27 +279,37 @@ export default function GroupSchedule() {
 			<div className="flex flex-col gap-4">
 				{/* Group Info Cards */}
 				<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-							<div>
-								<p className="text-sm text-muted-foreground">O'qituvchi</p>
-								<p className="font-medium">{selectedGroup.teacher.name}</p>
-							</div>
-							<div>
-								<p className="text-sm text-muted-foreground">Dars vaqti</p>
-								<p className="font-medium">{selectedGroup.schedule}</p>
-							</div>
-							<div>
-								<p className="text-sm text-muted-foreground">Kurs nomi</p>
-								<p className="font-medium">{selectedGroup.course.name}</p>
-							</div>
-							<div>
-								<p className="text-sm text-muted-foreground">Kurs narxi</p>
-								<p className="font-medium">1.200.000</p>
-							</div>
-							<div>
-								<p className="text-sm text-muted-foreground">Davomiyligi</p>
-								<p className="font-medium">2025-01-01/2026-09-01</p>
-							</div>
-						</div>
+					<Card className="bg-white">
+						<CardContent className="p-4">
+							<p className="text-sm text-muted-foreground mb-1">O'qituvchi</p>
+							<p className="font-medium text-foreground">{selectedGroup.teacher.name}</p>
+						</CardContent>
+					</Card>
+					<Card className="bg-white">
+						<CardContent className="p-4">
+							<p className="text-sm text-muted-foreground mb-1">Dars vaqti</p>
+							<p className="font-medium text-foreground">{selectedGroup.schedule}</p>
+						</CardContent>
+					</Card>
+					<Card className="bg-white">
+						<CardContent className="p-4">
+							<p className="text-sm text-muted-foreground mb-1">Kurs nomi</p>
+							<p className="font-medium text-foreground">{selectedGroup.course.name}</p>
+						</CardContent>
+					</Card>
+					<Card className="bg-white">
+						<CardContent className="p-4">
+							<p className="text-sm text-muted-foreground mb-1">Kurs narxi</p>
+							<p className="font-medium text-foreground">1.200.000</p>
+						</CardContent>
+					</Card>
+					<Card className="bg-white">
+						<CardContent className="p-4">
+							<p className="text-sm text-muted-foreground mb-1">Davomiyligi</p>
+							<p className="font-medium text-foreground">2025-01-01/2026-09-01</p>
+						</CardContent>
+					</Card>
+				</div>
 
 					{/* Title, Search, and Month Navigation */}
 					<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
@@ -341,72 +352,80 @@ export default function GroupSchedule() {
 					</div>
 
 					{/* Attendance Grid */}
-					<div className="overflow-x-auto">
-						<div className="min-w-[1200px]">
-							{/* Date Headers */}
-							<div className="grid gap-1 mb-2" style={{ gridTemplateColumns: gridColumns }}>
-								<div className="p-2 text-sm font-medium text-muted-foreground border-b sticky left-0 bg-white z-10">O'quvchi</div>
-								{classDates.map((date, index) => (
-									<div key={index} className="p-2 text-center border-b">
-										<div className="text-xs font-medium">
-											{getDayAbbreviation(date)}
-										</div>
-										<div className="text-sm font-bold">
-											{date.getDate()}
-										</div>
+					<Card className="bg-white">
+						<CardContent className="p-0">
+							<div className="overflow-x-auto">
+								<div className="min-w-[1200px]">
+									{/* Date Headers */}
+									<div className="grid gap-1 mb-2 border-b bg-gray-50" style={{ gridTemplateColumns: gridColumns }}>
+										<div className="p-3 text-sm font-semibold text-foreground border-r sticky left-0 bg-white z-10">O'quvchi</div>
+										{classDates.map((date, index) => (
+											<div key={index} className="p-3 text-center border-r">
+												<div className="text-xs font-medium text-muted-foreground mb-1">
+													{getDayAbbreviation(date)}
+												</div>
+												<div className="text-sm font-bold text-foreground">
+													{date.getDate()}
+												</div>
+											</div>
+										))}
+										<div className="p-3 text-sm font-semibold text-foreground text-center">Statistika</div>
 									</div>
-								))}
-								<div className="p-2 text-sm font-medium text-muted-foreground border-b text-center">Statistika</div>
-							</div>
 
-							{/* Student Rows */}
-							<div className="space-y-1">
-								{filteredStudents.map((student) => {
-									const stats = getStudentStats(student.id)
-									return (
-										<div key={student.id} className="grid gap-1" style={{ gridTemplateColumns: gridColumns }}>
-											<div className="p-2 text-sm border-r flex flex-col justify-center sticky left-0 bg-white z-10">
-												<div className="font-medium">{student.name}</div>
-												<div className="text-xs text-muted-foreground">{student.phone}</div>
-											</div>
-											{classDates.map((date, dateIndex) => {
-												const status = getAttendanceStatus(student.id, date)
-												return (
-													<div
-														key={dateIndex}
-														onClick={() => toggleAttendance(student.id, date)}
-														className="min-h-[50px] border flex items-center justify-center p-1 cursor-pointer hover:bg-gray-50 transition-colors"
-														title="Davomatni o'zgartirish uchun bosing"
-													>
-														{status === "present" && (
-															<Check className="h-5 w-5 text-green-600" strokeWidth={3} />
-														)}
-														{status === "late" && (
-															<div className="relative">
-																<Circle className="h-5 w-5 text-yellow-500" strokeWidth={2} fill="currentColor" />
-																<div className="absolute inset-0 flex items-center justify-center">
-																	<div className="h-2 w-2 bg-yellow-700 rounded-full" />
-																</div>
-															</div>
-														)}
-														{status === "absent" && (
-															<X className="h-5 w-5 text-red-600" strokeWidth={3} />
-														)}
-														{status === "none" && (
-															<div className="h-4 w-4 rounded-full bg-gray-200" />
-														)}
+									{/* Student Rows */}
+									<div className="space-y-0">
+										{filteredStudents.map((student, studentIndex) => {
+											const stats = getStudentStats(student.id)
+											return (
+												<div 
+													key={student.id} 
+													className={`grid gap-1 border-b ${studentIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
+													style={{ gridTemplateColumns: gridColumns }}
+												>
+													<div className="p-3 text-sm border-r flex flex-col justify-center sticky left-0 bg-white z-10">
+														<div className="font-medium text-foreground">{student.name}</div>
+														<div className="text-xs text-muted-foreground">{student.phone}</div>
 													</div>
-												)
-											})}
-											<div className="p-2 text-sm border-l text-center flex items-center justify-center font-medium">
-												{stats.total}
-											</div>
-										</div>
-									)
-								})}
+													{classDates.map((date, dateIndex) => {
+														const status = getAttendanceStatus(student.id, date)
+														return (
+															<div
+																key={dateIndex}
+																onClick={() => toggleAttendance(student.id, date)}
+																className="min-h-[60px] border-r flex items-center justify-center p-1 cursor-pointer hover:bg-blue-50 transition-colors bg-white"
+																title="Davomatni o'zgartirish uchun bosing"
+															>
+																{status === "present" && (
+																	<Check className="h-5 w-5 text-green-600" strokeWidth={3} />
+																)}
+																{status === "late" && (
+																	<div className="relative">
+																		<Circle className="h-5 w-5 text-yellow-500" strokeWidth={2} fill="currentColor" />
+																		<div className="absolute inset-0 flex items-center justify-center">
+																			<div className="h-2 w-2 bg-yellow-700 rounded-full" />
+																		</div>
+																	</div>
+																)}
+																{status === "absent" && (
+																	<X className="h-5 w-5 text-red-600" strokeWidth={3} />
+																)}
+																{status === "none" && (
+																	<div className="h-4 w-4 rounded-full bg-gray-200" />
+																)}
+															</div>
+														)
+													})}
+													<div className="p-3 text-sm border-l text-center flex items-center justify-center font-semibold bg-gray-50">
+														{stats.total}
+													</div>
+												</div>
+											)
+										})}
+									</div>
+								</div>
 							</div>
-						</div>
-					</div>
+						</CardContent>
+					</Card>
 
 					{/* Legend */}
 					<div className="flex flex-wrap items-center gap-6 mt-6 pt-4 border-t">

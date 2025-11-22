@@ -39,7 +39,7 @@ const chartConfig = {
 
 export function CourseStatistics() {
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
       <Card className="border shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-semibold">Kurs statistikasi</CardTitle>
@@ -68,7 +68,8 @@ export function CourseStatistics() {
           <CardDescription className="text-sm">Har bir kursdagi talabalar soni</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={chartConfig} className="h-[300px] w-full">
+          <div className="overflow-x-auto">
+            <ChartContainer config={chartConfig} className="h-[300px] w-full min-w-[400px]">
             <BarChart data={courseData}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted" />
               <XAxis
@@ -101,6 +102,7 @@ export function CourseStatistics() {
               </Bar>
             </BarChart>
           </ChartContainer>
+          </div>
         </CardContent>
       </Card>
     </div>
