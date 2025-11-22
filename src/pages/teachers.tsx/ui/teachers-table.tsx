@@ -60,6 +60,7 @@ import {
 } from "../utils/teachers-store"
 import TeachersDrawer from "./teachers-drawer"
 import { toast } from "sonner"
+import { TablePagination } from "@/components/ui/table-pagination"
 
 const TEACHER_FILTER_DEFAULTS = {
 	course: "all",
@@ -826,26 +827,7 @@ export default function TeachersTable() {
 							<div className="text-sm text-muted-foreground">
 								Jami {filteredTeachers.length} ta o'qituvchi
 							</div>
-							<div className="flex items-center gap-2">
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => table.previousPage()}
-									disabled={!table.getCanPreviousPage()}
-									className="cursor-pointer h-8"
-								>
-									Oldingi
-								</Button>
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => table.nextPage()}
-									disabled={!table.getCanNextPage()}
-									className="cursor-pointer h-8"
-								>
-									Keyingi
-								</Button>
-							</div>
+							<TablePagination table={table} />
 						</div>
 					</>
 				)}

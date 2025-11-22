@@ -65,11 +65,26 @@ interface LidsStore {
 }
 
 export const COURSE_TYPES_UZ = [
-	'Frontend kursi',
-	'Backend kursi',
-	'Fullstack kursi',
-	'UI/UX dizayn kursi',
-	'Mobile Development',
+	'Ona tili - Boshlang\'ich',
+	'Ona tili - O\'rta',
+	'Ona tili - Yuqori',
+	'Ona tili - Imtihon tayyorlov',
+	'English - Beginner',
+	'English - Intermediate',
+	'English - Advanced',
+	'English - Kids (5-8 yosh)',
+	'English - Teens (13-17 yosh)',
+	'English Conversation',
+	'IELTS tayyorlov',
+	'Rus tili - Boshlang\'ich',
+	'Rus tili - O\'rta',
+	'Rus tili - Imtihon tayyorlov',
+	'Matematika - 5-9 sinf',
+	'Matematika - 10-11 sinf',
+	'Fizika - O\'rta maktab',
+	'Kimyo - O\'rta maktab',
+	'Biologiya - O\'rta maktab',
+	'Tarix - O\'zbekiston tarixi',
 ]
 
 export const STATUS_LABELS_UZ: Record<LidStatus, string> = {
@@ -112,7 +127,7 @@ export const useLidsStore = create<LidsStore>((set, get) => ({
 			source: 'instagram',
 			managerId: '1',
 			managerName: 'Akmal Toshmatov',
-			comments: 'Qiziqish bildirdi',
+			comments: 'Ona tili kursiga qiziqish bildirdi',
 			createdAt: new Date(Date.now() - 86400000).toISOString(),
 			actionLog: [
 				{
@@ -128,7 +143,7 @@ export const useLidsStore = create<LidsStore>((set, get) => ({
 			id: '2', 
 			name: 'Gulnoza Karimova', 
 			phoneNumber: '+998939876543', 
-			courseType: COURSE_TYPES_UZ[2], 
+			courseType: COURSE_TYPES_UZ[4], 
 			status: 'called',
 			interestedDate: new Date().toISOString(),
 			source: 'telegram',
@@ -144,7 +159,367 @@ export const useLidsStore = create<LidsStore>((set, get) => ({
 					managerName: 'Dilshod Karimov'
 				}
 			]
-		}
+		},
+		{ 
+			id: '3', 
+			name: 'Sardor Valiyev', 
+			phoneNumber: '+998901234568', 
+			courseType: COURSE_TYPES_UZ[5], 
+			status: 'thinking',
+			interestedDate: new Date(Date.now() - 259200000).toISOString(),
+			source: 'website',
+			managerId: '1',
+			managerName: 'Akmal Toshmatov',
+			comments: 'O\'ylab ko\'rmoqda',
+			createdAt: new Date(Date.now() - 259200000).toISOString(),
+			actionLog: [
+				{
+					id: '3',
+					type: 'status_change',
+					timestamp: new Date().toISOString(),
+					description: 'Status "O\'ylab ko\'ryapti" ga o\'zgartirildi',
+					managerName: 'Akmal Toshmatov'
+				}
+			]
+		},
+		{ 
+			id: '4', 
+			name: 'Dilshod Toshmatov', 
+			phoneNumber: '+998901234569', 
+			courseType: COURSE_TYPES_UZ[10], 
+			status: 'interested',
+			interestedDate: new Date(Date.now() - 345600000).toISOString(),
+			source: 'banner',
+			managerId: '2',
+			managerName: 'Dilshod Karimov',
+			comments: 'IELTS kursiga qiziqdi',
+			createdAt: new Date(Date.now() - 345600000).toISOString(),
+			actionLog: [
+				{
+					id: '4',
+					type: 'call',
+					timestamp: new Date().toISOString(),
+					description: 'Qo\'ng\'iroq qilindi',
+					managerName: 'Dilshod Karimov'
+				}
+			]
+		},
+		{ 
+			id: '5', 
+			name: 'Malika Yusupova', 
+			phoneNumber: '+998901234570', 
+			courseType: COURSE_TYPES_UZ[11], 
+			status: 'new',
+			interestedDate: new Date().toISOString(),
+			source: 'friend_recommendation',
+			managerId: '3',
+			managerName: 'Sardor Valiyev',
+			createdAt: new Date(Date.now() - 432000000).toISOString(),
+			actionLog: []
+		},
+		{ 
+			id: '6', 
+			name: 'Feruza Alimova', 
+			phoneNumber: '+998901234571', 
+			courseType: COURSE_TYPES_UZ[1], 
+			status: 'called',
+			interestedDate: new Date(Date.now() - 518400000).toISOString(),
+			source: 'instagram',
+			managerId: '1',
+			managerName: 'Akmal Toshmatov',
+			comments: 'Qo\'ng\'iroq qilindi, ma\'lumot berildi',
+			createdAt: new Date(Date.now() - 518400000).toISOString(),
+			actionLog: [
+				{
+					id: '5',
+					type: 'call',
+					timestamp: new Date().toISOString(),
+					description: 'Qo\'ng\'iroq qilindi',
+					managerName: 'Akmal Toshmatov'
+				}
+			]
+		},
+		{ 
+			id: '7', 
+			name: 'Bobur Ismoilov', 
+			phoneNumber: '+998901234572', 
+			courseType: COURSE_TYPES_UZ[6], 
+			status: 'interested',
+			interestedDate: new Date(Date.now() - 604800000).toISOString(),
+			source: 'telegram',
+			managerId: '2',
+			managerName: 'Dilshod Karimov',
+			comments: 'Advanced English kursiga qiziqdi',
+			createdAt: new Date(Date.now() - 604800000).toISOString(),
+			actionLog: [
+				{
+					id: '6',
+					type: 'status_change',
+					timestamp: new Date().toISOString(),
+					description: 'Status "Qiziqdi" ga o\'zgartirildi',
+					managerName: 'Dilshod Karimov'
+				}
+			]
+		},
+		{ 
+			id: '8', 
+			name: 'Nigora Xasanova', 
+			phoneNumber: '+998901234573', 
+			courseType: COURSE_TYPES_UZ[14], 
+			status: 'thinking',
+			interestedDate: new Date(Date.now() - 691200000).toISOString(),
+			source: 'website',
+			managerId: '3',
+			managerName: 'Sardor Valiyev',
+			comments: 'Matematika kursi haqida so\'radi',
+			createdAt: new Date(Date.now() - 691200000).toISOString(),
+			actionLog: [
+				{
+					id: '7',
+					type: 'call',
+					timestamp: new Date().toISOString(),
+					description: 'Qo\'ng\'iroq qilindi',
+					managerName: 'Sardor Valiyev'
+				}
+			]
+		},
+		{ 
+			id: '9', 
+			name: 'Azizbek Usmonov', 
+			phoneNumber: '+998901234574', 
+			courseType: COURSE_TYPES_UZ[7], 
+			status: 'new',
+			interestedDate: new Date().toISOString(),
+			source: 'banner',
+			managerId: '1',
+			managerName: 'Akmal Toshmatov',
+			createdAt: new Date(Date.now() - 777600000).toISOString(),
+			actionLog: []
+		},
+		{ 
+			id: '10', 
+			name: 'Javohir Karimov', 
+			phoneNumber: '+998901234575', 
+			courseType: COURSE_TYPES_UZ[12], 
+			status: 'called',
+			interestedDate: new Date(Date.now() - 864000000).toISOString(),
+			source: 'friend_recommendation',
+			managerId: '2',
+			managerName: 'Dilshod Karimov',
+			comments: 'Rus tili kursiga qiziqdi',
+			createdAt: new Date(Date.now() - 864000000).toISOString(),
+			actionLog: [
+				{
+					id: '8',
+					type: 'call',
+					timestamp: new Date().toISOString(),
+					description: 'Qo\'ng\'iroq qilindi',
+					managerName: 'Dilshod Karimov'
+				}
+			]
+		},
+		{ 
+			id: '11', 
+			name: 'Kamola Rahimova', 
+			phoneNumber: '+998901234576', 
+			courseType: COURSE_TYPES_UZ[3], 
+			status: 'interested',
+			interestedDate: new Date(Date.now() - 950400000).toISOString(),
+			source: 'instagram',
+			managerId: '3',
+			managerName: 'Sardor Valiyev',
+			comments: 'Ona tili imtihon tayyorlov kursiga qiziqdi',
+			createdAt: new Date(Date.now() - 950400000).toISOString(),
+			actionLog: [
+				{
+					id: '9',
+					type: 'status_change',
+					timestamp: new Date().toISOString(),
+					description: 'Status "Qiziqdi" ga o\'zgartirildi',
+					managerName: 'Sardor Valiyev'
+				}
+			]
+		},
+		{ 
+			id: '12', 
+			name: 'Shohruh Mirzayev', 
+			phoneNumber: '+998901234577', 
+			courseType: COURSE_TYPES_UZ[16], 
+			status: 'thinking',
+			interestedDate: new Date(Date.now() - 1036800000).toISOString(),
+			source: 'telegram',
+			managerId: '1',
+			managerName: 'Akmal Toshmatov',
+			comments: 'Fizika kursi haqida ma\'lumot so\'radi',
+			createdAt: new Date(Date.now() - 1036800000).toISOString(),
+			actionLog: [
+				{
+					id: '10',
+					type: 'call',
+					timestamp: new Date().toISOString(),
+					description: 'Qo\'ng\'iroq qilindi',
+					managerName: 'Akmal Toshmatov'
+				}
+			]
+		},
+		{ 
+			id: '13', 
+			name: 'Dilshoda Toshmatova', 
+			phoneNumber: '+998901234578', 
+			courseType: COURSE_TYPES_UZ[9], 
+			status: 'new',
+			interestedDate: new Date().toISOString(),
+			source: 'website',
+			managerId: '2',
+			managerName: 'Dilshod Karimov',
+			createdAt: new Date(Date.now() - 1123200000).toISOString(),
+			actionLog: []
+		},
+		{ 
+			id: '14', 
+			name: 'Madina Sobirova', 
+			phoneNumber: '+998901234579', 
+			courseType: COURSE_TYPES_UZ[8], 
+			status: 'called',
+			interestedDate: new Date(Date.now() - 1209600000).toISOString(),
+			source: 'banner',
+			managerId: '3',
+			managerName: 'Sardor Valiyev',
+			comments: 'Bolalar uchun English kursiga qiziqdi',
+			createdAt: new Date(Date.now() - 1209600000).toISOString(),
+			actionLog: [
+				{
+					id: '11',
+					type: 'call',
+					timestamp: new Date().toISOString(),
+					description: 'Qo\'ng\'iroq qilindi',
+					managerName: 'Sardor Valiyev'
+				}
+			]
+		},
+		{ 
+			id: '15', 
+			name: 'Rustam Abdurahmonov', 
+			phoneNumber: '+998901234580', 
+			courseType: COURSE_TYPES_UZ[19], 
+			status: 'interested',
+			interestedDate: new Date(Date.now() - 1296000000).toISOString(),
+			source: 'friend_recommendation',
+			managerId: '1',
+			managerName: 'Akmal Toshmatov',
+			comments: 'Tarix kursiga qiziqish bildirdi',
+			createdAt: new Date(Date.now() - 1296000000).toISOString(),
+			actionLog: [
+				{
+					id: '12',
+					type: 'status_change',
+					timestamp: new Date().toISOString(),
+					description: 'Status "Qiziqdi" ga o\'zgartirildi',
+					managerName: 'Akmal Toshmatov'
+				}
+			]
+		},
+		{ 
+			id: '16', 
+			name: 'Zarina Qodirova', 
+			phoneNumber: '+998901234581', 
+			courseType: COURSE_TYPES_UZ[15], 
+			status: 'thinking',
+			interestedDate: new Date(Date.now() - 1382400000).toISOString(),
+			source: 'instagram',
+			managerId: '2',
+			managerName: 'Dilshod Karimov',
+			comments: '10-11 sinf matematika kursi haqida so\'radi',
+			createdAt: new Date(Date.now() - 1382400000).toISOString(),
+			actionLog: [
+				{
+					id: '13',
+					type: 'call',
+					timestamp: new Date().toISOString(),
+					description: 'Qo\'ng\'iroq qilindi',
+					managerName: 'Dilshod Karimov'
+				}
+			]
+		},
+		{ 
+			id: '17', 
+			name: 'Farhod Jalilov', 
+			phoneNumber: '+998901234582', 
+			courseType: COURSE_TYPES_UZ[13], 
+			status: 'new',
+			interestedDate: new Date().toISOString(),
+			source: 'telegram',
+			managerId: '3',
+			managerName: 'Sardor Valiyev',
+			createdAt: new Date(Date.now() - 1468800000).toISOString(),
+			actionLog: []
+		},
+		{ 
+			id: '18', 
+			name: 'Yulduz Toshmatova', 
+			phoneNumber: '+998901234583', 
+			courseType: COURSE_TYPES_UZ[17], 
+			status: 'called',
+			interestedDate: new Date(Date.now() - 1555200000).toISOString(),
+			source: 'website',
+			managerId: '1',
+			managerName: 'Akmal Toshmatov',
+			comments: 'Kimyo kursi haqida ma\'lumot so\'radi',
+			createdAt: new Date(Date.now() - 1555200000).toISOString(),
+			actionLog: [
+				{
+					id: '14',
+					type: 'call',
+					timestamp: new Date().toISOString(),
+					description: 'Qo\'ng\'iroq qilindi',
+					managerName: 'Akmal Toshmatov'
+				}
+			]
+		},
+		{ 
+			id: '19', 
+			name: 'Nodira Xamidova', 
+			phoneNumber: '+998901234584', 
+			courseType: COURSE_TYPES_UZ[18], 
+			status: 'interested',
+			interestedDate: new Date(Date.now() - 1641600000).toISOString(),
+			source: 'banner',
+			managerId: '2',
+			managerName: 'Dilshod Karimov',
+			comments: 'Biologiya kursiga qiziqdi',
+			createdAt: new Date(Date.now() - 1641600000).toISOString(),
+			actionLog: [
+				{
+					id: '15',
+					type: 'status_change',
+					timestamp: new Date().toISOString(),
+					description: 'Status "Qiziqdi" ga o\'zgartirildi',
+					managerName: 'Dilshod Karimov'
+				}
+			]
+		},
+		{ 
+			id: '20', 
+			name: 'Sanjar Rahimov', 
+			phoneNumber: '+998901234585', 
+			courseType: COURSE_TYPES_UZ[2], 
+			status: 'closed',
+			interestedDate: new Date(Date.now() - 1728000000).toISOString(),
+			source: 'friend_recommendation',
+			managerId: '3',
+			managerName: 'Sardor Valiyev',
+			comments: 'Yopildi - boshqa markazga ketdi',
+			createdAt: new Date(Date.now() - 1728000000).toISOString(),
+			actionLog: [
+				{
+					id: '16',
+					type: 'status_change',
+					timestamp: new Date().toISOString(),
+					description: 'Status "Yopildi" ga o\'zgartirildi',
+					managerName: 'Sardor Valiyev'
+				}
+			]
+		},
 	],
 	data: null,
 	shouldSwitchToKanban: false,

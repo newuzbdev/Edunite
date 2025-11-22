@@ -66,6 +66,7 @@ import {
 import CoursesDrawer from "./courses-drawer"
 import { toast } from "sonner"
 import { Checkbox } from "@/components/ui/checkbox"
+import { TablePagination } from "@/components/ui/table-pagination"
 
 const COURSE_FILTER_DEFAULTS = {
 	name: "",
@@ -932,25 +933,8 @@ export default function CoursesTable() {
 						</div>
 
 						{/* Pagination */}
-						<div className="flex items-center justify-end space-x-2 py-4">
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => table.previousPage()}
-								disabled={!table.getCanPreviousPage()}
-								className="cursor-pointer"
-							>
-								Oldingi
-							</Button>
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => table.nextPage()}
-								disabled={!table.getCanNextPage()}
-								className="cursor-pointer"
-							>
-								Keyingi
-							</Button>
+						<div className="flex items-center justify-end py-4">
+							<TablePagination table={table} />
 						</div>
 					</>
 				)}

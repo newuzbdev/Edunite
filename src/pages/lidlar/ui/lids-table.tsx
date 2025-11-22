@@ -3,7 +3,7 @@
 import { forwardRef, useCallback, useMemo, useState, useEffect } from "react"
 import type { CSSProperties } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
-import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
+import { flexRender, getCoreRowModel, useReactTable, getPaginationRowModel } from "@tanstack/react-table"
 import {
 	DndContext,
 	type DragEndEvent,
@@ -81,6 +81,7 @@ import { useLidsStore, STATUS_LABELS_UZ, SOURCE_LABELS_UZ, MANAGERS, type Lid, t
 import LidsDrawer from "./lids-drawer"
 import { toast } from "sonner"
 import { useNavigate } from "react-router-dom"
+import { TablePagination } from "@/components/ui/table-pagination"
 
 const STATUS_ORDER: LidStatus[] = ["new", "called", "interested", "thinking", "closed", "converted"]
 
@@ -1087,10 +1088,20 @@ export default function LidsTable() {
     },
   ], [handleDeleteClick, handleEdit, handleStatusChange, handleConvertToStudent, navigate])
 
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10,
+  })
+
   const table = useReactTable({
     data: filteredLids,
     columns,
+    state: {
+      pagination,
+    },
+    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   })
 
   const summaryCounts = useMemo(() => {
@@ -1579,6 +1590,11 @@ export default function LidsTable() {
                 )}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Pagination */}
+          <div className="flex items-center justify-end py-4">
+            <TablePagination table={table} />
           </div>
         </div>
       ) : (

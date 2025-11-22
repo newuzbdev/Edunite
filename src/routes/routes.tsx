@@ -27,6 +27,7 @@ import SMSHistory from '@/pages/marketing/sms/history'
 import Kurslar from '@/pages/kurslar'
 import YangiKurs from '@/pages/kurslar/yangi'
 import CourseDetail from '@/pages/kurslar/detail'
+import Profile from '@/pages/profile'
 import { ProtectedLayout } from '@/components/protected-layout'
 
 export const router = createBrowserRouter([
@@ -160,6 +161,10 @@ export const router = createBrowserRouter([
 			{
 				path: '/kurslar/:id',
 				element: <CourseDetail />
+			},
+			{
+				path: '/profile',
+				element: <Profile />
 			},
 			{
 				path: '*',

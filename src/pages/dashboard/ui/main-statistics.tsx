@@ -1,6 +1,6 @@
 "use client"
 
-import { TrendingUp, TrendingDown, Users, DollarSign, CreditCard, UserCheck, UserX, AlertCircle } from "lucide-react"
+import { TrendingUp, TrendingDown, Users, DollarSign, CreditCard, UserCheck, UserX, Flame } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import {
   Card,
@@ -10,6 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { useNavigate } from "react-router-dom"
+import { cn } from "@/lib/utils"
 
 interface StatCardProps {
   title: string
@@ -20,11 +22,18 @@ interface StatCardProps {
   }
   icon: React.ReactNode
   description?: string
+  onClick?: () => void
 }
 
-function StatCard({ title, value, trend, description }: StatCardProps) {
+function StatCard({ title, value, trend, description, onClick }: StatCardProps) {
   return (
-    <Card className="@container/card bg-white shadow-sm">
+    <Card 
+      className={cn(
+        "@container/card bg-white shadow-sm",
+        onClick && "cursor-pointer hover:shadow-md transition-shadow"
+      )}
+      onClick={onClick}
+    >
       <CardHeader>
         <CardDescription>{title}</CardDescription>
         <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
@@ -51,6 +60,8 @@ function StatCard({ title, value, trend, description }: StatCardProps) {
 }
 
 export function MainStatistics() {
+  const navigate = useNavigate()
+
   // Mock data - replace with actual data from your API/store
   const stats = [
     {
@@ -99,8 +110,9 @@ export function MainStatistics() {
       title: "Qarzdorlar",
       value: 8,
       trend: { value: 3.1, isPositive: false },
-      icon: <AlertCircle className="size-5" />,
-      description: "Qarzi bor talabalar soni"
+      icon: <Flame className="size-5" />,
+      description: "Qarzi bor talabalar soni",
+      onClick: () => navigate("/payments/debtors")
     },
   ]
 

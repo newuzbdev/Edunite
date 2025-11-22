@@ -48,6 +48,7 @@ import {
 import { useStudentsStore, PAYMENT_STATUS_LABELS_UZ, type PaymentStatus, type Student } from "../../talabalar/utils/students-store"
 import { usePaymentsStore } from "../utils/payments-store"
 import { toast } from "sonner"
+import { TablePagination } from "@/components/ui/table-pagination"
 import {
 	Sheet,
 	SheetContent,
@@ -675,25 +676,8 @@ export default function DebtorsTable() {
               </div>
 
               {/* Pagination */}
-              <div className="flex items-center justify-end space-x-2 py-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  className="cursor-pointer"
-                >
-                  Oldingi
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                  className="cursor-pointer"
-                >
-                  Keyingi
-                </Button>
+              <div className="flex items-center justify-end py-4">
+                <TablePagination table={table} />
               </div>
             </div>
           </div>

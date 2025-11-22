@@ -14,11 +14,6 @@ export default function LoginPage() {
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
           <a href="#" className="flex items-center gap-2">
-            {/* <img 
-              src="/edunitelogo.png" 
-              alt="Edunite" 
-              className="h-8 w-auto"
-            /> */}
           </a>
         </div>
         <div className="flex flex-1 items-center justify-center">
@@ -27,9 +22,9 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-      <div className="bg-muted relative hidden lg:block">
+      <div className="relative hidden lg:block bg-muted overflow-hidden">
         <img
-          src="/placeholder.svg"
+          src="/login.png"
           alt="Image"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />

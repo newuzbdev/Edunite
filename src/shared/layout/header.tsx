@@ -19,7 +19,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar"
-import { Search, LogOut, User, ChevronDown, Globe } from "lucide-react"
+import { Search, LogOut, User, ChevronDown, Globe, Wallet } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/contexts/auth-context"
 
@@ -71,6 +71,48 @@ export function SiteHeader() {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Wallet Balance Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-9 gap-2">
+                <Wallet className="h-4 w-4 text-blue-600" />
+                <span className="text-sm font-medium">2 499 341 so'm</span>
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64">
+              <DropdownMenuLabel>Hisob balansi</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <div className="px-2 py-3 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Jami balans</span>
+                  <span className="text-sm font-semibold">2 499 341 so'm</span>
+                </div>
+                <Separator />
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Kunlik daromad</span>
+                    <span className="text-xs font-medium">720 000 so'm</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Haftalik daromad</span>
+                    <span className="text-xs font-medium">4 200 000 so'm</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Oylik daromad</span>
+                    <span className="text-xs font-medium">18 500 000 so'm</span>
+                  </div>
+                </div>
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate("/payments/statistics")}>
+                <span>Batafsil statistika</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Separator orientation="vertical" className="h-6" />
+
           {/* Language Selector */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -137,7 +179,7 @@ export function SiteHeader() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/profile")}>
                 <User className="mr-2 h-4 w-4" />
                 <span>Profil</span>
               </DropdownMenuItem>

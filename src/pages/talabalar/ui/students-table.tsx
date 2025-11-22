@@ -55,6 +55,7 @@ import {
 } from "../utils/students-store"
 import StudentsDrawer from "./students-drawer"
 import { toast } from "sonner"
+import { TablePagination } from "@/components/ui/table-pagination"
 import {
 	Sheet,
 	SheetContent,
@@ -783,25 +784,8 @@ export default function StudentsTable() {
 				</div>
 
 				{/* Pagination */}
-				<div className="flex items-center justify-end space-x-2 py-4">
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => table.previousPage()}
-						disabled={!table.getCanPreviousPage()}
-						className="cursor-pointer"
-					>
-						Oldingi
-					</Button>
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => table.nextPage()}
-						disabled={!table.getCanNextPage()}
-						className="cursor-pointer"
-					>
-						Keyingi
-					</Button>
+				<div className="flex items-center justify-end py-4">
+					<TablePagination table={table} />
 				</div>
 			</div>
 

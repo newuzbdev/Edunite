@@ -1,7 +1,9 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { AlertCircle, Calendar, DollarSign } from "lucide-react"
+import { Flame, Calendar, DollarSign } from "lucide-react"
+import { useNavigate } from "react-router-dom"
+import { cn } from "@/lib/utils"
 
 // Mock data - replace with actual data
 const debtsData = {
@@ -11,6 +13,8 @@ const debtsData = {
 }
 
 export function DebtsSection() {
+  const navigate = useNavigate()
+
   return (
     <div className="grid gap-4 md:grid-cols-3">
       <Card>
@@ -28,10 +32,13 @@ export function DebtsSection() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card 
+        className={cn("cursor-pointer hover:shadow-md transition-shadow")}
+        onClick={() => navigate("/payments/debtors")}
+      >
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="size-5" />
+            <Flame className="size-5" />
             Qarzdorlar
           </CardTitle>
         </CardHeader>

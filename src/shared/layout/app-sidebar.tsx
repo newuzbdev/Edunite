@@ -12,7 +12,6 @@ import {
   MapPin,
   ChevronDown,
   Check,
-  FileText,
   ClipboardCheck,
   MessageSquare,
   BookOpen,
@@ -94,29 +93,7 @@ const data = {
       url: "/kurslar",
       icon: BookOpen,
     },
-    {
-      title: "Hisobotlar",
-      url: "/reports",
-      icon: FileText,
-      subItems: [
-        {
-          title: "Moliyaviy hisobot",
-          url: "/reports/financial",
-        },
-        {
-          title: "Talabalar hisoboti",
-          url: "/reports/students",
-        },
-        {
-          title: "O'qituvchilar hisoboti",
-          url: "/reports/teachers",
-        },
-        {
-          title: "Davomat hisoboti",
-          url: "/reports/attendance",
-        },
-      ],
-    },
+
     {
       title: "Imtihonlar",
       url: "/exams",

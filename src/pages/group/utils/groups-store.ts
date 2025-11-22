@@ -99,21 +99,471 @@ export const useGroupsStore = create<GroupsStore>((set, get) => ({
   groups: [
     {
       id: '1',
-      name: 'GE-1',
+      name: 'Ona-Tili-1',
       courseId: 'c1',
       course: {
         id: 'c1',
-        name: 'General English',
-        description: 'Umumiy ingliz tili kursi'
+        name: 'Ona tili - Boshlang\'ich',
+        description: 'O\'zbek tili grammatikasi va adabiyot asoslari'
       },
       teacherId: 't1',
       teacher: {
         id: 't1',
-        name: 'Akmal O\'qituvchi',
+        name: 'Dilbar Toshmatova',
         phone: '+998901234567',
-        email: 'akmal@example.com'
+        email: 'dilbar@edunite.uz'
+      },
+      schedule: 'Dush-Chors-Juma, 16:00-17:30',
+      roomId: 'r1',
+      room: {
+        id: 'r1',
+        name: 'Xona-1',
+        capacity: 20,
+        type: 'classroom'
+      },
+      maxStudents: 18,
+      currentStudents: 15,
+      status: 'active',
+      createdDate: '2024-01-15',
+      lessons: [],
+    },
+    {
+      id: '2',
+      name: 'English-Beginner-1',
+      courseId: 'c2',
+      course: {
+        id: 'c2',
+        name: 'English - Beginner',
+        description: 'Ingliz tili boshlang\'ich daraja'
+      },
+      teacherId: 't2',
+      teacher: {
+        id: 't2',
+        name: 'Akmal O\'qituvchi',
+        phone: '+998901234568',
+        email: 'akmal@edunite.uz'
+      },
+      schedule: 'Sesh-Paysh-Shanba, 17:00-18:30',
+      roomId: 'r2',
+      room: {
+        id: 'r2',
+        name: 'Xona-2',
+        capacity: 20,
+        type: 'classroom'
+      },
+      maxStudents: 16,
+      currentStudents: 14,
+      status: 'active',
+      createdDate: '2024-01-20',
+      lessons: [],
+    },
+    {
+      id: '3',
+      name: 'English-Intermediate-1',
+      courseId: 'c3',
+      course: {
+        id: 'c3',
+        name: 'English - Intermediate',
+        description: 'Ingliz tili o\'rta daraja'
+      },
+      teacherId: 't3',
+      teacher: {
+        id: 't3',
+        name: 'Gulnora Karimova',
+        phone: '+998901234569',
+        email: 'gulnora@edunite.uz'
       },
       schedule: 'Dush-Chors-Juma, 18:00-19:30',
+      roomId: 'r3',
+      room: {
+        id: 'r3',
+        name: 'Xona-3',
+        capacity: 18,
+        type: 'classroom'
+      },
+      maxStudents: 15,
+      currentStudents: 12,
+      status: 'active',
+      createdDate: '2024-01-18',
+      lessons: [],
+    },
+    {
+      id: '4',
+      name: 'English-Advanced-1',
+      courseId: 'c4',
+      course: {
+        id: 'c4',
+        name: 'English - Advanced',
+        description: 'Ingliz tili yuqori daraja'
+      },
+      teacherId: 't4',
+      teacher: {
+        id: 't4',
+        name: 'Bobur Ismoilov',
+        phone: '+998901234570',
+        email: 'bobur@edunite.uz'
+      },
+      schedule: 'Sesh-Paysh, 19:00-21:00',
+      roomId: 'r4',
+      room: {
+        id: 'r4',
+        name: 'Xona-4',
+        capacity: 15,
+        type: 'classroom'
+      },
+      maxStudents: 12,
+      currentStudents: 10,
+      status: 'active',
+      createdDate: '2024-01-22',
+      lessons: [],
+    },
+    {
+      id: '5',
+      name: 'IELTS-1',
+      courseId: 'c5',
+      course: {
+        id: 'c5',
+        name: 'IELTS tayyorlov',
+        description: 'IELTS imtihoniga tayyorlov kursi'
+      },
+      teacherId: 't5',
+      teacher: {
+        id: 't5',
+        name: 'Malika Yusupova',
+        phone: '+998901234571',
+        email: 'malika@edunite.uz'
+      },
+      schedule: 'Dush-Chors-Juma, 17:00-19:00',
+      roomId: 'r5',
+      room: {
+        id: 'r5',
+        name: 'Xona-5',
+        capacity: 12,
+        type: 'classroom'
+      },
+      maxStudents: 10,
+      currentStudents: 9,
+      status: 'active',
+      createdDate: '2024-01-25',
+      lessons: [],
+    },
+    {
+      id: '6',
+      name: 'Ona-Tili-2',
+      courseId: 'c6',
+      course: {
+        id: 'c6',
+        name: 'Ona tili - O\'rta',
+        description: 'O\'zbek tili o\'rta daraja'
+      },
+      teacherId: 't6',
+      teacher: {
+        id: 't6',
+        name: 'Feruza Alimova',
+        phone: '+998901234572',
+        email: 'feruza@edunite.uz'
+      },
+      schedule: 'Sesh-Paysh, 16:00-17:30',
+      roomId: 'r1',
+      room: {
+        id: 'r1',
+        name: 'Xona-1',
+        capacity: 20,
+        type: 'classroom'
+      },
+      maxStudents: 18,
+      currentStudents: 16,
+      status: 'active',
+      createdDate: '2024-01-16',
+      lessons: [],
+    },
+    {
+      id: '7',
+      name: 'Ona-Tili-3',
+      courseId: 'c7',
+      course: {
+        id: 'c7',
+        name: 'Ona tili - Yuqori',
+        description: 'O\'zbek tili yuqori daraja'
+      },
+      teacherId: 't7',
+      teacher: {
+        id: 't7',
+        name: 'Sardor Valiyev',
+        phone: '+998901234573',
+        email: 'sardor@edunite.uz'
+      },
+      schedule: 'Dush-Chors-Juma, 17:00-18:30',
+      roomId: 'r2',
+      room: {
+        id: 'r2',
+        name: 'Xona-2',
+        capacity: 20,
+        type: 'classroom'
+      },
+      maxStudents: 16,
+      currentStudents: 13,
+      status: 'active',
+      createdDate: '2024-01-19',
+      lessons: [],
+    },
+    {
+      id: '8',
+      name: 'Rus-Tili-1',
+      courseId: 'c8',
+      course: {
+        id: 'c8',
+        name: 'Rus tili - Boshlang\'ich',
+        description: 'Rus tili boshlang\'ich daraja'
+      },
+      teacherId: 't8',
+      teacher: {
+        id: 't8',
+        name: 'Nigora Xasanova',
+        phone: '+998901234574',
+        email: 'nigora@edunite.uz'
+      },
+      schedule: 'Sesh-Paysh-Shanba, 15:00-16:30',
+      roomId: 'r3',
+      room: {
+        id: 'r3',
+        name: 'Xona-3',
+        capacity: 18,
+        type: 'classroom'
+      },
+      maxStudents: 16,
+      currentStudents: 14,
+      status: 'active',
+      createdDate: '2024-01-21',
+      lessons: [],
+    },
+    {
+      id: '9',
+      name: 'Rus-Tili-2',
+      courseId: 'c9',
+      course: {
+        id: 'c9',
+        name: 'Rus tili - O\'rta',
+        description: 'Rus tili o\'rta daraja'
+      },
+      teacherId: 't9',
+      teacher: {
+        id: 't9',
+        name: 'Azizbek Usmonov',
+        phone: '+998901234575',
+        email: 'azizbek@edunite.uz'
+      },
+      schedule: 'Dush-Chors-Juma, 18:00-19:30',
+      roomId: 'r4',
+      room: {
+        id: 'r4',
+        name: 'Xona-4',
+        capacity: 15,
+        type: 'classroom'
+      },
+      maxStudents: 14,
+      currentStudents: 11,
+      status: 'active',
+      createdDate: '2024-01-23',
+      lessons: [],
+    },
+    {
+      id: '10',
+      name: 'Matematika-5-9-1',
+      courseId: 'c10',
+      course: {
+        id: 'c10',
+        name: 'Matematika - 5-9 sinf',
+        description: 'Matematika maktab dasturi'
+      },
+      teacherId: 't10',
+      teacher: {
+        id: 't10',
+        name: 'Javohir Karimov',
+        phone: '+998901234576',
+        email: 'javohir@edunite.uz'
+      },
+      schedule: 'Sesh-Paysh, 16:00-17:30',
+      roomId: 'r5',
+      room: {
+        id: 'r5',
+        name: 'Xona-5',
+        capacity: 12,
+        type: 'classroom'
+      },
+      maxStudents: 12,
+      currentStudents: 10,
+      status: 'active',
+      createdDate: '2024-01-17',
+      lessons: [],
+    },
+    {
+      id: '11',
+      name: 'Matematika-10-11-1',
+      courseId: 'c11',
+      course: {
+        id: 'c11',
+        name: 'Matematika - 10-11 sinf',
+        description: 'Matematika yuqori sinflar'
+      },
+      teacherId: 't11',
+      teacher: {
+        id: 't11',
+        name: 'Kamola Rahimova',
+        phone: '+998901234577',
+        email: 'kamola@edunite.uz'
+      },
+      schedule: 'Dush-Chors-Juma, 17:00-19:00',
+      roomId: 'r1',
+      room: {
+        id: 'r1',
+        name: 'Xona-1',
+        capacity: 20,
+        type: 'classroom'
+      },
+      maxStudents: 18,
+      currentStudents: 15,
+      status: 'active',
+      createdDate: '2024-01-24',
+      lessons: [],
+    },
+    {
+      id: '12',
+      name: 'Fizika-1',
+      courseId: 'c12',
+      course: {
+        id: 'c12',
+        name: 'Fizika - O\'rta maktab',
+        description: 'Fizika asoslari'
+      },
+      teacherId: 't12',
+      teacher: {
+        id: 't12',
+        name: 'Shohruh Mirzayev',
+        phone: '+998901234578',
+        email: 'shohruh@edunite.uz'
+      },
+      schedule: 'Sesh-Paysh, 17:00-18:30',
+      roomId: 'r2',
+      room: {
+        id: 'r2',
+        name: 'Xona-2',
+        capacity: 20,
+        type: 'classroom'
+      },
+      maxStudents: 16,
+      currentStudents: 13,
+      status: 'active',
+      createdDate: '2024-01-26',
+      lessons: [],
+    },
+    {
+      id: '13',
+      name: 'Kimyo-1',
+      courseId: 'c13',
+      course: {
+        id: 'c13',
+        name: 'Kimyo - O\'rta maktab',
+        description: 'Kimyo fanining asoslari'
+      },
+      teacherId: 't13',
+      teacher: {
+        id: 't13',
+        name: 'Dilshoda Toshmatova',
+        phone: '+998901234579',
+        email: 'dilshoda@edunite.uz'
+      },
+      schedule: 'Dush-Chors, 16:00-17:30',
+      roomId: 'r3',
+      room: {
+        id: 'r3',
+        name: 'Xona-3',
+        capacity: 18,
+        type: 'classroom'
+      },
+      maxStudents: 15,
+      currentStudents: 12,
+      status: 'active',
+      createdDate: '2024-01-27',
+      lessons: [],
+    },
+    {
+      id: '14',
+      name: 'Biologiya-1',
+      courseId: 'c14',
+      course: {
+        id: 'c14',
+        name: 'Biologiya - O\'rta maktab',
+        description: 'Biologiya fanining asoslari'
+      },
+      teacherId: 't14',
+      teacher: {
+        id: 't14',
+        name: 'Madina Sobirova',
+        phone: '+998901234580',
+        email: 'madina@edunite.uz'
+      },
+      schedule: 'Paysh-Shanba, 15:00-16:30',
+      roomId: 'r4',
+      room: {
+        id: 'r4',
+        name: 'Xona-4',
+        capacity: 15,
+        type: 'classroom'
+      },
+      maxStudents: 14,
+      currentStudents: 11,
+      status: 'active',
+      createdDate: '2024-01-28',
+      lessons: [],
+    },
+    {
+      id: '15',
+      name: 'Tarix-1',
+      courseId: 'c15',
+      course: {
+        id: 'c15',
+        name: 'Tarix - O\'zbekiston tarixi',
+        description: 'O\'zbekiston tarixi'
+      },
+      teacherId: 't15',
+      teacher: {
+        id: 't15',
+        name: 'Rustam Abdurahmonov',
+        phone: '+998901234581',
+        email: 'rustam@edunite.uz'
+      },
+      schedule: 'Juma-Shanba, 14:00-15:30',
+      roomId: 'r5',
+      room: {
+        id: 'r5',
+        name: 'Xona-5',
+        capacity: 12,
+        type: 'classroom'
+      },
+      maxStudents: 12,
+      currentStudents: 9,
+      status: 'active',
+      createdDate: '2024-01-29',
+      lessons: [],
+    },
+    {
+      id: '16',
+      name: 'English-Kids-1',
+      courseId: 'c16',
+      course: {
+        id: 'c16',
+        name: 'English - Kids (5-8 yosh)',
+        description: 'Ingliz tili bolalar uchun'
+      },
+      teacherId: 't16',
+      teacher: {
+        id: 't16',
+        name: 'Zarina Qodirova',
+        phone: '+998901234582',
+        email: 'zarina@edunite.uz'
+      },
+      schedule: 'Shanba-Yakshanba, 10:00-11:00',
       roomId: 'r1',
       room: {
         id: 'r1',
@@ -124,153 +574,128 @@ export const useGroupsStore = create<GroupsStore>((set, get) => ({
       maxStudents: 15,
       currentStudents: 12,
       status: 'active',
-      createdDate: '2024-01-15',
-      lessons: [
-        {
-          id: 'l1',
-          groupId: '1',
-          date: '2024-11-18',
-          startTime: '18:00',
-          endTime: '19:30',
-          teacherId: 't1',
-          roomId: 'r1',
-          type: 'offline',
-          groupName: 'GE-1',
-          courseName: 'General English',
-          roomName: 'Xona-1',
-          studentCount: 12,
-        },
-        {
-          id: 'l2',
-          groupId: '1',
-          date: '2024-11-20',
-          startTime: '18:00',
-          endTime: '19:30',
-          teacherId: 't1',
-          roomId: 'r1',
-          type: 'offline',
-          groupName: 'GE-1',
-          courseName: 'General English',
-          roomName: 'Xona-1',
-          studentCount: 12,
-        },
-        {
-          id: 'l3',
-          groupId: '1',
-          date: '2024-11-22',
-          startTime: '18:00',
-          endTime: '19:30',
-          teacherId: 't1',
-          roomId: 'r1',
-          type: 'offline',
-          groupName: 'GE-1',
-          courseName: 'General English',
-          roomName: 'Xona-1',
-          studentCount: 12,
-        },
-        {
-          id: 'l4',
-          groupId: '1',
-          date: '2024-11-25',
-          startTime: '18:00',
-          endTime: '19:30',
-          teacherId: 't1',
-          roomId: 'r1',
-          type: 'offline',
-          groupName: 'GE-1',
-          courseName: 'General English',
-          roomName: 'Xona-1',
-          studentCount: 12,
-        },
-      ],
-      zoomLink: 'https://zoom.us/j/example'
+      createdDate: '2024-01-30',
+      lessons: [],
     },
     {
-      id: '2',
-      name: 'IELTS-E',
-      courseId: 'c2',
+      id: '17',
+      name: 'English-Teens-1',
+      courseId: 'c17',
       course: {
-        id: 'c2',
-        name: 'IELTS Exam Preparation',
-        description: 'IELTS imtihoniga tayyorgarlik'
+        id: 'c17',
+        name: 'English - Teens (13-17 yosh)',
+        description: 'Ingliz tili o\'smirlar uchun'
       },
-      teacherId: 't2',
+      teacherId: 't17',
       teacher: {
-        id: 't2',
-        name: 'Gulnora O\'qituvchi',
-        phone: '+998939876543',
-        email: 'gulnora@example.com'
+        id: 't17',
+        name: 'Farhod Jalilov',
+        phone: '+998901234583',
+        email: 'farhod@edunite.uz'
       },
-      schedule: 'Sesh-Paysh, 10:00-11:30',
+      schedule: 'Dush-Chors-Juma, 16:00-17:30',
       roomId: 'r2',
       room: {
         id: 'r2',
         name: 'Xona-2',
+        capacity: 20,
+        type: 'classroom'
+      },
+      maxStudents: 16,
+      currentStudents: 14,
+      status: 'active',
+      createdDate: '2024-02-01',
+      lessons: [],
+    },
+    {
+      id: '18',
+      name: 'Ona-Tili-Imtihon-1',
+      courseId: 'c18',
+      course: {
+        id: 'c18',
+        name: 'Ona tili - Imtihon tayyorlov',
+        description: 'Ona tili imtihonlarga tayyorlov'
+      },
+      teacherId: 't18',
+      teacher: {
+        id: 't18',
+        name: 'Yulduz Toshmatova',
+        phone: '+998901234584',
+        email: 'yulduz@edunite.uz'
+      },
+      schedule: 'Sesh-Paysh, 18:00-20:00',
+      roomId: 'r3',
+      room: {
+        id: 'r3',
+        name: 'Xona-3',
+        capacity: 18,
+        type: 'classroom'
+      },
+      maxStudents: 15,
+      currentStudents: 13,
+      status: 'active',
+      createdDate: '2024-02-02',
+      lessons: [],
+    },
+    {
+      id: '19',
+      name: 'English-Conversation-1',
+      courseId: 'c19',
+      course: {
+        id: 'c19',
+        name: 'English Conversation',
+        description: 'Ingliz tili gapirish kursi'
+      },
+      teacherId: 't19',
+      teacher: {
+        id: 't19',
+        name: 'Nodira Xamidova',
+        phone: '+998901234585',
+        email: 'nodira@edunite.uz'
+      },
+      schedule: 'Dush-Chors-Juma, 19:00-20:30',
+      roomId: 'r4',
+      room: {
+        id: 'r4',
+        name: 'Xona-4',
+        capacity: 15,
+        type: 'classroom'
+      },
+      maxStudents: 12,
+      currentStudents: 10,
+      status: 'active',
+      createdDate: '2024-02-03',
+      lessons: [],
+    },
+    {
+      id: '20',
+      name: 'Rus-Tili-Imtihon-1',
+      courseId: 'c20',
+      course: {
+        id: 'c20',
+        name: 'Rus tili - Imtihon tayyorlov',
+        description: 'Rus tili imtihonlarga tayyorlov'
+      },
+      teacherId: 't20',
+      teacher: {
+        id: 't20',
+        name: 'Sanjar Rahimov',
+        phone: '+998901234586',
+        email: 'sanjar@edunite.uz'
+      },
+      schedule: 'Sesh-Paysh, 17:00-19:00',
+      roomId: 'r5',
+      room: {
+        id: 'r5',
+        name: 'Xona-5',
         capacity: 12,
         type: 'classroom'
       },
       maxStudents: 10,
       currentStudents: 8,
       status: 'active',
-      createdDate: '2024-01-20',
-      lessons: [
-        {
-          id: 'l5',
-          groupId: '2',
-          date: '2024-11-19',
-          startTime: '10:00',
-          endTime: '11:30',
-          teacherId: 't2',
-          roomId: 'r2',
-          type: 'offline',
-          groupName: 'IELTS-E',
-          courseName: 'IELTS Exam Preparation',
-          roomName: 'Xona-2',
-          studentCount: 8,
-        },
-        {
-          id: 'l6',
-          groupId: '2',
-          date: '2024-11-21',
-          startTime: '10:00',
-          endTime: '11:30',
-          teacherId: 't2',
-          roomId: 'r2',
-          type: 'offline',
-          groupName: 'IELTS-E',
-          courseName: 'IELTS Exam Preparation',
-          roomName: 'Xona-2',
-          studentCount: 8,
-        },
-        {
-          id: 'l7',
-          groupId: '2',
-          date: '2024-11-26',
-          startTime: '10:00',
-          endTime: '11:30',
-          teacherId: 't2',
-          roomId: 'r2',
-          type: 'offline',
-          groupName: 'IELTS-E',
-          courseName: 'IELTS Exam Preparation',
-          roomName: 'Xona-2',
-          studentCount: 8,
-        },
-        {
-          id: 'l8',
-          groupId: '2',
-          date: '2024-11-28',
-          startTime: '10:00',
-          endTime: '11:30',
-          teacherId: 't2',
-          roomId: 'r2',
-          type: 'offline',
-          groupName: 'IELTS-E',
-          courseName: 'IELTS Exam Preparation',
-          roomName: 'Xona-2',
-          studentCount: 8,
-        },
-      ],
+      createdDate: '2024-02-04',
+      lessons: [],
     },
   ],
   data: null,
