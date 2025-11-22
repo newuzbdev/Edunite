@@ -143,11 +143,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="h-auto p-0 hover:bg-transparent"
             >
-              <Link to="/" className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-white font-semibold text-base">
-                  e
-                </div>
-                <span className="text-black font-medium text-base lowercase">edunite</span>
+              <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <img
+                  src="/logo.jpg"
+                  alt="Edunite Logo"
+                  className="w-8 h-8 object-contain rounded-[9.29px]"
+                />
+                <span className="text-black font-bold text-2xl lowercase">edunite</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
