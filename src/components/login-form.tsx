@@ -47,11 +47,11 @@ export function LoginForm({
         <div className="flex flex-col items-center gap-1 text-center">
           <h1 className="text-2xl font-bold">Hisobingizga kiring</h1>
           <p className="text-muted-foreground text-sm text-balance">
-            Hisobingizga kirish uchun quyida emailingizni kiriting
+            Kirish uchun login va parolingizni kiriting
           </p>
         </div>
         <Field>
-          <FieldLabel htmlFor="email">Email</FieldLabel>
+          <FieldLabel htmlFor="email">Login</FieldLabel>
           <Input
             id="email"
             type="text"
@@ -64,7 +64,7 @@ export function LoginForm({
         </Field>
         <Field>
           <div className="flex items-center">
-            <FieldLabel htmlFor="password">Password</FieldLabel>
+            <FieldLabel htmlFor="password">Parol</FieldLabel>
           
           </div>
           <Input
@@ -79,7 +79,7 @@ export function LoginForm({
         </Field>
         <Field>
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Logging in..." : "Login"}
+            {isLoading ? "Kirilmoqda..." : "Kirish"}
           </Button>
         </Field>
         <Field>

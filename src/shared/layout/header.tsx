@@ -19,7 +19,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar"
-import { Search, LogOut, User, ChevronDown, Globe, Wallet, Plus } from "lucide-react"
+import { Search, LogOut, User, ChevronDown, Globe, Wallet, Plus, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/contexts/auth-context"
 import { toast } from "sonner"
@@ -82,42 +82,36 @@ export function SiteHeader() {
                 <ChevronDown className="h-4 w-4 shrink-0" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-72">
-              <DropdownMenuLabel>Hisob balansi</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <div className="px-3 py-4 space-y-4">
-                <div className="space-y-3">
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-1">Jami balans</div>
-                    <div className="text-lg font-semibold text-foreground">2 499 341 so'm</div>
-                  </div>
-                  <Separator />
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Kunlik daromad</span>
-                      <span className="text-sm font-medium text-foreground">720 000 so'm</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Haftalik daromad</span>
-                      <span className="text-sm font-medium text-foreground">4 200 000 so'm</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Oylik daromad</span>
-                      <span className="text-sm font-medium text-foreground">18 500 000 so'm</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => {
-                // TODO: Open balance top-up dialog/modal
-                toast.info("Balance toldirish funksiyasi tez orada qo'shiladi")
-              }}>
-                <Plus className="mr-2 h-4 w-4" />
-                <span>Balance toldirish</span>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem 
+                onClick={() => {
+                  // TODO: Open balance top-up dialog/modal
+                  toast.info("Hisobni to'ldirish funksiyasi tez orada qo'shiladi")
+                }}
+                className="cursor-pointer"
+              >
+                <Plus className="mr-2 h-4 w-4 text-muted-foreground" />
+                <span>Hisobni to'ldirish</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/payments/statistics")}>
-                <span>Batafsil statistika</span>
+              <DropdownMenuItem 
+                onClick={() => {
+                  // TODO: Navigate to income history
+                  toast.info("Tushumlar tarixi tez orada qo'shiladi")
+                }}
+                className="cursor-pointer"
+              >
+                <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
+                <span>Tushumlar tarixi</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => {
+                  // TODO: Navigate to expense history
+                  toast.info("Xarajatlar tarixi tez orada qo'shiladi")
+                }}
+                className="cursor-pointer"
+              >
+                <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
+                <span>Xarajatlar tarixi</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
