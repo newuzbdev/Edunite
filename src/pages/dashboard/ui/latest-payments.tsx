@@ -12,80 +12,9 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { CheckCircle2, XCircle, Clock, Eye } from "lucide-react"
-
-// Mock data - replace with actual data
-const payments = [
-  {
-    id: 1,
-    studentName: "Ali Valiyev",
-    amount: 500000,
-    date: "2024-12-31",
-    status: "success" as const
-  },
-  {
-    id: 2,
-    studentName: "Dilshod Karimov",
-    amount: 450000,
-    date: "2024-12-30",
-    status: "success" as const
-  },
-  {
-    id: 3,
-    studentName: "Sardor Toshmatov",
-    amount: 600000,
-    date: "2024-12-30",
-    status: "pending" as const
-  },
-  {
-    id: 4,
-    studentName: "Olimjon Rahimov",
-    amount: 550000,
-    date: "2024-12-29",
-    status: "success" as const
-  },
-  {
-    id: 5,
-    studentName: "Javohir Ismoilov",
-    amount: 480000,
-    date: "2024-12-29",
-    status: "failed" as const
-  },
-  {
-    id: 6,
-    studentName: "Bobur Aliyev",
-    amount: 520000,
-    date: "2024-12-28",
-    status: "success" as const
-  },
-  {
-    id: 7,
-    studentName: "Farhod Usmonov",
-    amount: 470000,
-    date: "2024-12-28",
-    status: "success" as const
-  },
-  {
-    id: 8,
-    studentName: "Shohruh Toshmatov",
-    amount: 510000,
-    date: "2024-12-27",
-    status: "pending" as const
-  },
-  {
-    id: 9,
-    studentName: "Azizbek Karimov",
-    amount: 490000,
-    date: "2024-12-27",
-    status: "success" as const
-  },
-  {
-    id: 10,
-    studentName: "Jasur Valiyev",
-    amount: 530000,
-    date: "2024-12-26",
-    status: "success" as const
-  },
-]
+import { usePaymentsStore } from "@/pages/payments/utils/payments-store"
+import { useBranchFilter } from "@/hooks/use-branch-filter"
+import { useMemo } from "react"
 
 function getStatusBadge(status: "success" | "failed" | "pending") {
   switch (status) {
@@ -114,6 +43,24 @@ function getStatusBadge(status: "success" | "failed" | "pending") {
 }
 
 export function LatestPayments() {
+  const allPayments = usePaymentsStore((state) => state.payments)
+  const payments = useBranchFilter(allPayments as any[])
+  
+  // Get latest 10 payments
+  const latestPayments = useMemo(() => {
+    return payments
+      .filter((p: any) => p.status === 'paid')
+      .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 10)
+      .map((p: any) => ({
+        id: p.id,
+        studentName: p.studentName,
+        amount: p.amount,
+        date: p.date,
+        status: "success" as const
+      }))
+  }, [payments])
+
   return (
     <Card>
       <CardHeader>
@@ -133,34 +80,42 @@ export function LatestPayments() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {payments.map((payment) => (
-                <TableRow key={payment.id}>
-                  <TableCell className="font-medium">{payment.studentName}</TableCell>
-                  <TableCell>{payment.amount.toLocaleString()} so'm</TableCell>
-                  <TableCell>
-                    {new Date(payment.date).toLocaleDateString("uz-UZ", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </TableCell>
-                  <TableCell>{getStatusBadge(payment.status)}</TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 cursor-pointer"
-                      onClick={() => {
-                        // Handle view action - you can add navigation or modal here
-                        console.log("View payment:", payment.id)
-                      }}
-                      title="To'lovni ko'rish"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
+              {latestPayments.length > 0 ? (
+                latestPayments.map((payment) => (
+                  <TableRow key={payment.id}>
+                    <TableCell className="font-medium">{payment.studentName}</TableCell>
+                    <TableCell>{payment.amount.toLocaleString()} so'm</TableCell>
+                    <TableCell>
+                      {new Date(payment.date).toLocaleDateString("uz-UZ", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </TableCell>
+                    <TableCell>{getStatusBadge(payment.status)}</TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 cursor-pointer"
+                        onClick={() => {
+                          // Handle view action - you can add navigation or modal here
+                          console.log("View payment:", payment.id)
+                        }}
+                        title="To'lovni ko'rish"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                    To'lovlar mavjud emas
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </div>

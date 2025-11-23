@@ -4,12 +4,15 @@ import './index.css'
 import { RouterProviders } from './providers/route-provoders.tsx'
 import { Toaster } from 'sonner'
 import { AuthProvider } from './contexts/auth-context'
+import { BranchProvider } from './contexts/branch-context'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
-      <RouterProviders />
-      <Toaster position="bottom-right" />
+      <BranchProvider>
+        <RouterProviders />
+        <Toaster position="bottom-right" />
+      </BranchProvider>
     </AuthProvider>
   </StrictMode>,
 )

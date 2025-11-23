@@ -137,9 +137,9 @@ export function NavMain({
                     "[&[data-active='true']]:!text-white",
                     "leading-[20px] tracking-normal",
                     "p-3 h-auto min-h-[46px] rounded-[10px]",
-                    isActive 
-                      ? "bg-primary !text-white hover:bg-primary/90 hover:!text-white [&>svg]:!text-white [&>span]:!text-white [&_*]:!text-white [&_svg]:!text-white [&_svg]:!stroke-white" 
-                      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                  isActive 
+                    ? "bg-primary !text-white hover:bg-primary/90 hover:!text-white [&>svg]:!text-white [&>span]:!text-white [&_*]:!text-white [&_svg]:!text-white [&_svg]:!stroke-white" 
+                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                   )}
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -216,7 +216,7 @@ export function NavMain({
                                           "w-full text-left border-0",
                                           "leading-[20px] tracking-normal",
                                           isNestedActive 
-                                            ? "bg-primary text-white hover:bg-primary/90 shadow-sm [&>a]:!text-white [&>a>span]:!text-white" 
+                                            ? "bg-gray-50 text-primary hover:bg-gray-100 shadow-sm [&>a]:text-primary [&>a>span]:text-primary" 
                                             : "text-gray-700 hover:bg-gray-100 hover:text-gray-900 bg-transparent"
                                         )}
                                       >
@@ -224,12 +224,12 @@ export function NavMain({
                                           to={nestedSubItem.url}
                                           className={cn(
                                             "flex items-center w-full h-full p-0",
-                                            isNestedActive ? "!text-white" : "text-gray-700"
+                                            isNestedActive ? "text-primary" : "text-gray-700"
                                           )}
                                         >
                                           <span className={cn(
                                             "font-medium leading-[20px] tracking-normal",
-                                            isNestedActive ? "!text-white" : "text-gray-700"
+                                            isNestedActive ? "text-primary" : "text-gray-700"
                                           )}>
                                             {nestedSubItem.title}
                                           </span>
@@ -254,7 +254,7 @@ export function NavMain({
                               "w-full text-left border-0",
                               "leading-[20px] tracking-normal",
                               isSubActive 
-                                ? "bg-primary text-white hover:bg-primary/90 shadow-sm [&>a]:!text-white [&>a>span]:!text-white" 
+                                ? "bg-gray-50 text-primary hover:bg-gray-100 shadow-sm [&>a]:text-primary [&>a>span]:text-primary" 
                                 : "text-gray-700 hover:bg-gray-100 hover:text-gray-900 bg-transparent"
                             )}
                           >
@@ -262,12 +262,12 @@ export function NavMain({
                               to={subItem.url || '#'}
                               className={cn(
                                 "flex items-center w-full h-full p-0",
-                                isSubActive ? "!text-white" : "text-gray-700"
+                                isSubActive ? "text-primary" : "text-gray-700"
                               )}
                             >
                               <span className={cn(
                                 "font-medium leading-[20px] tracking-normal",
-                                isSubActive ? "!text-white" : "text-gray-700"
+                                isSubActive ? "text-primary" : "text-gray-700"
                               )}>
                                 {subItem.title}
                               </span>

@@ -28,6 +28,7 @@ import Kurslar from '@/pages/kurslar'
 import YangiKurs from '@/pages/kurslar/yangi'
 import CourseDetail from '@/pages/kurslar/detail'
 import Profile from '@/pages/profile'
+import BranchAnalytics from '@/pages/branches/analytics'
 import { ProtectedLayout } from '@/components/protected-layout'
 
 export const router = createBrowserRouter([
@@ -165,6 +166,10 @@ export const router = createBrowserRouter([
 			{
 				path: '/profile',
 				element: <Profile />
+			},
+			{
+				path: '/branches/analytics',
+				element: <BranchAnalytics />
 			},
 			{
 				path: '*',

@@ -56,6 +56,7 @@ import {
 import StudentsDrawer from "./students-drawer"
 import { toast } from "sonner"
 import { TablePagination } from "@/components/ui/table-pagination"
+import { useBranchFilter } from "@/hooks/use-branch-filter"
 import {
 	Sheet,
 	SheetContent,
@@ -74,7 +75,8 @@ const STUDENT_FILTER_DEFAULTS = {
 }
 
 export default function StudentsTable() {
-	const students = useStudentsStore((state) => state.students)
+	const allStudents = useStudentsStore((state) => state.students)
+	const students = useBranchFilter(allStudents as any[])
 	const onOpen = useStudentsStore((state) => state.onOpen)
 	const deleteStudent = useStudentsStore((state) => state.deleteStudent)
 	const navigate = useNavigate()

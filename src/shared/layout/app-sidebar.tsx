@@ -1,6 +1,5 @@
 "use client"
 import * as React from "react"
-import { useState } from "react"
 import { Link } from "react-router-dom"
 import {
   LayoutDashboard,
@@ -15,6 +14,7 @@ import {
   ClipboardCheck,
   MessageSquare,
   BookOpen,
+  BarChart3,
 } from "lucide-react"
 
 import { NavMain } from "@/shared/layout/nav-main"
@@ -35,12 +35,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
-
-const branches = [
-  { id: "1", name: "Toshkent filiali", city: "Toshkent" },
-  { id: "2", name: "Samarqand filiali", city: "Samarqand" },
-  { id: "3", name: "Buxoro filiali", city: "Buxoro" },
-]
+import { useBranch } from "@/contexts/branch-context"
 
 const data = {
   navMain: [
@@ -128,11 +123,17 @@ const data = {
         },
       ],
     },
+    {
+      title: "Filial statistikasi",
+      url: "/branches/analytics",
+      icon: BarChart3,
+    },
   ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const [selectedBranch, setSelectedBranch] = useState("1")
+  const { selectedBranch, branches, setSelectedBranch, getSelectedBranch, isAllBranches } = useBranch()
+  const currentBranch = getSelectedBranch()
 
   return (
     <Sidebar collapsible="offcanvas" className="bg-white border-r" {...props}>
@@ -174,7 +175,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     Filial
                   </span>
                   <span className="text-sm font-medium truncate w-full">
-                    {branches.find(b => b.id === selectedBranch)?.name || "Filial tanlash"}
+                    {isAllBranches ? "Barcha filiallar" : currentBranch?.name || "Filial tanlash"}
                   </span>
                 </div>
               </div>
@@ -182,6 +183,28 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-[240px]">
+            <DropdownMenuItem
+              onClick={() => setSelectedBranch("all")}
+              className={cn(
+                "flex items-center gap-3 p-3 cursor-pointer",
+                isAllBranches && "bg-accent"
+              )}
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary flex-shrink-0">
+                <MapPin className="h-4 w-4" />
+              </div>
+              <div className="flex flex-col items-start flex-1 min-w-0">
+                <span className="text-sm font-medium truncate w-full">
+                  Barcha filiallar
+                </span>
+                <span className="text-xs text-muted-foreground truncate w-full">
+                  Umumiy statistika
+                </span>
+              </div>
+              {isAllBranches && (
+                <Check className="h-4 w-4 text-primary flex-shrink-0" />
+              )}
+            </DropdownMenuItem>
             {branches.map((branch) => (
               <DropdownMenuItem
                 key={branch.id}

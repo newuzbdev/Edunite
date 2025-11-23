@@ -67,9 +67,11 @@ import { usePaymentsStore, PAYMENT_STATUS_LABELS_UZ, PAYMENT_TYPE_LABELS_UZ, typ
 import PaymentsDrawer from "./payments-drawer"
 import { toast } from "sonner"
 import { TablePagination } from "@/components/ui/table-pagination"
+import { useBranchFilter } from "@/hooks/use-branch-filter"
 
 export default function PaymentsTable() {
-  const payments = usePaymentsStore((state) => state.payments)
+  const allPayments = usePaymentsStore((state) => state.payments)
+  const payments = useBranchFilter(allPayments as any[])
   const onOpen = usePaymentsStore((state) => state.onOpen)
   const deletePayment = usePaymentsStore((state) => state.deletePayment)
 
