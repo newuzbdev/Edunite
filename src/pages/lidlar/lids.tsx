@@ -5,7 +5,6 @@ export default function LidlarPage() {
   return (
     <PageLayout 
       title="Lidlar" 
-      description="Lead management and statistics"
     >
       <LidsTable />
     </PageLayout>

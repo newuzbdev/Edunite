@@ -5,7 +5,6 @@ export default function Debtors() {
   return (
     <PageLayout 
       title="Qarzdorlar" 
-      description="Qarzdor talabalar ro'yxati va boshqaruvi"
     >
       <DebtorsTable />
     </PageLayout>

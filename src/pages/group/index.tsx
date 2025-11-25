@@ -5,7 +5,6 @@ export default function Guruhlar() {
   return (
     <PageLayout 
       title="Guruhlar" 
-      description="Guruhlar ro'yxati va boshqaruvi"
     >
       <GroupsTable />
     </PageLayout>
