@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useRef, useEffect } from "react"
+import { useState, useMemo } from "react"
 import { PageLayout } from "@/shared/layout/page-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -15,17 +15,23 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { Badge } from "@/components/ui/badge"
 import { useSMSStore,  } from "../utils/sms-store"
-import { useStudentsStore } from "../../talabalar/utils/students-store"
+import { useLidsStore } from "../../lidlar/utils/lids-store"
 import { toast } from "sonner"
-import { Send, Loader2, CheckCircle2, XCircle, Clock, Search, ChevronDown, Plus } from "lucide-react"
+import { Send, Loader2, CheckCircle2, XCircle, Clock, ChevronsUpDown, Plus, Check, Search } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 export default function SendSMS() {
   const templates = useSMSStore(state => state.templates)
   const sendSMS = useSMSStore(state => state.sendSMS)
   const history = useSMSStore(state => state.history)
-  const students = useStudentsStore(state => state.students)
+  const lids = useLidsStore(state => state.lids)
 
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("")
   const [recipient, setRecipient] = useState("")
@@ -35,15 +41,11 @@ export default function SendSMS() {
   const [lastSentId, setLastSentId] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   
-  // Searchable select states
-  const [phoneSearch, setPhoneSearch] = useState("")
-  const [nameSearch, setNameSearch] = useState("")
-  const [phoneDropdownOpen, setPhoneDropdownOpen] = useState(false)
-  const [nameDropdownOpen, setNameDropdownOpen] = useState(false)
-  const phoneInputRef = useRef<HTMLInputElement>(null)
-  const nameInputRef = useRef<HTMLInputElement>(null)
-  const phoneDropdownRef = useRef<HTMLDivElement>(null)
-  const nameDropdownRef = useRef<HTMLDivElement>(null)
+  // Combobox states
+  const [phoneOpen, setPhoneOpen] = useState(false)
+  const [nameOpen, setNameOpen] = useState(false)
+  const [phoneValue, setPhoneValue] = useState("")
+  const [nameValue, setNameValue] = useState("")
 
   const selectedTemplate = useMemo(() => {
     return templates.find(t => t.id === selectedTemplateId)
@@ -64,8 +66,8 @@ export default function SendSMS() {
         template.variables.forEach(variable => {
           const exampleValue = variable === 'name' ? recipientName || 'Ism' :
                               variable === 'amount' ? '500,000' :
-                              variable === 'date' ? '2024-01-15' :
-                              variable === 'time' ? '10:00' :
+                              variable === 'date' ? new Date().toLocaleDateString('uz-UZ') :
+                              variable === 'time' ? new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' }) :
                               variable === 'course' ? 'Frontend kursi' : variable
           // Replace all occurrences of the variable
           const regex = new RegExp(`\\{\\{${variable}\\}\\}`, 'g')
@@ -73,8 +75,10 @@ export default function SendSMS() {
         })
       }
       setMessage(content)
-      setPhoneSearch("")
-      setNameSearch("")
+      setPhoneValue("")
+      setNameValue("")
+      setRecipient("")
+      setRecipientName("")
       setIsModalOpen(true)
     }
   }
@@ -108,10 +112,10 @@ export default function SendSMS() {
       setRecipientName("")
       setMessage("")
       setSelectedTemplateId("")
-      setPhoneSearch("")
-      setNameSearch("")
-      setPhoneDropdownOpen(false)
-      setNameDropdownOpen(false)
+      setPhoneValue("")
+      setNameValue("")
+      setPhoneOpen(false)
+      setNameOpen(false)
       setIsModalOpen(false)
     } catch (error) {
       toast.error("SMS yuborishda xatolik yuz berdi")
@@ -151,85 +155,22 @@ export default function SendSMS() {
     }
   }
 
-  // Filter students for phone search
-  const filteredPhones = useMemo(() => {
-    if (!phoneSearch.trim()) return students.slice(0, 10)
-    const query = phoneSearch.toLowerCase()
-    return students.filter(s => 
-      s.phone.toLowerCase().includes(query) || 
-      s.fullName.toLowerCase().includes(query)
-    ).slice(0, 10)
-  }, [phoneSearch, students])
-
-  // Filter students for name search
-  const filteredNames = useMemo(() => {
-    if (!nameSearch.trim()) return students.slice(0, 10)
-    const query = nameSearch.toLowerCase()
-    return students.filter(s => 
-      s.fullName.toLowerCase().includes(query) ||
-      s.phone.toLowerCase().includes(query)
-    ).slice(0, 10)
-  }, [nameSearch, students])
-
-  // Handle phone selection
-  const handlePhoneSelect = (phone: string, name: string) => {
-    setRecipient(phone)
-    setRecipientName(name)
-    setPhoneSearch(phone)
-    setPhoneDropdownOpen(false)
-    // Update message if template has name variable
-    if (selectedTemplate?.variables?.includes('name')) {
+  // Update message when lid is selected
+  const updateMessageWithLid = (name: string, phone: string) => {
+    if (selectedTemplate?.variables) {
       let updatedMessage = selectedTemplate.content
       selectedTemplate.variables.forEach(variable => {
         const value = variable === 'name' ? name :
                       variable === 'amount' ? '500,000' :
-                      variable === 'date' ? '2024-01-15' :
-                      variable === 'time' ? '10:00' :
-                      variable === 'course' ? 'Frontend kursi' : variable
+                      variable === 'date' ? new Date().toLocaleDateString('uz-UZ') :
+                      variable === 'time' ? new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' }) :
+                      variable === 'course' ? lids.find(l => l.phoneNumber === phone || l.name === name)?.courseType || 'Frontend kursi' : variable
         const regex = new RegExp(`\\{\\{${variable}\\}\\}`, 'g')
         updatedMessage = updatedMessage.replace(regex, value)
       })
       setMessage(updatedMessage)
     }
   }
-
-  // Handle name selection
-  const handleNameSelect = (name: string, phone: string) => {
-    setRecipientName(name)
-    setRecipient(phone)
-    setNameSearch(name)
-    setNameDropdownOpen(false)
-    // Update message if template has name variable
-    if (selectedTemplate?.variables?.includes('name')) {
-      let updatedMessage = selectedTemplate.content
-      selectedTemplate.variables.forEach(variable => {
-        const value = variable === 'name' ? name :
-                      variable === 'amount' ? '500,000' :
-                      variable === 'date' ? '2024-01-15' :
-                      variable === 'time' ? '10:00' :
-                      variable === 'course' ? 'Frontend kursi' : variable
-        const regex = new RegExp(`\\{\\{${variable}\\}\\}`, 'g')
-        updatedMessage = updatedMessage.replace(regex, value)
-      })
-      setMessage(updatedMessage)
-    }
-  }
-
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (phoneDropdownRef.current && !phoneDropdownRef.current.contains(event.target as Node) && 
-          phoneInputRef.current && !phoneInputRef.current.contains(event.target as Node)) {
-        setPhoneDropdownOpen(false)
-      }
-      if (nameDropdownRef.current && !nameDropdownRef.current.contains(event.target as Node) &&
-          nameInputRef.current && !nameInputRef.current.contains(event.target as Node)) {
-        setNameDropdownOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
 
   return (
     <PageLayout title="SMS xabar yuborish">
@@ -279,162 +220,215 @@ export default function SendSMS() {
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="modal-recipient">Telefon raqami *</Label>
-                <div className="relative" ref={phoneDropdownRef}>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      ref={phoneInputRef}
-                      id="modal-recipient"
-                      placeholder="Qidirish yoki telefon raqamini kiriting..."
-                      value={phoneSearch}
-                      onChange={(e) => {
-                        const value = e.target.value
-                        setPhoneSearch(value)
-                        setRecipient(value)
-                        
-                        // Only open dropdown if user is typing
-                        if (value.trim()) {
-                          setPhoneDropdownOpen(true)
-                        } else {
-                          setPhoneDropdownOpen(false)
-                        }
-                        
-                        // Auto-fill name if phone matches a student
-                        const normalizedValue = value.replace(/\s/g, '').replace(/^\+/, '')
-                        const matchedStudent = students.find(s => {
-                          const normalizedPhone = s.phone.replace(/\s/g, '').replace(/^\+/, '')
-                          return normalizedPhone === normalizedValue || 
-                                 normalizedPhone.endsWith(normalizedValue) ||
-                                 normalizedValue.endsWith(normalizedPhone.slice(-9)) // Match last 9 digits
-                        })
-                        
-                        if (matchedStudent && value.trim()) {
-                          setRecipientName(matchedStudent.fullName)
-                          setNameSearch(matchedStudent.fullName)
-                          // Update message if template has name variable
-                          if (selectedTemplate?.variables?.includes('name')) {
-                            let updatedMessage = selectedTemplate.content
-                            selectedTemplate.variables.forEach(variable => {
-                              const varValue = variable === 'name' ? matchedStudent.fullName :
-                                            variable === 'amount' ? '500,000' :
-                                            variable === 'date' ? '2024-01-15' :
-                                            variable === 'time' ? '10:00' :
-                                            variable === 'course' ? 'Frontend kursi' : variable
-                              const regex = new RegExp(`\\{\\{${variable}\\}\\}`, 'g')
-                              updatedMessage = updatedMessage.replace(regex, varValue)
+                <Label htmlFor="modal-recipient" className="text-sm">Telefon raqami *</Label>
+                <Popover open={phoneOpen} onOpenChange={setPhoneOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={phoneOpen}
+                      className="w-full justify-between h-9 text-sm font-normal"
+                    >
+                      {recipient || phoneValue
+                        ? recipient || phoneValue
+                        : "Qidirish yoki telefon raqamini kiriting..."}
+                      <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                    <div className="flex flex-col">
+                      <div className="flex items-center border-b px-3">
+                        <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                        <Input
+                          placeholder="Qidirish yoki telefon raqamini kiriting..."
+                          value={recipient}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            setRecipient(value)
+                            setPhoneValue(value)
+                            const normalizedValue = value.replace(/\s/g, '').replace(/^\+/, '')
+                            const matchedLid = lids.find(lid => {
+                              const normalizedPhone = lid.phoneNumber.replace(/\s/g, '').replace(/^\+/, '')
+                              return normalizedPhone === normalizedValue || 
+                                     normalizedPhone.endsWith(normalizedValue) ||
+                                     normalizedValue.endsWith(normalizedPhone.slice(-9))
                             })
-                            setMessage(updatedMessage)
-                          }
-                        } else if (!value.trim()) {
-                          // Clear name if phone is cleared
-                          setRecipientName("")
-                          setNameSearch("")
-                        }
-                      }}
-                      onFocus={(e) => {
-                        // Only open if there's text or user clicks the chevron area
-                        if (e.target.value.trim()) {
-                          setPhoneDropdownOpen(true)
-                        }
-                      }}
-                      className="pl-9 pr-9"
-                    />
-                    <ChevronDown className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                  </div>
-                  {phoneDropdownOpen && (
-                    <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-md max-h-60 overflow-auto">
-                      {filteredPhones.length > 0 ? (
-                        filteredPhones.map((student) => (
-                          <button
-                            key={student.id}
-                            type="button"
-                            onClick={() => handlePhoneSelect(student.phone, student.fullName)}
-                            className="w-full text-left px-4 py-2 hover:bg-muted transition-colors flex flex-col"
-                          >
-                            <span className="font-medium">{student.fullName}</span>
-                            <span className="text-sm text-muted-foreground">{student.phone}</span>
-                          </button>
-                        ))
-                      ) : (
-                        <div className="px-4 py-2 text-sm text-muted-foreground">
-                          Natija topilmadi
-                        </div>
-                      )}
+                            if (matchedLid && value.trim()) {
+                              setRecipientName(matchedLid.name)
+                              setNameValue(matchedLid.name)
+                              updateMessageWithLid(matchedLid.name, matchedLid.phoneNumber)
+                            } else if (!value.trim()) {
+                              setRecipientName("")
+                              setNameValue("")
+                            }
+                          }}
+                          className="h-9 text-sm border-0 focus-visible:ring-0"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                      <div className="max-h-[300px] overflow-y-auto">
+                        {lids
+                          .filter(lid => {
+                            if (!recipient.trim()) return true
+                            const search = recipient.toLowerCase()
+                            return lid.name.toLowerCase().includes(search) || 
+                                   lid.phoneNumber.toLowerCase().includes(search)
+                          })
+                          .map((lid) => {
+                            const isSelected = phoneValue === lid.phoneNumber
+                            return (
+                              <button
+                                key={lid.id}
+                                type="button"
+                                onClick={() => {
+                                  setPhoneValue(lid.phoneNumber)
+                                  setRecipient(lid.phoneNumber)
+                                  setRecipientName(lid.name)
+                                  setNameValue(lid.name)
+                                  setPhoneOpen(false)
+                                  updateMessageWithLid(lid.name, lid.phoneNumber)
+                                }}
+                                className={cn(
+                                  "w-full flex items-center px-2 py-1.5 text-sm text-left rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors",
+                                  isSelected && "bg-accent"
+                                )}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4 shrink-0",
+                                    isSelected ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                <div className="flex flex-col flex-1">
+                                  <span className="font-medium">{lid.name}</span>
+                                  <span className="text-xs text-muted-foreground">{lid.phoneNumber}</span>
+                                </div>
+                              </button>
+                            )
+                          })}
+                        {lids.filter(lid => {
+                          if (!recipient.trim()) return false
+                          const search = recipient.toLowerCase()
+                          return !lid.name.toLowerCase().includes(search) && 
+                                 !lid.phoneNumber.toLowerCase().includes(search)
+                        }).length === lids.length && recipient.trim() && (
+                          <div className="p-2">
+                            <Input
+                              placeholder="Qidirish yoki telefon raqamini kiriting..."
+                              value={recipient}
+                              onChange={(e) => {
+                                const value = e.target.value
+                                setRecipient(value)
+                                setPhoneValue(value)
+                              }}
+                              className="h-8 text-sm"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  )}
-                </div>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="modal-recipientName">Ism (ixtiyoriy)</Label>
-                <div className="relative" ref={nameDropdownRef}>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      ref={nameInputRef}
-                      id="modal-recipientName"
-                      placeholder="Qidirish yoki ism kiriting..."
-                      value={nameSearch}
-                      onChange={(e) => {
-                        const value = e.target.value
-                        setNameSearch(value)
-                        setRecipientName(value)
-                        
-                        // Only open dropdown if user is typing
-                        if (value.trim()) {
-                          setNameDropdownOpen(true)
-                        } else {
-                          setNameDropdownOpen(false)
-                        }
-                        
-                        // Update message with new name if template has name variable
-                        if (selectedTemplate?.variables?.includes('name')) {
-                          let updatedMessage = selectedTemplate.content
-                          selectedTemplate.variables.forEach(variable => {
-                            const varValue = variable === 'name' ? (value || 'Ism') :
-                                          variable === 'amount' ? '500,000' :
-                                          variable === 'date' ? '2024-01-15' :
-                                          variable === 'time' ? '10:00' :
-                                          variable === 'course' ? 'Frontend kursi' : variable
-                            const regex = new RegExp(`\\{\\{${variable}\\}\\}`, 'g')
-                            updatedMessage = updatedMessage.replace(regex, varValue)
+                <Label htmlFor="modal-recipientName" className="text-sm">Ism (ixtiyoriy)</Label>
+                <Popover open={nameOpen} onOpenChange={setNameOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={nameOpen}
+                      className="w-full justify-between h-9 text-sm font-normal"
+                    >
+                      {recipientName || nameValue
+                        ? recipientName || nameValue
+                        : "Qidirish yoki ism kiriting..."}
+                      <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                    <div className="flex flex-col">
+                      <div className="flex items-center border-b px-3">
+                        <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                        <Input
+                          placeholder="Qidirish yoki ism kiriting..."
+                          value={recipientName}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            setRecipientName(value)
+                            setNameValue(value)
+                            updateMessageWithLid(value, recipient)
+                          }}
+                          className="h-9 text-sm border-0 focus-visible:ring-0"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                      <div className="max-h-[300px] overflow-y-auto">
+                        {lids
+                          .filter(lid => {
+                            if (!recipientName.trim()) return true
+                            const search = recipientName.toLowerCase()
+                            return lid.name.toLowerCase().includes(search) || 
+                                   lid.phoneNumber.toLowerCase().includes(search)
                           })
-                          setMessage(updatedMessage)
-                        }
-                      }}
-                      onFocus={(e) => {
-                        // Only open if there's text
-                        if (e.target.value.trim()) {
-                          setNameDropdownOpen(true)
-                        }
-                      }}
-                      className="pl-9 pr-9"
-                    />
-                    <ChevronDown className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                  </div>
-                  {nameDropdownOpen && (
-                    <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-md max-h-60 overflow-auto">
-                      {filteredNames.length > 0 ? (
-                        filteredNames.map((student) => (
-                          <button
-                            key={student.id}
-                            type="button"
-                            onClick={() => handleNameSelect(student.fullName, student.phone)}
-                            className="w-full text-left px-4 py-2 hover:bg-muted transition-colors flex flex-col"
-                          >
-                            <span className="font-medium">{student.fullName}</span>
-                            <span className="text-sm text-muted-foreground">{student.phone}</span>
-                          </button>
-                        ))
-                      ) : (
-                        <div className="px-4 py-2 text-sm text-muted-foreground">
-                          Natija topilmadi
-                        </div>
-                      )}
+                          .map((lid) => {
+                            const isSelected = nameValue === lid.name
+                            return (
+                              <button
+                                key={lid.id}
+                                type="button"
+                                onClick={() => {
+                                  setNameValue(lid.name)
+                                  setRecipientName(lid.name)
+                                  setRecipient(lid.phoneNumber)
+                                  setPhoneValue(lid.phoneNumber)
+                                  setNameOpen(false)
+                                  updateMessageWithLid(lid.name, lid.phoneNumber)
+                                }}
+                                className={cn(
+                                  "w-full flex items-center px-2 py-1.5 text-sm text-left rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors",
+                                  isSelected && "bg-accent"
+                                )}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4 shrink-0",
+                                    isSelected ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                <div className="flex flex-col flex-1">
+                                  <span className="font-medium">{lid.name}</span>
+                                  <span className="text-xs text-muted-foreground">{lid.phoneNumber}</span>
+                                </div>
+                              </button>
+                            )
+                          })}
+                        {lids.filter(lid => {
+                          if (!recipientName.trim()) return false
+                          const search = recipientName.toLowerCase()
+                          return !lid.name.toLowerCase().includes(search) && 
+                                 !lid.phoneNumber.toLowerCase().includes(search)
+                        }).length === lids.length && recipientName.trim() && (
+                          <div className="p-2">
+                            <Input
+                              placeholder="Qidirish yoki ism kiriting..."
+                              value={recipientName}
+                              onChange={(e) => {
+                                const value = e.target.value
+                                setRecipientName(value)
+                                setNameValue(value)
+                              }}
+                              className="h-8 text-sm"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  )}
-                </div>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {selectedTemplate && selectedTemplate.variables && selectedTemplate.variables.length > 0 && (
@@ -469,10 +463,10 @@ export default function SendSMS() {
                   setRecipientName("")
                   setMessage("")
                   setSelectedTemplateId("")
-                  setPhoneSearch("")
-                  setNameSearch("")
-                  setPhoneDropdownOpen(false)
-                  setNameDropdownOpen(false)
+                  setPhoneValue("")
+                  setNameValue("")
+                  setPhoneOpen(false)
+                  setNameOpen(false)
                 }}
               >
                 Bekor qilish

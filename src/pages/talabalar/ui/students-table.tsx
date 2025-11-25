@@ -126,7 +126,7 @@ export default function StudentsTable() {
 	// Get unique courses, groups for filters
 	const uniqueCourses = useMemo(() => {
 		const courses = new Set<string>()
-		students.forEach((s) => s.courses.forEach((c) => courses.add(c.name)))
+		students.forEach((s) => s.courses.forEach((c: { name: string }) => courses.add(c.name)))
 		return Array.from(courses)
 	}, [students])
 
@@ -239,7 +239,7 @@ export default function StudentsTable() {
 				return false
 			}
 
-			if (filterState.course !== "all" && !student.courses.some((c) => c.name === filterState.course)) {
+			if (filterState.course !== "all" && !student.courses.some((c: { name: string }) => c.name === filterState.course)) {
 				return false
 			}
 
@@ -416,9 +416,9 @@ export default function StudentsTable() {
 				[
 					s.fullName,
 					s.phone,
-					s.courses.map((c) => c.name).join("; "),
-					s.group,
-					PAYMENT_STATUS_LABELS_UZ[s.paymentStatus],
+				s.courses.map((c: { name: string }) => c.name).join("; "),
+				s.group,
+				PAYMENT_STATUS_LABELS_UZ[s.paymentStatus as keyof typeof PAYMENT_STATUS_LABELS_UZ],
 					s.nextPaymentDate,
 				].join(",")
 			),

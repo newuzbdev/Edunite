@@ -380,11 +380,11 @@ export default function PaymentsTable() {
         [
           p.studentName,
           p.course,
-          PAYMENT_TYPE_LABELS_UZ[p.paymentType],
+          PAYMENT_TYPE_LABELS_UZ[p.paymentType as keyof typeof PAYMENT_TYPE_LABELS_UZ],
           p.amount,
           p.date,
           p.operator,
-          PAYMENT_STATUS_LABELS_UZ[p.status],
+          PAYMENT_STATUS_LABELS_UZ[p.status as keyof typeof PAYMENT_STATUS_LABELS_UZ],
         ].join(",")
       ),
     ].join("\n")

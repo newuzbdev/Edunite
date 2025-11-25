@@ -23,7 +23,6 @@ import { useGroupsStore } from "@/pages/group/utils/groups-store"
 import { useCoursesStore } from "@/pages/kurslar/utils/courses-store"
 import { useTeachersStore } from "@/pages/teachers.tsx/utils/teachers-store"
 import { useBranchFilter } from "@/hooks/use-branch-filter"
-import { useMemo } from "react"
 import { cn } from "@/lib/utils"
 
 interface StatCardProps {
